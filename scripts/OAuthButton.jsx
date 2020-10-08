@@ -13,11 +13,8 @@ function handleSubmit(event) {
     event.preventDefault();
 }
 
-export function Button() {
+export function OAuthButton() {
     return (
-        <form onSubmit={handleSubmit}>
-            <input id="address_input" placeholder="Enter a USPS address"></input>
-            <button>Add to DB!</button>
-        </form>
+            <button>Replace me!</button>
     );
 }
