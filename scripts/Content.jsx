@@ -8,7 +8,7 @@ import { Socket } from './Socket';
 export function Content() {
     const [accounts, setAccounts] = React.useState([]);
     
-    function getNewAddresses() {
+    function getAllAccounts() {
         React.useEffect(() => {
             Socket.on('accounts received', (data) => {
                 let allAccounts = data['allAccounts'];
@@ -18,8 +18,10 @@ export function Content() {
         });
     }
     
-    getNewAddresses();
-
+    getAllAccounts();
+    
+    // TODO use these accounts for something
+    
     return (
         <div>
             <h1>Log in with Google!</h1>
