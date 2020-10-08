@@ -59,12 +59,12 @@ def on_disconnect():
 @socketio.on('new github user')
 def on_new_github_user(data):
     print("Got an event for new github user input with data:", data)
-    # TODO
+    push_new_user_to_db(data.name, models.AuthUserType.GITHUB)
 
 @socketio.on('new facebook user')
 def on_new_facebook_user(data):
     print("Got an event for new facebook user input with data:", data)
-    # TODO
+    push_new_user_to_db(data.name, models.AuthUserType.FACEBOOK)
 
 @socketio.on('new instagram user')
 def on_new_instagram_user(data):
