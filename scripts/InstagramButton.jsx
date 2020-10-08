@@ -9,7 +9,6 @@ function handleSubmit(event) {
     });
     
     console.log('Sent the name ' + name + ' to server!');
-    event.preventDefault();
 }
 
 export function InstagramButton() {
