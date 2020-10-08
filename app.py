@@ -7,7 +7,7 @@ import flask_sqlalchemy
 import flask_socketio
 import models 
 
-GOOGLE_USERS_RECEIVED_CHANNEL = 'google users received'
+USERS_UPDATED_CHANNEL = 'users updated'
 
 app = flask.Flask(__name__)
 
@@ -27,14 +27,22 @@ db.app = app
 db.create_all()
 db.session.commit()
 
-def emit_all_google_users(channel):
+def emit_all_oauth_users(channel):
     all_users = [ \
         user.name for user \
-        in db.session.query(models.GoogleUser).all()]
+        in db.session.query(models.User).all()]
         
     socketio.emit(channel, {
         'allUsers': all_users
     })
+
+def push_new_user_to_db(name, auth_type):
+    # TODO remove this check after the logic works correctly
+    if name != "John Doe":
+        db.session.add(models.User(name, auth_type));
+        db.session.commit();
+        
+    emit_all_oauth_users(USERS_UPDATED_CHANNEL)
 
 
 @socketio.on('connect')
@@ -44,29 +52,41 @@ def on_connect():
         'test': 'Connected'
     })
     
-    emit_all_google_users(GOOGLE_USERS_RECEIVED_CHANNEL)
+    emit_all_oauth_users(USERS_UPDATED_CHANNEL)
     
 
 @socketio.on('disconnect')
 def on_disconnect():
     print ('Someone disconnected!')
 
-@socketio.on('new user')
-def on_new_user(data):
-    print("Got an event for new user input with data:", data)
+@socketio.on('new github user')
+def on_new_github_user(data):
+    print("Got an event for new github user input with data:", data)
+    # TODO
+
+@socketio.on('new facebook user')
+def on_new_facebook_user(data):
+    print("Got an event for new facebook user input with data:", data)
+    # TODO
+
+@socketio.on('new instagram user')
+def on_new_instagram_user(data):
+    print("Got an event for new instagram user input with data:", data)
+    # TODO 
     
-    # TODO remove this check after the logic works correctly
-    name = data["name"]
-    if name != "John Doe":
-        db.session.add(models.GoogleUser(data["name"]));
-        db.session.commit();
-        
-    emit_all_google_users(GOOGLE_USERS_RECEIVED_CHANNEL)
+@socketio.on('new twitter user')
+def on_new_twitter_user(data):
+    print("Got an event for new twitter user input with data:", data)
+    # TODO
+
+@socketio.on('new google user')
+def on_new_google_user(data):
+    print("Got an event for new google user input with data:", data)
+    # TODO
 
 @app.route('/')
 def index():
-    emit_all_google_users(GOOGLE_USERS_RECEIVED_CHANNEL)
-
+    emit_all_oauth_users(USERS_UPDATED_CHANNEL)
     return flask.render_template("index.html")
 
 if __name__ == '__main__': 

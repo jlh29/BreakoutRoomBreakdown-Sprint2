@@ -2,7 +2,11 @@
 import * as React from 'react';
 
 
-import { OAuthButton } from './OAuthButton';
+import { GithubButton } from './GithubButton';
+import { FacebookButton } from './FacebookButton';
+import { InstagramButton } from './InstagramButton';
+import { GoogleButton } from './GoogleButton';
+import { TwitterButton } from './TwitterButton';
 import { Socket } from './Socket';
 
 export function Content() {
@@ -24,8 +28,12 @@ export function Content() {
     
     return (
         <div>
-            <h1>Log in with Google!</h1>
-            <OAuthButton />
+            <h1>Log in with OAuth!</h1>
+            <GithubButton />
+            <FacebookButton />
+            <InstagramButton />
+            <GoogleButton />
+            <TwitterButton />
         </div>
     );
 }

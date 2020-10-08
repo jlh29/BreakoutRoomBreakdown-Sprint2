@@ -4,7 +4,7 @@ import { Socket } from './Socket';
 function handleSubmit(event) {
     // TODO replace with name from oauth
     let name = "John Doe";
-    Socket.emit('new user', {
+    Socket.emit('new google user', {
         'name': name,
     });
     
@@ -12,8 +12,8 @@ function handleSubmit(event) {
     event.preventDefault();
 }
 
-export function OAuthButton() {
+export function GoogleButton() {
     return (
-            <button onClick={handleSubmit}>Replace me!</button>
+            <button onClick={handleSubmit}>Log in with Google!</button>
     );
 }
