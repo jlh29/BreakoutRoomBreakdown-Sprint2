@@ -48,9 +48,6 @@ def push_new_user_to_db(name, auth_type):
 @socketio.on('connect')
 def on_connect():
     print('Someone connected!')
-    socketio.emit('connected', {
-        'test': 'Connected'
-    })
     
     emit_all_oauth_users(USERS_UPDATED_CHANNEL)
     
