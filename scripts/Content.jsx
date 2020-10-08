@@ -7,6 +7,7 @@ import { FacebookButton } from './FacebookButton';
 import { InstagramButton } from './InstagramButton';
 import { GoogleButton } from './GoogleButton';
 import { TwitterButton } from './TwitterButton';
+import { LinkedinButton } from './LinkedinButton';
 import { Socket } from './Socket';
 
 export function Content() {
@@ -34,6 +35,7 @@ export function Content() {
             <InstagramButton />
             <GoogleButton />
             <TwitterButton />
+            <LinkedinButton />
         </div>
     );
 }
