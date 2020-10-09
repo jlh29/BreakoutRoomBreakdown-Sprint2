@@ -7,7 +7,7 @@
 :warning: `sql.env` should contain a value for DATABASE_URL
 
 # Set up DB  
-0. `cd ~/environment/lect12 && python`  
+0. `sudo service postgresql start` and `cd ~/environment/lect12 && python`  
 1. In the python interactive shell, run:  
 	`import models`  
 	`models.db.create_all()`  
