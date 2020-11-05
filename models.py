@@ -1,11 +1,11 @@
 import flask_sqlalchemy
-from app import db
+from db_utils import DB
 from enum import Enum
 
-class AuthUser(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    auth_type = db.Column(db.String(120))
-    name = db.Column(db.String(120))
+class AuthUser(DB.Model):
+    id = DB.Column(DB.Integer, primary_key=True)
+    auth_type = DB.Column(DB.String(120))
+    name = DB.Column(DB.String(120))
     
     def __init__(self, name, auth_type):
         assert type(auth_type) is AuthUserType
