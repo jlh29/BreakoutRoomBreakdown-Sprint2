@@ -1,18 +1,25 @@
 import * as React from 'react';
-import { Socket } from './Socket';
-
-function handleSubmit(event) {
-    // TODO replace with name from oauth
-    let name = "John Doe";
-    Socket.emit('new google user', {
-        'name': name,
-    });
-    
-    console.log('Sent the name ' + name + ' to server!');
-}
+import Socket from './Socket';
 
 export function GoogleButton() {
+    function handleSuccessfulGoogleLogin(event) {
+        // TODO
+    }
+    
+    function handleFailedGoogleLogin(event) {
+        // TODO
+    }
+
     return (
-            <button onClick={handleSubmit}>Log in with Google!</button>
+        <form name='loginForm' method='post'>
+            <GoogleLogin
+                className="googleButton"
+                clientId='TODO'
+                buttonText='Login with Google'
+                onSuccess={handleSuccessfulGoogleLogin}
+                onFailure={handleFailedGoogleLogin}
+                type='submit'
+            />
+        </form>
     );
 }
