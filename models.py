@@ -1,4 +1,3 @@
-# models.py
 import flask_sqlalchemy
 from app import db
 from enum import Enum
@@ -17,10 +16,5 @@ class AuthUser(db.Model):
         return "<User name: {}\ntype: {}".format(self.name, self.auth_type)
 
 class AuthUserType(Enum):
-    LINKEDIN = "linkedin"
     GOOGLE = "google"
-    FACEBOOK = "facebook"
-    INSTAGRAM = "instagram"
-    TWITTER = "twitter"
-    GITHUB = "github"
     PASSWORD = "password"
