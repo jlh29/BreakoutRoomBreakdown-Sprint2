@@ -19,9 +19,15 @@ class AuthUser(DB.Model):
         primaryjoin="Appointment.organizer_id == AuthUser.id",
     )
 
+<<<<<<< HEAD
     def __init__(self, ucid, auth_type, role, name):
         assert isinstance(auth_type, AuthUserType)
         assert isinstance(role, UserRole)
+=======
+    def __init__(self, ucid, name, auth_type, role):
+        assert type(auth_type) is AuthType
+        assert type(role) is UserRole
+>>>>>>> Create db_utils.add_or_update_user method to easily add new users or update existing ones
         self.name = name
         self.auth_type = auth_type.value
         self.ucid = ucid
