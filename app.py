@@ -163,7 +163,7 @@ def on_reservation_submit(data):
 def index():
     return flask.render_template("index.html")
 
-@APP.route("overview")
+@APP.route("/overview")
 def librarian_overview():
     # TODO: jlh29, ensure that the requesting user has correct permissions
     # i.e. is a librarian
