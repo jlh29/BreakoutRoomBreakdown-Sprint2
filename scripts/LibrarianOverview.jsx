@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import LibrarianCheckIn from './LibrarianCheckIn';
 import LibrarianAppointmentsOverview from './LibrarianAppointmentsOverview';
+import LibrarianUsersOverview from './LibrarianUsersOverview';
 import Socket from './Socket';
 
 export default function LibrarianOverview() {
     const [appointments, setAppointments] = useState([]);
+    const [users, setUsers] = useState([]);
     const [checkInSuccess, setCheckInSuccess] = useState(true);
     const [showCheckInResult, setShowCheckInResult] = useState(false);
     const checkInResultDisplayTime = 5000;
@@ -33,7 +35,7 @@ export default function LibrarianOverview() {
         }
         checkInRef.current.value = '';
     }
-    
+
     function updateAppointments(data) {
         setAppointments(
             oldAppointments => {
@@ -55,15 +57,40 @@ export default function LibrarianOverview() {
                 return updatedAppointments;
             }
         );
-    } 
+    }
+
+    function updateUsers(data) {
+        setUsers(
+            oldUsers => {
+                let updatedUsers = [];
+                updatedUsers.concat(oldUsers);
+                for (let newUser of data.users) {
+                    let isNew = true;
+                    for (let index in updatedUsers) {
+                        if (updatedUsers[index].id == newUser.id) {
+                            updatedUsers[index] = newUser;
+                            isNew = false;
+                            break;
+                        }
+                    }
+                    if (isNew) {
+                        updatedUsers.push(newUser);
+                    }
+                }
+                return updatedUsers;
+            }
+        );
+    }
 
     function listenToServer() {
         useEffect(() => {
             Socket.on('connect', establishConnection);
             Socket.on('appointments response', updateAppointments);
+            Socket.on('users response', updateUsers);
             return () => {
                 Socket.off('connect', establishConnection);
                 Socket.off('appointments response', updateAppointments);
+                Socket.off('users response', updateUsers);
             }
         });
     }
@@ -80,7 +107,7 @@ export default function LibrarianOverview() {
                 showResult={showCheckInResult}
                 isSuccess={checkInSuccess}
             />
-            <h1>View/Edit Professor List: TODO</h1>
+            <LibrarianUsersOverview users={users} />
             <h1>View/Edit Calendar</h1>
         </div>
     );
