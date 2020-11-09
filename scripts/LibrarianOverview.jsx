@@ -2,11 +2,13 @@ import React, { useEffect, useState } from 'react';
 import LibrarianCheckIn from './LibrarianCheckIn';
 import LibrarianAppointmentsOverview from './LibrarianAppointmentsOverview';
 import LibrarianUsersOverview from './LibrarianUsersOverview';
+import LibrarianRoomsOverview from './LibrarianRoomsOverview';
 import Socket from './Socket';
 
 export default function LibrarianOverview() {
     const [appointments, setAppointments] = useState([]);
     const [users, setUsers] = useState([]);
+    const [rooms, setRooms] = useState([]);
     const [checkInSuccess, setCheckInSuccess] = useState(true);
     const [showCheckInResult, setShowCheckInResult] = useState(false);
     const checkInResultDisplayTime = 5000;
@@ -36,50 +38,39 @@ export default function LibrarianOverview() {
         checkInRef.current.value = '';
     }
 
-    function updateAppointments(data) {
-        setAppointments(
-            oldAppointments => {
-                let updatedAppointments = [];
-                updatedAppointments.concat(oldAppointments);
-                for (let newAppointment of data.appointments) {
+    function updateStateArray(stateSet, dataKey, data) {
+        // TODO: jlh29, update this for when items can be removed from the array
+        stateSet(
+            oldValues => {
+                let updatedValues = [];
+                for (let newValue of data[dataKey]) {
                     let isNew = true;
-                    for (let index in updatedAppointments) {
-                        if (updatedAppointments[index].id == newAppointment.id) {
-                            updatedAppointments[index] = newAppointment;
+                    for (let index in updatedValues) {
+                        if (updatedValues[index].id == newValue.id) {
+                            updatedValues[index] = newValue;
                             isNew = false;
                             break;
                         }
                     }
                     if (isNew) {
-                        updatedAppointments.push(newAppointment);
+                        updatedValues.push(newValue);
                     }
                 }
-                return updatedAppointments;
+                return updatedValues;
             }
         );
     }
 
+    function updateAppointments(data) {
+        updateStateArray(setAppointments, 'appointments', data);
+    }
+
     function updateUsers(data) {
-        setUsers(
-            oldUsers => {
-                let updatedUsers = [];
-                updatedUsers.concat(oldUsers);
-                for (let newUser of data.users) {
-                    let isNew = true;
-                    for (let index in updatedUsers) {
-                        if (updatedUsers[index].id == newUser.id) {
-                            updatedUsers[index] = newUser;
-                            isNew = false;
-                            break;
-                        }
-                    }
-                    if (isNew) {
-                        updatedUsers.push(newUser);
-                    }
-                }
-                return updatedUsers;
-            }
-        );
+        updateStateArray(setUsers, 'users', data);
+    }
+
+    function updateRooms(data) {
+        updateStateArray(setRooms, 'rooms', data);
     }
 
     function listenToServer() {
@@ -87,10 +78,12 @@ export default function LibrarianOverview() {
             Socket.on('connect', establishConnection);
             Socket.on('appointments response', updateAppointments);
             Socket.on('users response', updateUsers);
+            Socket.on('rooms response', updateRooms);
             return () => {
                 Socket.off('connect', establishConnection);
                 Socket.off('appointments response', updateAppointments);
                 Socket.off('users response', updateUsers);
+                Socket.off('rooms response', updateRooms);
             }
         });
     }
@@ -99,8 +92,8 @@ export default function LibrarianOverview() {
 
     return (
         <div>
+            <h1> TODO: Calendar selector </h1>
             <LibrarianAppointmentsOverview appointments={appointments} />
-            <h1>View/Edit Rooms: TODO</h1>
             <LibrarianCheckIn
                 inputRef={checkInRef}
                 submitClick={onCheckInSubmitClicked}
@@ -108,7 +101,7 @@ export default function LibrarianOverview() {
                 isSuccess={checkInSuccess}
             />
             <LibrarianUsersOverview users={users} />
-            <h1>View/Edit Calendar</h1>
+            <LibrarianRoomsOverview rooms={rooms} />
         </div>
     );
 }
