@@ -34,6 +34,20 @@ ALL_DATES_KEY = "dates"
 
 RESERVATION_SUBMIT_CHANNEL = "reservation submit"
 RESERVATION_RESPONSE_CHANNEL = "reservation response"
+CONNECT_CHANNEL = "connect"
+DISCONNECT_CHANNEL = "disconnect"
+
+APPOINTMENTS_REQUEST_CHANNEL = "appointments request"
+APPOINTMENTS_RESPONSE_CHANNEL = "appointments response"
+APPOINTMENTS_KEY = "appointments"
+
+USERS_REQUEST_CHANNEL = "users request"
+USERS_RESPONSE_CHANNEL = "users response"
+USERS_KEY = "users"
+
+ROOMS_REQUEST_CHANNEL = "rooms request"
+ROOMS_RESPONSE_CHANNEL = "rooms response"
+ROOMS_KEY = "rooms"
 
 DATE_KEY = "date"
 TIME_KEY = "time"
@@ -44,11 +58,11 @@ AVAILABLE_ROOMS_KEY = "availableRooms"
 
 CONNECTED_USERS = {}
 
-@SOCKET.on("connect")
+@SOCKET.on(CONNECT_CHANNEL)
 def on_connect():
     print("Someone connected!")
     
-@SOCKET.on("disconnect")
+@SOCKET.on(DISCONNECT_CHANNEL)
 def on_disconnect():
     print ("Someone disconnected!")
     CONNECTED_USERS.pop(flask.request.sid, None)
@@ -147,7 +161,46 @@ def on_reservation_submit(data):
 def index():
     return flask.render_template("index.html")
 
-if __name__ == "__main__":
+@APP.route("overview")
+def librarian_overview():
+    # TODO: jlh29, ensure that the requesting user has correct permissions
+    # i.e. is a librarian
+    return flask.render_template("librarian_overview.html")
+
+@SOCKET.on(APPOINTMENTS_REQUEST_CHANNEL)
+def on_request_appointments(data):
+    # TODO: jlh29, ensure that the requesting user has correct permissions
+    # appointments = db_utils.get_all_appointments()
+    appointments = []
+    SOCKET.emit(
+        APPOINTMENTS_RESPONSE_CHANNEL, 
+        {APPOINTMENTS_KEY: appointments},
+        room=flask.request.sid,
+    )
+
+@SOCKET.on(USERS_REQUEST_CHANNEL)
+def on_request_users(data):
+    # TODO: jlh29, ensure that the requesting user has correct permissions
+    # users = db_utils.get_all_users()
+    users = []
+    SOCKET.emit(
+        USERS_RESPONSE_CHANNEL, 
+        {USERS_KEY: users},
+        room=flask.request.sid,
+    )
+
+@SOCKET.on(ROOMS_REQUEST_CHANNEL)
+def on_request_rooms(data):
+    # TODO: jlh29, ensure that the requesting user has correct permissions
+    # rooms = db_utils.get_all_rooms()
+    rooms = []
+    SOCKET.emit(
+        ROOMS_RESPONSE_CHANNEL, 
+        {ROOMS_KEY: rooms},
+        room=flask.request.sid,
+    )
+
+if __name__ == "__main__": 
     db_instance.init_db(APP)
     socket_utils.init_socket(APP)
     SOCKET.run(
