@@ -37,6 +37,8 @@ RESERVATION_RESPONSE_CHANNEL = "reservation response"
 CONNECT_CHANNEL = "connect"
 DISCONNECT_CHANNEL = "disconnect"
 
+LIBRARIAN_DATA_REQUEST_CHANNEL = "overview request"
+
 APPOINTMENTS_REQUEST_CHANNEL = "appointments request"
 APPOINTMENTS_RESPONSE_CHANNEL = "appointments response"
 APPOINTMENTS_KEY = "appointments"
@@ -166,6 +168,13 @@ def librarian_overview():
     # TODO: jlh29, ensure that the requesting user has correct permissions
     # i.e. is a librarian
     return flask.render_template("librarian_overview.html")
+
+@SOCKET.on(LIBRARIAN_DATA_REQUEST_CHANNEL)
+def on_librarian_data_request(data):
+    # TODO: jlh29, ensure that the requesting user has correct permissions
+    on_request_appointments(data)
+    on_request_rooms(data)
+    on_request_users(data)
 
 @SOCKET.on(APPOINTMENTS_REQUEST_CHANNEL)
 def on_request_appointments(data):
