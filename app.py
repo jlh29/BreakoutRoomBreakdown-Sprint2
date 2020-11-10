@@ -35,9 +35,9 @@ events = cronofy.read_events(
     to_date='2020-11-10',
     tzid='Etc/UTC')
 events_result = events.json()
-
 # print(json.dumps(events_result, indent = 2)) 
 
+# display all the evenets in calendar
 calendars = cronofy.list_calendars()
 # print(json.dumps(calendars, indent = 2)) 
 
@@ -63,7 +63,6 @@ headers = {
     "host": "api.cronofy.com",
 }
 response = requests.get(endpoint, data=data, headers=headers).json()
-
 # print(json.dumps(response, indent = 2))
 
 # create available periods
@@ -79,7 +78,6 @@ data = {
     "start": "2020-11-12T9:00:00Z",
     "end": "2020-11-12T11:00:00Z",
 }
-
 response2 = requests.post(endpoint, params=data, headers=headers)
 
 # read available periods
@@ -88,7 +86,6 @@ headers = {"Authorization": "Bearer {}".format(cronofy_access_token)}
 data = {
     "host": "api.cronofy.com",
 }
-
 response3 = requests.get(endpoint, data=data, headers=headers).json()
 print(json.dumps(response3, indent = 2))
     
