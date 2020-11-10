@@ -3,3 +3,5 @@ package-lock.json
 __pycache__
 *.env
 static/script.js
+cronofy.env
+sql.env

@@ -8,9 +8,17 @@ from db_utils import DB
 import models 
 import socket_utils
 from socket_utils import SOCKET 
+import pycronofy
+import requests
+import json
 
 dotenv_path = join(dirname(__file__), 'sql.env')
 load_dotenv(dotenv_path)
+
+dotenv_path = join(dirname(__file__), 'cronofy.env')
+load_dotenv(dotenv_path)
+
+cronofy_access_token = os.environ['ACCESS_TOKEN']
 
 database_uri = os.environ['DATABASE_URL']
 
@@ -18,6 +26,14 @@ APP = flask.Flask(__name__)
 APP.config['SQLALCHEMY_DATABASE_URI'] = database_uri
 
 USERS_UPDATED_CHANNEL = 'users updated'
+
+#Cronofy setup
+cronofy = pycronofy.Client(access_token=cronofy_access_token)
+events = cronofy.read_events()
+events_result = events.json()
+
+print(json.dumps(events_result, indent = 2)) 
+
 
 @SOCKET.on('connect')
 def on_connect():
