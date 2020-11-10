@@ -57,11 +57,40 @@ cronofy.upsert_event(calendar_id=calendar_id, event=event)
 
 #use endpoints for calendar
 endpoint = "https://api.cronofy.com/v1/events?from=2020-11-09&to=2020-11-11&tzid=Etc/UTC"
-data = {"host": "api.cronofy.com"}
-headers = {"Authorization": "Bearer {}".format(cronofy_access_token)}
+data = {}
+headers = {
+    "Authorization": "Bearer {}".format(cronofy_access_token),
+    "host": "api.cronofy.com",
+}
 response = requests.get(endpoint, data=data, headers=headers).json()
 
-print(json.dumps(response, indent = 2))
+# print(json.dumps(response, indent = 2))
+
+# create available periods
+endpoint = "https://api.cronofy.com/v1/available_periods"
+headers = {
+    "Host": "api.cronofy.com",
+    "Authorization": "Bearer {}".format(cronofy_access_token),
+    "Content-Type": "application/json",
+    # "Content-Type": "charset=utf-8",
+}
+data = {
+    "available_period_id": "ROOM1",
+    "start": "2020-11-12T9:00:00Z",
+    "end": "2020-11-12T11:00:00Z",
+}
+
+response2 = requests.post(endpoint, params=data, headers=headers)
+
+# read available periods
+endpoint = "https://api.cronofy.com/v1/available_periods?from=2020-11-09&to=2020-11-13&tzid=Etc/UTC"
+headers = {"Authorization": "Bearer {}".format(cronofy_access_token)}
+data = {
+    "host": "api.cronofy.com",
+}
+
+response3 = requests.get(endpoint, data=data, headers=headers).json()
+print(json.dumps(response3, indent = 2))
     
 
 @SOCKET.on('connect')
