@@ -39,7 +39,7 @@ events_result = events.json()
 # print(json.dumps(events_result, indent = 2)) 
 
 calendars = cronofy.list_calendars()
-print(json.dumps(calendars, indent = 2)) 
+# print(json.dumps(calendars, indent = 2)) 
 
 #Create events
 event = {
@@ -55,6 +55,14 @@ event = {
 cronofy.upsert_event(calendar_id=calendar_id, event=event)
 
 
+#use endpoints for calendar
+endpoint = "https://api.cronofy.com/v1/events?from=2020-11-09&to=2020-11-11&tzid=Etc/UTC"
+data = {"host": "api.cronofy.com"}
+headers = {"Authorization": "Bearer {}".format(cronofy_access_token)}
+response = requests.get(endpoint, data=data, headers=headers).json()
+
+print(json.dumps(response, indent = 2))
+    
 
 @SOCKET.on('connect')
 def on_connect():
