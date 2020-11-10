@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import GoogleButton from './GoogleButton';
+import { GoogleButton } from './GoogleButton';
 
 export function Content() {
     return (
