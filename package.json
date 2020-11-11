@@ -30,6 +30,7 @@
     ]
   },
   "dependencies": {
+    "html-react-parser": "^0.14.1",
     "socket.io-client": "^2.3.1"
   }
 }
