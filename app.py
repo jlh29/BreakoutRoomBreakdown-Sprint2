@@ -51,11 +51,14 @@ def on_date_availability(data):
     
     print(date.date())
     
+    #mock avaiable dates
     available_list = ["2020-11-18","2020-11-19","2020-11-20"]
     
-    if date in available_list:
+    if str(date.date()) in available_list:
+        print(date.date(), "is available")
         SOCKET.emit("date status", {"is_available": True})
     else:
+        print(date.date(), "is not available")
         SOCKET.emit("date status", {"is_available": False})
 
 @APP.route('/')

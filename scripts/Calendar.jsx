@@ -5,7 +5,6 @@ import { Slot } from './Slot';
 
 export function MyCalendar() {
     const [date, setDate] = React.useState(new Date());
-    const [isAvailable, setIsAvailable] = React.useState(false);
     
     function sendDate(){
         console.log(`User selected the date "${date}"`);
@@ -23,17 +22,8 @@ export function MyCalendar() {
     
     sendDate();
     
-    console.log(date);
-    
     function handleDisable(){
        ({activeStartDate, date, view }) => date.getDay() === 6;
-    }
-    
-    console.log(isAvailable);
-    
-    if (isAvailable){
-        // display the slots available
-        
     }
 
     return (
