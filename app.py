@@ -20,6 +20,8 @@ load_dotenv(dotenv_path)
 
 cronofy_access_token = os.environ['ACCESS_TOKEN']
 calendar_id = os.environ['CALENDAR_ID']
+cronofy_client_id = os.environ['CLIENT_ID']
+cronofy_client_secret = os.environ['CLIENT_SECRET']
 
 database_uri = os.environ['DATABASE_URL']
 
@@ -30,65 +32,32 @@ USERS_UPDATED_CHANNEL = 'users updated'
 
 #Cronofy setup
 cronofy = pycronofy.Client(access_token=cronofy_access_token)
+cronofy.is_authorization_expired()
+
+#display the events in date range
 events = cronofy.read_events(
-    from_date='2020-11-09',
-    to_date='2020-11-10',
+    from_date='2020-11-10',
+    to_date='2020-11-12',
     tzid='Etc/UTC')
 events_result = events.json()
 # print(json.dumps(events_result, indent = 2)) 
 
-# display all the evenets in calendar
+# display synced calendars
 calendars = cronofy.list_calendars()
 # print(json.dumps(calendars, indent = 2)) 
 
 #Create events
 event = {
-    'event_id': "ABC123",
+    'event_id': "ABC124",
     'summary': "CS490 Project3 Individual deadline",
     'description': "Finish the individual tasks assigned for MVP",
-    'start': "2020-11-11T15:30:00Z",
-    'end': "2020-11-11T17:00:00Z",
+    'start': "2020-11-11T19:30:00Z",
+    'end': "2020-11-11T21:00:00Z",
     'location': {
         'description': "Slack account"
     }
 }
 cronofy.upsert_event(calendar_id=calendar_id, event=event)
-
-
-#use endpoints for calendar
-endpoint = "https://api.cronofy.com/v1/events?from=2020-11-09&to=2020-11-11&tzid=Etc/UTC"
-data = {}
-headers = {
-    "Authorization": "Bearer {}".format(cronofy_access_token),
-    "host": "api.cronofy.com",
-}
-response = requests.get(endpoint, data=data, headers=headers).json()
-# print(json.dumps(response, indent = 2))
-
-# create available periods
-endpoint = "https://api.cronofy.com/v1/available_periods"
-headers = {
-    "Host": "api.cronofy.com",
-    "Authorization": "Bearer {}".format(cronofy_access_token),
-    "Content-Type": "application/json",
-    # "Content-Type": "charset=utf-8",
-}
-data = {
-    "available_period_id": "ROOM1",
-    "start": "2020-11-12T9:00:00Z",
-    "end": "2020-11-12T11:00:00Z",
-}
-response2 = requests.post(endpoint, params=data, headers=headers)
-
-# read available periods
-endpoint = "https://api.cronofy.com/v1/available_periods?from=2020-11-09&to=2020-11-13&tzid=Etc/UTC"
-headers = {"Authorization": "Bearer {}".format(cronofy_access_token)}
-data = {
-    "host": "api.cronofy.com",
-}
-response3 = requests.get(endpoint, data=data, headers=headers).json()
-print(json.dumps(response3, indent = 2))
-    
 
 @SOCKET.on('connect')
 def on_connect():
