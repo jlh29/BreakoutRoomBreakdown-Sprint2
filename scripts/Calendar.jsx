@@ -22,16 +22,17 @@ export function MyCalendar() {
     
     sendDate();
     
-    function handleDisable(){
-       ({activeStartDate, date, view }) => date.getDay() === 6;
+    function handleDisable({activeStartDate, date, view }){
+        if (date.getDay() === 0 || date.getDay() === 6)
+            return true;
     }
 
     return (
         <div>
           <Calendar
-            tileDisabled={handleDisable}
             onClickDay={handleClickDay}
             value={date}
+            tileDisabled={handleDisable}
           />
           <Slot timeslot="9:00-11:00"></Slot>
           <Slot timeslot="11:00-1:00"></Slot>
