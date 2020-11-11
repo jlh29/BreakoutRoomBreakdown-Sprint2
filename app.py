@@ -31,35 +31,6 @@ APP.config['SQLALCHEMY_DATABASE_URI'] = database_uri
 
 USERS_UPDATED_CHANNEL = 'users updated'
 
-#Cronofy setup
-# cronofy = pycronofy.Client(access_token=cronofy_access_token)
-# cronofy.is_authorization_expired()
-
-# #display the events in date range
-# events = cronofy.read_events(
-#     from_date='2020-11-10',
-#     to_date='2020-11-12',
-#     tzid='Etc/UTC')
-# events_result = events.json()
-# # print(json.dumps(events_result, indent = 2)) 
-
-# # display synced calendars
-# calendars = cronofy.list_calendars()
-# # print(json.dumps(calendars, indent = 2)) 
-
-# #Create events
-# event = {
-#     'event_id': "ABC124",
-#     'summary': "CS490 Project3 Individual deadline",
-#     'description': "Finish the individual tasks assigned for MVP",
-#     'start': "2020-11-11T19:30:00Z",
-#     'end': "2020-11-11T21:00:00Z",
-#     'location': {
-#         'description': "Slack account"
-#     }
-# }
-# cronofy.upsert_event(calendar_id=calendar_id, event=event)
-
 @SOCKET.on('connect')
 def on_connect():
     print('Someone connected!')
