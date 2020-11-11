@@ -1,18 +1,45 @@
 import React from 'react';
+import Socket from './Socket';
 import Calendar from 'react-calendar';
 import { Slot } from './Slot';
 
 export function MyCalendar() {
     const [date, setDate] = React.useState(new Date());
+    const [isAvailable, setIsAvailable] = React.useState(false);
+    
+    function sendDate(){
+        console.log(`User selected the date "${date}"`);
+    
+        Socket.emit('date availability', { 
+            'date': date
+        });
+        
+        console.log(`Sent the date "${date}" to the server`);  
+    }
   
     function handleClickDay(event){
         setDate(event);
     }
+    
+    sendDate();
+    
     console.log(date);
+    
+    function handleDisable(){
+       ({activeStartDate, date, view }) => date.getDay() === 6;
+    }
+    
+    console.log(isAvailable);
+    
+    if (isAvailable){
+        // display the slots available
+        
+    }
 
     return (
         <div>
           <Calendar
+            tileDisabled={handleDisable}
             onClickDay={handleClickDay}
             value={date}
           />
