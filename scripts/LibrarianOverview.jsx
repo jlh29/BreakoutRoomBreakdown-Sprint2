@@ -12,6 +12,7 @@ export default function LibrarianOverview() {
     const [users, setUsers] = useState([]);
     const [rooms, setRooms] = useState([]);
     const [selectedDate, setSelectedDate] = useState(new Date());
+    const [unavailableDates, setUnavailableDates] = useState([]);
     const [checkInSuccess, setCheckInSuccess] = useState(true);
     const [showCheckInResult, setShowCheckInResult] = useState(false);
     const checkInResultDisplayTime = 5000;
@@ -28,14 +29,33 @@ export default function LibrarianOverview() {
         );
     }
 
+    function isUnavailableDate({activeStartDate, date, view}) {
+        for (let unavailableDate of unavailableDates) {
+            if (date.getDate() == unavailableDate.getDate()
+                    && date.getMonth() == unavailableDate.getMonth()
+                    && date.getFullYear() == unavailableDate.getFullYear()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     function requestAllData() {
         Socket.emit('overview request', {date: getDateString(selectedDate)});
+        Socket.emit('unavailable dates request', {date: getDateString(new Date())});
     }
-    
+
     function requestAppointmentsForDate(date) {
         Socket.emit('appointments request', {date: getDateString(date)});
     }
     
+    function onMonthChanged({activeStartDate, value, view}) {
+        Socket.emit(
+            'unavailable dates request',
+            {date: getDateString(activeStartDate)},
+        );
+    }
+
     function onCalendarChanged(newDate) {
         setSelectedDate(oldDate => newDate);
         requestAppointmentsForDate(newDate);
@@ -88,6 +108,15 @@ export default function LibrarianOverview() {
         setAppointments(data.appointments);
     }
 
+    function updateUnavailableDates(data) {
+        let newDates = [];
+        for (let date of data.dates) {
+            let currDate = new Date(date);
+            newDates.push(currDate);
+        }
+        setUnavailableDates(newDates);
+    }
+
     function updateUsers(data) {
         updateStateArray(setUsers, 'users', data);
     }
@@ -102,12 +131,14 @@ export default function LibrarianOverview() {
             Socket.on('appointments response', updateAppointments);
             Socket.on('users response', updateUsers);
             Socket.on('rooms response', updateRooms);
+            Socket.on('unavailable dates response', updateUnavailableDates);
             return () => {
                 Socket.off('connect', establishConnection);
                 Socket.off('appointments response', updateAppointments);
                 Socket.off('users response', updateUsers);
                 Socket.off('rooms response', updateRooms);
-            }
+                Socket.off('unavailable dates response', updateUnavailableDates);
+            };
         });
     }
 
@@ -116,8 +147,11 @@ export default function LibrarianOverview() {
     return (
         <div>
             <Calendar 
-                onChange={onCalendarChanged} 
-                value={selectedDate} 
+                onChange={onCalendarChanged}
+                value={selectedDate}
+                tileDisabled={isUnavailableDate}
+                onActiveStartDateChange={onMonthChanged}
+                showNeighboringMonth={false}
             />
             <LibrarianAppointmentsOverview appointments={appointments} />
             <LibrarianCheckIn
