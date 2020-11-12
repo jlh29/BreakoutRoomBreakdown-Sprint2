@@ -97,8 +97,7 @@ class UnavailableDate(DB.Model):
         return (f"<Unavailable Date: {self.date}\treason: {self.reason}>")
 
 class CheckIn(DB.Model):
-    id = DB.Column(DB.Integer, primary_key=True)
-    reservation_id = DB.Column(DB.Integer, DB.ForeignKey("appointment.id"), nullable=False)
+    reservation_id = DB.Column(DB.Integer, DB.ForeignKey("Appointment.id"), nullable=False)
     validation_code = DB.Column(DB.String(32), nullable=False)
 
     def __init__(self, reservation_id, validation_code):
