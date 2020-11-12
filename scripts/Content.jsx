@@ -5,11 +5,15 @@ import RoomReservationSubmit from './RoomReservationSubmit';
 
 export function Content() {
     const [attendeeCount, setAttendeeCount] = useState(0);
-    
+    const [attendees, setAttendees] = useState([]);
+
     return (
         <div>
             <RoomReservationSelector setAttendeeCount={setAttendeeCount} />
-            <RoomReservationAttendeeInput attendeeCount={attendeeCount} />
+            <RoomReservationAttendeeInput 
+                attendeeCount={attendeeCount}
+                setAttendees={setAttendees}
+            />
             <RoomReservationSubmit />
         </div>
     );
