@@ -194,6 +194,7 @@ export default function LibrarianOverview() {
                 />
                 <LibrarianAppointmentsOverview appointments={appointments} />
             </div>
+            <h1 id='checkInBanner'>Check-in</h1>
             <LibrarianCheckIn
                 inputRef={checkInRef}
                 submitClick={onCheckInSubmitClicked}
