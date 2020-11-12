@@ -8,11 +8,28 @@ from db_utils import DB
 import models 
 import socket_utils
 from socket_utils import SOCKET 
+import flask_sqlalchemy
+import dotenv
+
+app = flask.Flask(__name__)
+
+socketio = flask_socketio.SocketIO(app)
+socketio.init_app(app, cors_allowed_origins="*")
 
 dotenv_path = join(dirname(__file__), 'sql.env')
-load_dotenv(dotenv_path)
+dotenv.load_dotenv(dotenv_path)
 
-database_uri = os.environ['DATABASE_URL']
+database_uri = os.getenv('DATABASE_URL')
+
+app.config['SQLALCHEMY_DATABASE_URI'] = database_uri
+
+db = flask_sqlalchemy.SQLAlchemy(app)
+db.init_app(app)
+db.app = app
+
+db.create_all()
+db.session.commit()
+
 
 APP = flask.Flask(__name__)
 APP.config['SQLALCHEMY_DATABASE_URI'] = database_uri

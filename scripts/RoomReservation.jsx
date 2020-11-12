@@ -2,12 +2,17 @@ import * as React from 'react';
 import Socket from './Socket';
 
 export function RoomReservation() {
+    function getStudentCount() {
+        React.useEffect(() => {
+            });
+    }
     
     
     return (
         <div>
             <label htmlFor="studentCount">How Many Students (Including You)?</label>
             <select name="studentCount" id="studentCount">
+                <option selected disabled hidden value> - </option>
                 <option value="2">2</option>
                 <option value="3">3</option>
                 <option value="4">4</option>
