@@ -97,11 +97,15 @@ def on_connect():
 @SOCKET.on('disconnect')
 def on_disconnect():
     print ('Someone disconnected!')
-
-@SOCKET.on('new google user')
+    
+@SOCKET.on('new username')
 def on_new_google_user(data):
     print("Got an event for new google user input with data:", data)
-    # TODO
+    name=data['name']
+    SOCKET.emit('username', {
+        'names': name
+    })
+
 
 @APP.route('/')
 def index():

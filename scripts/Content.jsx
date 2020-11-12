@@ -5,7 +5,7 @@ import { GoogleButton } from './GoogleButton';
 export function Content() {
     return (
         <div>
-            <h1>Log in with OAuth!</h1>
+            <h1>Webauth Authentication Service</h1>
             <GoogleButton />
         </div>
     );
