@@ -19,7 +19,6 @@ export default function LibrarianOverview() {
     const [showCheckInResult, setShowCheckInResult] = useState(false);
     const checkInResultDisplayTime = 5000;
     const checkInRef = React.createRef();
-    const connectionAttemptTimeout = 1000;
     const [checkInResultTimeoutId, setCheckInResultTimeoutId] = useState(-1);
 
     function getDateString(date) {
@@ -120,6 +119,7 @@ export default function LibrarianOverview() {
     }
 
     function updateAppointments(data) {
+        console.log("Updating appointments...");
         if (!connected) {
             setConnected(true);
         }
@@ -171,15 +171,13 @@ export default function LibrarianOverview() {
 
     listenToServer();
 
-    if (!connected) {
-        let connectionEstablishment = setInterval(() => {
-           if (!connected) {
-               establishConnection();
-           } else {
-               clearInterval(connectionEstablishment);
-           }
-        }, connectionAttemptTimeout);
-    }
+    useEffect(() => {
+        if (!connected) {
+            establishConnection();
+        }
+        return () => {};
+    }, [connected]);
+
     return (
         <div>
             {!connected ? <ConnectingBanner /> : null}
