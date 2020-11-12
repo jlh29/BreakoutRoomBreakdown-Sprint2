@@ -179,17 +179,21 @@ export default function LibrarianOverview() {
     }, [connected]);
 
     return (
-        <div>
+        <div id='librarianOverviewContainer'>
             {!connected ? <ConnectingBanner /> : null}
-            <Calendar 
-                onChange={onCalendarChanged}
-                value={selectedDate}
-                tileDisabled={isUnavailableDate}
-                onActiveStartDateChange={onMonthChanged}
-                showNeighboringMonth={false}
-                calendarType='US'
-            />
-            <LibrarianAppointmentsOverview appointments={appointments} />
+            <h1 id='reservationsBanner'>Reservations</h1>
+            <div id='appointmentsAndCalendarContainer'>
+                <Calendar
+                    onChange={onCalendarChanged}
+                    value={selectedDate}
+                    tileDisabled={isUnavailableDate}
+                    onActiveStartDateChange={onMonthChanged}
+                    showNeighboringMonth={false}
+                    calendarType='US'
+                    className={'appointmentsCalendar'}
+                />
+                <LibrarianAppointmentsOverview appointments={appointments} />
+            </div>
             <LibrarianCheckIn
                 inputRef={checkInRef}
                 submitClick={onCheckInSubmitClicked}

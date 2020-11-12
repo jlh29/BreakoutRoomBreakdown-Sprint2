@@ -6,7 +6,7 @@ import LibrarianCheckInResult from './LibrarianCheckInResult';
 export default function LibrarianCheckIn(props) {
     const { inputRef, submitClick, showResult, isSuccess } = props;
     return (
-        <div>
+        <div id='librarianCheckInContainer'>
             <LibrarianCheckInInput inputRef={inputRef} />
             <LibrarianCheckInSubmit submitClick={submitClick} />
             {showResult ? <LibrarianCheckInResult isSuccess={isSuccess} /> : null}

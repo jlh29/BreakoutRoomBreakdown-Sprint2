@@ -1,17 +1,15 @@
 #appointmentsContainer {
     background:#E4E4E4;
-    width:40%;
-    height:30%;
-    position:absolute;
-    left:50%;
-    top:10px;
+    width:100%;
     display:flex;
+    align-self:stretch;
+    margin:0px 10px;
     border-radius:10px;
 }
 
 #appointmentsSelector {
     background:#CCCCCC;
-    width:20%;
+    width:30%;
     height:100%;
     border-radius:10px 0px 0px 10px;
     overflow-y:scroll;
@@ -29,3 +27,29 @@
     margin:5px 0px 10px 0px;
     align-self:center;
 }
+
+.appointmentsCalendar {
+    border-radius:10px;
+}
+
+#appointmentsAndCalendarContainer {
+    display:flex;
+    height:30%;
+    width:70%;
+    align-items:center;
+}
+
+body {
+    font-family:sans-serif;
+}
+
+#librarianCheckInContainer {
+    margin:20px;
+}
+
+#librarianOverviewContainer {
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+}
+
