@@ -30,11 +30,14 @@ class AuthUser(DB.Model):
 
 class Attendee(DB.Model):
     id = DB.Column(DB.Integer, primary_key=True)
-    attendee_ucid = DB.Column(DB.String(120))
+    ucid = DB.Column(DB.String(120), nullable=False)
 
-    def __init__(self, attendee_ucid):
-        self.attendee_ucid = attendee_ucid
-        
+    def __init__(self, ucid):
+        self.ucid = ucid
+
+    def get_email(self):
+        return f"{self.ucid}@njit.edu"
+
 class Appointment(DB.Model):
     id = DB.Column(DB.Integer, primary_key=True)
     room_id = DB.Column(DB.Integer, DB.ForeignKey("room.id"), nullable=False)
