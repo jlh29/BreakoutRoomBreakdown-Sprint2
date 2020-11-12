@@ -1,5 +1,5 @@
 import * as React from 'react';
-import RoomReservation from './RoomReservation';
+import RoomReservationSelector from './RoomReservationSelector';
 import RoomReservationSubmit from './RoomReservationSubmit';
 
 export function Content() {
@@ -7,7 +7,7 @@ export function Content() {
         <div>
             <h1>Webauth Authentication Service</h1>
             <GoogleButton />
-            <RoomReservation />
+            <RoomReservationSelector />
             <RoomReservationSubmit />
         </div>
     );
