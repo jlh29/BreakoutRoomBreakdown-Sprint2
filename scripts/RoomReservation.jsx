@@ -1,13 +1,11 @@
 import * as React from 'react';
-import Socket from './Socket';
 
-export function RoomReservation() {
+export default function RoomReservation() {
     function getStudentCount() {
         React.useEffect(() => {
             });
     }
-    
-    
+
     return (
         <div>
             <label htmlFor="studentCount">How Many Students (Including You)?</label>

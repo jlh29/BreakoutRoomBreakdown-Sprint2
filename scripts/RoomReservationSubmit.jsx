@@ -1,9 +1,7 @@
 import * as React from 'react';
-import Socket from './Socket';
 
-export function Submit() {
+export default function RoomReservationSubmit() {
     function handleSubmit(event) {
-        
         event.preventDefault();
     }
 
