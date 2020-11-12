@@ -8,6 +8,7 @@ import LibrarianRoomsOverview from './LibrarianRoomsOverview';
 import Socket from './Socket';
 
 export default function LibrarianOverview() {
+    const [connected, setConnected] = useState(false);
     const [appointments, setAppointments] = useState([]);
     const [users, setUsers] = useState([]);
     const [rooms, setRooms] = useState([]);
@@ -108,10 +109,16 @@ export default function LibrarianOverview() {
     }
 
     function updateAppointments(data) {
+        if (!connected) {
+            setConnected(true);
+        }
         setAppointments(data.appointments);
     }
 
     function updateUnavailableDates(data) {
+        if (!connected) {
+            setConnected(true);
+        }
         let newDates = [];
         for (let date of data.dates) {
             let currDate = new Date(date);
@@ -121,10 +128,16 @@ export default function LibrarianOverview() {
     }
 
     function updateUsers(data) {
+        if (!connected) {
+            setConnected(true);
+        }
         updateStateArray(setUsers, 'users', data);
     }
 
     function updateRooms(data) {
+        if (!connected) {
+            setConnected(true);
+        }
         updateStateArray(setRooms, 'rooms', data);
     }
 
@@ -146,6 +159,16 @@ export default function LibrarianOverview() {
     }
 
     listenToServer();
+
+    if (!connected) {
+        let connectionEstablishment = setInterval(() => {
+           if (!connected) {
+               establishConnection();
+           } else {
+               clearInterval(connectionEstablishment);
+           }
+        }, 1000);
+    }
 
     return (
         <div>
