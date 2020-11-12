@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
+import ConnectingBanner from './ConnectingBanner';
 import LibrarianCheckIn from './LibrarianCheckIn';
 import LibrarianAppointmentsOverview from './LibrarianAppointmentsOverview';
 import LibrarianUsersOverview from './LibrarianUsersOverview';
@@ -169,9 +170,9 @@ export default function LibrarianOverview() {
            }
         }, 1000);
     }
-
     return (
         <div>
+            {!connected ? <ConnectingBanner /> : null}
             <Calendar 
                 onChange={onCalendarChanged}
                 value={selectedDate}
