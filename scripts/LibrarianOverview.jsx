@@ -30,6 +30,9 @@ export default function LibrarianOverview() {
     }
 
     function isUnavailableDate({activeStartDate, date, view}) {
+        if (view == 'month' && date.getDay() % 6 == 0) {
+            return true;
+        }
         for (let unavailableDate of unavailableDates) {
             if (date.getDate() == unavailableDate.getDate()
                     && date.getMonth() == unavailableDate.getMonth()
@@ -152,6 +155,7 @@ export default function LibrarianOverview() {
                 tileDisabled={isUnavailableDate}
                 onActiveStartDateChange={onMonthChanged}
                 showNeighboringMonth={false}
+                calendarType='US'
             />
             <LibrarianAppointmentsOverview appointments={appointments} />
             <LibrarianCheckIn
