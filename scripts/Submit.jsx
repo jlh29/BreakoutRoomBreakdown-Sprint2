@@ -8,6 +8,6 @@ export function Submit() {
     }
 
     return (
-        <button onClick={handleSubmit}/>
+        <button onClick={handleSubmit}>Submit</button>
     );
 }
