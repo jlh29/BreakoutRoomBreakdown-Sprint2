@@ -1,8 +1,6 @@
 import * as React from 'react';
-import Parser from 'html-react-parser';
-
-import { RoomReservation } from './RoomReservation';
-import { Submit } from './Submit';
+import RoomReservation from './RoomReservation';
+import RoomReservationSubmit from './RoomReservationSubmit';
 
 export function Content() {
     return (
@@ -10,7 +8,7 @@ export function Content() {
             <h1>Webauth Authentication Service</h1>
             <GoogleButton />
             <RoomReservation />
-            <Submit />
+            <RoomReservationSubmit />
         </div>
     );
 }
