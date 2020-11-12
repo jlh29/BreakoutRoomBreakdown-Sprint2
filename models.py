@@ -5,17 +5,27 @@ from enum import Enum
 
 class AuthUser(DB.Model):
     id = DB.Column(DB.Integer, primary_key=True)
-    auth_type = DB.Column(DB.String(120))
+    ucid = DB.Column(DB.String(120), nullable=False)
+    auth_type = DB.Column(DB.String(120), nullable=False)
+    role = DB.Column(DB.String(120), nullable=False)
     name = DB.Column(DB.String(120))
-    
-    def __init__(self, name, auth_type):
-        assert type(auth_type) is AuthUserType
+
+    def __init__(self, ucid, auth_type, role, name):
+        assert isinstance(auth_type, AuthUserType)
+        assert isinstance(role, UserRole)
         self.name = name
         self.auth_type = auth_type
-        
+        self.ucid = ucid
+        self.role = role.value
+
     def __repr__(self):
-        return "<User name: {}\ntype: {}".format(self.name, self.auth_type)
-        
+        return (f"<User name: {self.name}"
+                f"\trole: {self.role}"
+                f"\tucid: {self.ucid}>")
+
+    def get_email(self):
+        return f"{self.ucid}@njit.edu"
+
 class Attendee(DB.Model):
     id = DB.Column(DB.Integer, primary_key=True)
     attendee = DB.Column(DB.String(120))
@@ -46,3 +56,8 @@ class Appointment(DB.Model):
 class AuthUserType(Enum):
     GOOGLE = "google"
     PASSWORD = "password"
+
+class UserRole(Enum):
+    LIBRARIAN = "librarian"
+    PROFESSOR = "professor"
+    STUDENT = "student"
