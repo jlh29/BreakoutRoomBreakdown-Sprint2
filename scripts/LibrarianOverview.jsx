@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import Calendar from 'react-calendar';
+import 'react-calendar/dist/Calendar.css';
 import LibrarianCheckIn from './LibrarianCheckIn';
 import LibrarianAppointmentsOverview from './LibrarianAppointmentsOverview';
 import LibrarianUsersOverview from './LibrarianUsersOverview';
@@ -9,6 +11,7 @@ export default function LibrarianOverview() {
     const [appointments, setAppointments] = useState([]);
     const [users, setUsers] = useState([]);
     const [rooms, setRooms] = useState([]);
+    const [selectedDate, setSelectedDate] = useState(new Date());
     const [checkInSuccess, setCheckInSuccess] = useState(true);
     const [showCheckInResult, setShowCheckInResult] = useState(false);
     const checkInResultDisplayTime = 5000;
@@ -92,7 +95,10 @@ export default function LibrarianOverview() {
 
     return (
         <div>
-            <h1> TODO: Calendar selector </h1>
+            <Calendar 
+                onChange={setSelectedDate} 
+                value={selectedDate} 
+            />
             <LibrarianAppointmentsOverview appointments={appointments} />
             <LibrarianCheckIn
                 inputRef={checkInRef}
