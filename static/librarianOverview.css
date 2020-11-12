@@ -1,0 +1,31 @@
+#appointmentsContainer {
+    background:#E4E4E4;
+    width:40%;
+    height:30%;
+    position:absolute;
+    left:50%;
+    top:10px;
+    display:flex;
+    border-radius:10px;
+}
+
+#appointmentsSelector {
+    background:#CCCCCC;
+    width:20%;
+    height:100%;
+    border-radius:10px 0px 0px 10px;
+    overflow-y:scroll;
+    display:flex;
+    flex-direction:column;
+}
+
+#appointmentDetails {
+    margin:10px 15px;
+    align-self:center;
+}
+
+.appointmentSelectorButton {
+    width:80%;
+    margin:5px 0px 10px 0px;
+    align-self:center;
+}
