@@ -1,4 +1,4 @@
-#appointmentsContainer {
+.menuContainer {
     background:#E4E4E4;
     width:100%;
     display:flex;
@@ -7,7 +7,7 @@
     border-radius:10px;
 }
 
-#appointmentsSelector {
+.menuSelector {
     background:#CCCCCC;
     width:30%;
     height:100%;
@@ -17,12 +17,12 @@
     flex-direction:column;
 }
 
-#appointmentDetails {
+.menuContents {
     margin:10px 15px;
     align-self:center;
 }
 
-.appointmentSelectorButton {
+.menuSelectorButton {
     width:80%;
     margin:5px 0px 10px 0px;
     align-self:center;
@@ -57,4 +57,10 @@ body {
     display:flex;
     flex-direction:column;
     align-items:center;
+}
+
+#usersContainer {
+    width:70%;
+    height:15vw;
+    align-self:center;
 }

@@ -6,13 +6,13 @@ export default function LibrarianAppointmentsOverview(props) {
     const [selectedAppointment, setSelectedAppointment] = useState({});
 
     return (
-        <div id='appointmentsContainer'>
-            <div id='appointmentsSelector'>
-                { 
+        <div id='appointmentsContainer' className='menuContainer'>
+            <div id='appointmentsSelector' className='menuSelector'>
+                {
                     appointments.map(
                         appointment => (
-                            <button 
-                                className='appointmentSelectorButton'
+                            <button
+                                className='menuSelectorButton'
                                 type='button'
                                 onClick={() => setSelectedAppointment(appointment)}
                                 key={appointment.id}
@@ -23,8 +23,8 @@ export default function LibrarianAppointmentsOverview(props) {
                     )
                 }
             </div>
-            <div id='appointmentDetails'>
-                {('id' in selectedAppointment) ? 
+            <div id='appointmentDetails' className='menuContents'>
+                {('id' in selectedAppointment) ?
                     <LibrarianAppointmentsOverviewItem
                         appointment={selectedAppointment}
                     />

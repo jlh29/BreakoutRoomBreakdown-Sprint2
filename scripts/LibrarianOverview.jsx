@@ -201,7 +201,9 @@ export default function LibrarianOverview() {
                 showResult={showCheckInResult}
                 isSuccess={checkInSuccess}
             />
+            <h1 id='usersBanner'>Users</h1>
             <LibrarianUsersOverview users={users} />
+            <h1 id='roomsBanner'>Rooms</h1>
             <LibrarianRoomsOverview rooms={rooms} />
         </div>
     );
