@@ -1,4 +1,3 @@
 import * as SocketIO from 'socket.io-client';
 
-const Socket = SocketIO.connect();
-export default Socket;
+export var Socket = SocketIO.connect();

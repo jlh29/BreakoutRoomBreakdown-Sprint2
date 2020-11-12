@@ -1,0 +1,23 @@
+body {
+    background-image: linear-gradient(to bottom right, orange, red);
+    color: black;
+}
+
+h1 {
+     text-align: center;
+}
+P{
+    float: left;
+}
+
+.gbutton{
+    position:fixed;
+    left:900px;
+    top:400px;
+}
+
+button{
+    position: fixed;
+    left:1400px;
+    top: 15px;
+}

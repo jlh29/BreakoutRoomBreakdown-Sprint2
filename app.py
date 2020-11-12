@@ -8,7 +8,6 @@ from db_utils import DB
 import models 
 import socket_utils
 from socket_utils import SOCKET 
-import pycronofy
 import requests
 import json
 from datetime import datetime
@@ -38,12 +37,15 @@ def on_connect():
 @SOCKET.on('disconnect')
 def on_disconnect():
     print ('Someone disconnected!')
-
-@SOCKET.on('new google user')
+    
+@SOCKET.on('new username')
 def on_new_google_user(data):
     print("Got an event for new google user input with data:", data)
-    # TODO
-    
+    name=data['name']
+    SOCKET.emit('username', {
+        'names': name
+    })
+
 @SOCKET.on('date availability')
 def on_date_availability(data):
     print("Got an event for date input with data:", data)
@@ -73,7 +75,7 @@ def on_time_availability(data):
     time = data['time']
     
     print(time)
-   
+
 @APP.route('/')
 def index():
     return flask.render_template("index.html")
