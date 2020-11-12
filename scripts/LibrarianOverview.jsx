@@ -17,8 +17,28 @@ export default function LibrarianOverview() {
     const checkInResultDisplayTime = 5000;
     const checkInRef = React.createRef();
 
+    function getDateString(date) {
+        return date.toLocaleDateString(
+            'en-US',
+            {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+            },
+        );
+    }
+
     function requestAllData() {
-        Socket.emit('overview request', {});
+        Socket.emit('overview request', {date: getDateString(selectedDate)});
+    }
+    
+    function requestAppointmentsForDate(date) {
+        Socket.emit('appointments request', {date: getDateString(date)});
+    }
+    
+    function onCalendarChanged(newDate) {
+        setSelectedDate(oldDate => newDate);
+        requestAppointmentsForDate(newDate);
     }
 
     function establishConnection() {
@@ -65,7 +85,7 @@ export default function LibrarianOverview() {
     }
 
     function updateAppointments(data) {
-        updateStateArray(setAppointments, 'appointments', data);
+        setAppointments(data.appointments);
     }
 
     function updateUsers(data) {
@@ -96,7 +116,7 @@ export default function LibrarianOverview() {
     return (
         <div>
             <Calendar 
-                onChange={setSelectedDate} 
+                onChange={onCalendarChanged} 
                 value={selectedDate} 
             />
             <LibrarianAppointmentsOverview appointments={appointments} />

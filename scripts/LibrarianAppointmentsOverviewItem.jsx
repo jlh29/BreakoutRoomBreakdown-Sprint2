@@ -6,7 +6,7 @@ export default function LibrarianAppointmentsOverviewItem(props) {
     function getDateString(timestamp) {
         const utcTs = new Date(timestamp);
         return utcTs.toLocaleDateString(
-            [], 
+            'en-US',
             { hour: 'numeric', minute: '2-digit' }
         );
     }
