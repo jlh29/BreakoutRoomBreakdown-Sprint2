@@ -81,6 +81,18 @@ class Room(DB.Model):
         self.capacity = capacity
         self.size = size.value
 
+class UnavailableDate(DB.Model):
+    date = DB.Column(DB.DateTime, primary_key=True)
+    reason = DB.Column(DB.String(150), nullable=True)
+
+    def __init__(self, date, reason=None):
+        assert isinstance(date, datetime.datetime)
+        self.date = date
+        self.reason = reason
+
+    def __repr__(self):
+        return (f"<Unavailable Date: {self.date}\treason: {self.reason}>")
+
 class AuthUserType(Enum):
     GOOGLE = "google"
     PASSWORD = "password"
