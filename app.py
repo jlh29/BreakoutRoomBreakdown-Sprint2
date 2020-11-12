@@ -60,7 +60,7 @@ def on_date_availability(data):
         for i in range(len(available_list[day])):
             SOCKET.emit(
                 'date status', 
-                {'is_available': True,
+                {
                  'time available': available_list[day][i],
                 })
     else:
@@ -73,7 +73,7 @@ def on_time_availability(data):
     time = data['time']
     
     print(time)
-
+   
 @APP.route('/')
 def index():
     return flask.render_template("index.html")
