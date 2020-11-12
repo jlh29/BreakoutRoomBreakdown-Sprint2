@@ -1,3 +1,4 @@
+import datetime
 import flask_sqlalchemy
 from app import db
 from db_utils import DB
@@ -9,6 +10,7 @@ class AuthUser(DB.Model):
     auth_type = DB.Column(DB.String(120), nullable=False)
     role = DB.Column(DB.String(120), nullable=False)
     name = DB.Column(DB.String(120))
+    appointments = DB.relationship("Appointment", backref="organizer", lazy="True")
 
     def __init__(self, ucid, auth_type, role, name):
         assert isinstance(auth_type, AuthUserType)
@@ -28,35 +30,36 @@ class AuthUser(DB.Model):
 
 class Attendee(DB.Model):
     id = DB.Column(DB.Integer, primary_key=True)
-    attendee = DB.Column(DB.String(120))
-    
-    appointmentID = DB.Column(DB.Integer, DB.ForeignKey("appointment.id"), nullable=False)
-    
-    def __init__(self, attendee, appointmentID):
-        self.attendee = attendee
-        self.appointmentID = appointmentID
+    attendee_ucid = DB.Column(DB.String(120))
+
+    def __init__(self, attendee_ucid):
+        self.attendee_ucid = attendee_ucid
         
 class Appointment(DB.Model):
     id = DB.Column(DB.Integer, primary_key=True)
-    organizer = DB.Column(DB.String(120))
-    numberOfAttendees = DB.Column(DB.Integer)
     room_id = DB.Column(DB.Integer, DB.ForeignKey("room.id"), nullable=False)
-    reservation = DB.Column(DB.DateTime())
-    
-    attendees = DB.relationship(Attendee, backref="Appointment", lazy="True")
-    
-    def __init__(self, organizer, numberOfAttendees, roomSize, reservation):
-        self.organizer = organizer
-        self.numberOfAttendees = numberOfAttendees
-        self.roomSize = roomSize
-        self.reservation = reservation
+    start_time = DB.Column(DB.DateTime, nullable=False)
+    end_time = DB.Column(DB.DateTime, nullable=False)
+    organizer_id = DB.Column(DB.Integer, DB.ForeignKey("AuthUser.id"), nullable=False)
+    attendee_ids = DB.Column(DB.ARRAY(DB.Integer))
+
+    attendee_relation = DB.relationship(Attendee, backref="appointment", lazy="True")
+
+    def __init__(self, room_id, start_time, end_time, organizer_id, attendee_ids=None):
+        assert isinstance(start_time, datetime.datetime)
+        assert isinstance(end_time, datetime.datetime)
+        self.room_id = room_id
+        self.start_time = start_time
+        self.end_time = end_time
+        self.organizer_id = organizer_id
+        self.attendee_ids = attendee_ids
 
 class Room(DB.Model):
     id = DB.Column(DB.Integer, primary_key=True)
     room_number = DB.Column(DB.String(40), nullable=False, unique=True)
     size = DB.Column(DB.String(4), nullable=False)
     capacity = DB.Column(DB.Integer)
-    appointments = DB.relationship(Appointment, backref="Room", lazy="True")
+    appointments = DB.relationship(Appointment, backref="room", lazy="True")
 
     def __init__(self, room_number, capacity, size=None):
         assert capacity > 0
