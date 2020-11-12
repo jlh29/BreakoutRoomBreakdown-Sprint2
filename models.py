@@ -45,6 +45,7 @@ class Appointment(DB.Model):
     end_time = DB.Column(DB.DateTime, nullable=False)
     organizer_id = DB.Column(DB.Integer, DB.ForeignKey("AuthUser.id"), nullable=False)
     attendee_ids = DB.Column(DB.ARRAY(DB.Integer))
+    status = DB.Column(DB.String(20), nullable=False)
 
     attendee_relation = DB.relationship(Attendee, backref="appointment", lazy="True")
 
@@ -56,6 +57,7 @@ class Appointment(DB.Model):
         self.end_time = end_time
         self.organizer_id = organizer_id
         self.attendee_ids = attendee_ids
+        self.status = AppointmentStatus.WAITING.value
 
 class Room(DB.Model):
     id = DB.Column(DB.Integer, primary_key=True)
@@ -107,3 +109,8 @@ class RoomSize(Enum):
     MEDIUM = "m"
     LARGE = "l"
     XLARGE = "xl"
+
+class AppointmentStatus(Enum):
+    CHECKED_IN = "checked-in"
+    WAITING = "waiting"
+    FREE = "free"
