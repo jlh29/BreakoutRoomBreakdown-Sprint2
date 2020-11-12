@@ -4,11 +4,9 @@ export default function LibrarianRoomsOverviewItem(props) {
     const { room } = props;
     
     return (
-        <li className='roomsItem'>
-            <div className='room'>
-                <p>Room Number: {room.room_number}</p>
-                <p>Capacity: {room.capacity}</p>
-            </div>
-        </li>
+        <div className='room'>
+            <p>Room Number: {room.room_number}</p>
+            <p>Capacity: {room.capacity}</p>
+        </div>
     );
 }
