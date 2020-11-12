@@ -25,7 +25,6 @@ export function MyCalendar() {
     function handleDisable({activeStartDate, date, view }){
         let disableDate = false;
         let today = new Date();
-        console.log(today.getDate() + 2);
         
         if (date.getDay() === 0 || date.getDay() === 6)
             disableDate = true;

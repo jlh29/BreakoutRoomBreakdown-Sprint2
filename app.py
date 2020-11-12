@@ -48,18 +48,31 @@ def on_new_google_user(data):
 def on_date_availability(data):
     print("Got an event for date input with data:", data)
     date = datetime.strptime(data['date'], '%Y-%m-%dT%H:%M:%S.%fZ')
-    
+    day = str(date.date())
     print(date.date())
     
     #mock avaiable dates
-    available_list = ["2020-11-18","2020-11-19","2020-11-20"]
+    available_list = {"2020-11-13": ['9:00-11:00', '1:00-3:00']}
     
-    if str(date.date()) in available_list:
-        print(date.date(), "is available")
-        SOCKET.emit("date status", {"is_available": True})
+    if day in available_list:
+        print(day, "is available")
+        
+        for i in range(len(available_list[day])):
+            SOCKET.emit(
+                'date status', 
+                {'is_available': True,
+                 'time available': available_list[day][i],
+                })
     else:
-        print(date.date(), "is not available")
+        print(day, "is not available")
         SOCKET.emit("date status", {"is_available": False})
+        
+@SOCKET.on('time availability')
+def on_time_availability(data):
+    print("Got an event for time input with data:", data)
+    time = data['time']
+    
+    print(time)
 
 @APP.route('/')
 def index():
