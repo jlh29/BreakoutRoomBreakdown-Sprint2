@@ -12,21 +12,10 @@ import requests
 import json
 from datetime import datetime
 
-dotenv_path = join(dirname(__file__), 'sql.env')
-load_dotenv(dotenv_path)
-
-dotenv_path = join(dirname(__file__), 'cronofy.env')
-load_dotenv(dotenv_path)
-
-cronofy_access_token = os.environ['ACCESS_TOKEN']
-calendar_id = os.environ['CALENDAR_ID']
-cronofy_client_id = os.environ['CLIENT_ID']
-cronofy_client_secret = os.environ['CLIENT_SECRET']
-
-database_uri = os.environ['DATABASE_URL']
+load_dotenv(join(dirname(__file__), 'sql.env'))
 
 APP = flask.Flask(__name__)
-APP.config['SQLALCHEMY_DATABASE_URI'] = database_uri
+APP.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
 
 USERS_UPDATED_CHANNEL = 'users updated'
 
