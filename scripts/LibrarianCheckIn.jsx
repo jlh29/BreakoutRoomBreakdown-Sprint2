@@ -9,7 +9,7 @@ export default function LibrarianCheckIn(props) {
         <div>
             <LibrarianCheckInInput inputRef={inputRef} />
             <LibrarianCheckInSubmit submitClick={submitClick} />
-            {showResult ?? <LibrarianCheckInResult isSuccess={isSuccess} /> }
+            {showResult ? <LibrarianCheckInResult isSuccess={isSuccess} /> : null}
         </div>
     );
 }

@@ -19,6 +19,8 @@ export default function LibrarianOverview() {
     const [showCheckInResult, setShowCheckInResult] = useState(false);
     const checkInResultDisplayTime = 5000;
     const checkInRef = React.createRef();
+    const connectionAttemptTimeout = 1000;
+    const [checkInResultTimeoutId, setCheckInResultTimeoutId] = useState(-1);
 
     function getDateString(date) {
         return date.toLocaleDateString(
@@ -75,7 +77,15 @@ export default function LibrarianOverview() {
     function updateCheckInSuccess(success) {
         setCheckInSuccess(success);
         setShowCheckInResult(true);
-        setTimeout(() => setShowCheckInResult(false), checkInResultDisplayTime);
+        if (checkInResultTimeoutId >= 0) {
+            clearTimeout(checkInResultTimeoutId);
+        }
+        setCheckInResultTimeoutId(
+            setTimeout(
+                () => setShowCheckInResult(false),
+                checkInResultDisplayTime,
+            )
+        );
     }
 
     function onCheckInSubmitClicked() {
@@ -168,7 +178,7 @@ export default function LibrarianOverview() {
            } else {
                clearInterval(connectionEstablishment);
            }
-        }, 1000);
+        }, connectionAttemptTimeout);
     }
     return (
         <div>
