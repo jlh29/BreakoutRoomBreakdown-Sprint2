@@ -15,10 +15,16 @@ export function Content_Auth() {
     }
     getNewAddresses();
     
+    function logout(event) {
+        ReactDOM.render(<Content />, document.getElementById('Content'));
+    }
+
     return (
         <div>
           <h1>Breakout Room Breakdown</h1>
           <p> Welcome {name} </p>
+          <form onClick={logout}>
+          <button>Logout</button></form>
         </div>
     );
 }
