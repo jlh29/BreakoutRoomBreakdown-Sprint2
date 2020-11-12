@@ -211,6 +211,20 @@ def on_request_rooms(data):
         room=flask.request.sid,
     )
 
+@SOCKET.on(UNAVAILABLE_DATES_REQUEST_CHANNEL)
+def on_request_unavailable_dates(data):
+    # TODO: jlh29, ensure that the requesting user has correct permissions
+    selectedDate = datetime.datetime.strptime(
+        data[UNAVAILABLE_DATES_REQUEST_DATE_KEY],
+        UNAVAILABLE_DATES_REQUEST_DATE_FORMAT,
+    )
+    unavailable = db_utils.get_unavailable_dates_for_month(selectedDate)
+    SOCKET.emit(
+        UNAVAILABLE_DATES_RESPONSE_CHANNEL,
+        {UNAVAILABLE_DATES_KEY: unavailable},
+        room=flask.request.sid,
+    )
+
 if __name__ == "__main__": 
     db_instance.init_db(APP)
     socket_utils.init_socket(APP)

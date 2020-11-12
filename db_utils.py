@@ -130,6 +130,7 @@ def get_attendee_ids_from_ucids(ucids):
         models.Attendee(ucid) for ucid in lower_ucids
         if ucid not in existing_attendees.values()
     ]
+<<<<<<< HEAD
     DB.session.add_all(new_attendees)
     DB.session.flush()
     new_attendee_ids = [attendee.id for attendee in new_attendees]
@@ -170,3 +171,41 @@ def create_reservation(room_id, start_time, end_time, organizer_id, attendee_ids
     DB.session.add(new_check_in)
     DB.session.commit()
     return True, new_check_in_code
+=======
+
+    for appointment in appointment_dicts:
+        if appointment.get("organizer", None) is not None:
+            appointment["organizer"] = _user_info_as_dict(
+                appointment["organizer"]
+            )
+        if appointment.get("room", None) is not None:
+            appointment["room"] = appointment["room"]._asdict()
+        if appointment.get("attendees", None) is not None:
+            appointment["attendees"] = [
+                _user_info_as_dict(attendee)
+                for attendee in appointment["attendees"]
+            ]
+        if appointment.get("start_time", None) is not None:
+            appointment["start_time"] = (appointment["start_time"].timestamp()
+                                         * 1000)
+        if appointment.get("end_time", None) is not None:
+            appointment["end_time"] = (appointment["end_time"].timestamp()
+                                         * 1000)
+    return appointment_dicts
+
+def get_unavailable_dates_for_month(date):
+    # TODO: jlh29, actually obtain appointments from database
+    unavailable_dates = [
+        unavailable.timestamp() * 1000 for unavailable in MOCK_UNAVAILABLE_DATES
+        if unavailable.month == date.month and unavailable.year == date.year
+    ]
+    return unavailable_dates
+
+def get_all_users():
+    # TODO: jlh29, actually obtain appointments from database
+    return [_user_info_as_dict(user) for user in MOCK_USERS]
+
+def get_all_rooms():
+    # TODO: jlh29, actually obtain appointments from database
+    return [room._asdict() for room in MOCK_ROOMS]
+>>>>>>> Add methods to obtain unavailable dates from database (using mocked data for now)
