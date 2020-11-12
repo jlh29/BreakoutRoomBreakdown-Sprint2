@@ -40,8 +40,7 @@ class Appointment(DB.Model):
     id = DB.Column(DB.Integer, primary_key=True)
     organizer = DB.Column(DB.String(120))
     numberOfAttendees = DB.Column(DB.Integer)
-    roomSize = DB.Column(DB.String(2))
-    # roomNumber = DB.Column(DB.Integer)
+    room_id = DB.Column(DB.Integer, DB.ForeignKey("room.id"), nullable=False)
     reservation = DB.Column(DB.DateTime())
     
     attendees = DB.relationship(Attendee, backref="Appointment", lazy="True")
@@ -51,7 +50,30 @@ class Appointment(DB.Model):
         self.numberOfAttendees = numberOfAttendees
         self.roomSize = roomSize
         self.reservation = reservation
-    
+
+class Room(DB.Model):
+    id = DB.Column(DB.Integer, primary_key=True)
+    room_number = DB.Column(DB.String(40), nullable=False, unique=True)
+    size = DB.Column(DB.String(4), nullable=False)
+    capacity = DB.Column(DB.Integer)
+    appointments = DB.relationship(Appointment, backref="Room", lazy="True")
+
+    def __init__(self, room_number, capacity, size=None):
+        assert capacity > 0
+        if size is not None:
+            assert isinstance(size, RoomSize)
+        elif capacity < 3:
+            size = RoomSize.SMALL
+        elif capacity < 6:
+            size = RoomSize.MEDIUM
+        elif capacity < 9:
+            size = RoomSize.LARGE
+        else:
+            size = RoomSize.XLARGE
+
+        self.room_number = room_number
+        self.capacity = capacity
+        self.size = size.value
 
 class AuthUserType(Enum):
     GOOGLE = "google"
@@ -61,3 +83,9 @@ class UserRole(Enum):
     LIBRARIAN = "librarian"
     PROFESSOR = "professor"
     STUDENT = "student"
+
+class RoomSize(Enum):
+    SMALL = "s"
+    MEDIUM = "m"
+    LARGE = "l"
+    XLARGE = "xl"
