@@ -53,3 +53,9 @@ body {
     align-items:center;
 }
 
+#librarianCheckInContainer {
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+}
+
