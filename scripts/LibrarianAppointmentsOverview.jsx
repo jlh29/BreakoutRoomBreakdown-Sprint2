@@ -1,20 +1,37 @@
-import * as React from 'react';
+import React, { useState } from 'react';
 import LibrarianAppointmentsOverviewItem from './LibrarianAppointmentsOverviewItem';
 
 export default function LibrarianAppointmentsOverview(props) {
     const { appointments } = props;
+    const [selectedAppointment, setSelectedAppointment] = useState({});
+
     return (
         <div id='appointmentsContainer'>
-            <ul id='appointmentsList'>
-                {
+            <div id='appointmentsSelector'>
+                { 
                     appointments.map(
-                        appointment => <LibrarianAppointmentsOverviewItem
-                            appointment={appointment}
-                            key={appointment.id}
-                        />
+                        appointment => (
+                            <button 
+                                className='appointmentSelectorButton'
+                                type='button'
+                                onClick={() => setSelectedAppointment(appointment)}
+                                key={appointment.id}
+                            >
+                                Room: {appointment.room.room_number}
+                            </button>
+                        )
                     )
                 }
-            </ul>
+            </div>
+            <div id='appointmentDetails'>
+                {('id' in selectedAppointment) ? 
+                    <LibrarianAppointmentsOverviewItem
+                        appointment={selectedAppointment}
+                    />
+                    :
+                    null
+                }
+            </div>
         </div>
     );
 }
