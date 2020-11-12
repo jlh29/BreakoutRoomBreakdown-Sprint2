@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Socket } from './Socket';
 import ReactDOM from 'react-dom';
+import { MyCalendar } from './Calendar';
 
 export function Content_Auth() {
     const [name, setName] = React.useState([]);
@@ -25,6 +26,8 @@ export function Content_Auth() {
           <p> Welcome {name} </p>
           <form onClick={logout}>
           <button>Logout</button></form>
+          
+          <MyCalendar />
         </div>
     );
 }
