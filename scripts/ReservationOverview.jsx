@@ -31,6 +31,10 @@ export default function ReservationOverview(props) {
         }
     }
 
+    function handleReservationSubmit() {
+        // TODO: jlh29, actually send the info to the server
+    }
+
     function logout(event) {
         ReactDOM.render(<LoginPage />, document.getElementById('content'));
     }
@@ -42,14 +46,14 @@ export default function ReservationOverview(props) {
             <form id='logoutForm' onClick={logout}>
                 <button>Logout</button>
             </form>
-            <MyCalendar 
+            <MyCalendar
                 date={date}
                 setDate={updateDate}
                 time={time}
                 setTime={updateTime}
             />
             <div id='reservationForm'>
-                <RoomReservationTimeInfo 
+                <RoomReservationTimeInfo
                     selectedDate={dateChanged ? date : null}
                     selectedTime={timeChanged ? time : null}
                 />
@@ -58,7 +62,7 @@ export default function ReservationOverview(props) {
                     attendeeCount={attendeeCount}
                     setAttendees={setAttendees}
                 />
-                <RoomReservationSubmit />
+                <RoomReservationSubmit handleSubmit={handleReservationSubmit} />
             </div>
         </div>
     );

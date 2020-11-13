@@ -1,11 +1,9 @@
 import * as React from 'react';
 
-export default function RoomReservationSubmit() {
-    function handleSubmit(event) {
-        event.preventDefault();
-    }
+export default function RoomReservationSubmit(props) {
+    const { handleSubmit } = props;
 
     return (
-        <button onClick={handleSubmit}>Submit</button>
+        <button onClick={handleSubmit} id='reservationSubmit'>Submit</button>
     );
 }
