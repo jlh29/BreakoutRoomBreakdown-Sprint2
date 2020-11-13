@@ -20,6 +20,7 @@ export default function GoogleButton() {
     function handleFailure(response) {
         // TODO: show some sort of error message
         console.log('Encountered an error while signing in.');
+        console.log(response);
     }
 
     return <GoogleLogin
