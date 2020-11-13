@@ -23,7 +23,7 @@ class AuthUser(DB.Model):
         assert isinstance(auth_type, AuthUserType)
         assert isinstance(role, UserRole)
         self.name = name
-        self.auth_type = auth_type
+        self.auth_type = auth_type.value
         self.ucid = ucid
         self.role = role.value
 
