@@ -39,7 +39,7 @@ export default function MyCalendar(props) {
     }
 
     return (
-        <div>
+        <div id='calendar'>
             <Calendar
                 onClickDay={handleClickDay}
                 value={date}
