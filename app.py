@@ -60,6 +60,7 @@ ATTENDEES_KEY = "attendees"
 TIMESLOT_KEY = "timeslot"
 TIME_AVAILABILITY_KEY = "isAvailable"
 AVAILABLE_ROOMS_KEY = "availableRooms"
+DATE_FORMAT = "%m/%d/%Y"
 
 CONNECTED_USERS = {}
 
@@ -88,11 +89,16 @@ def on_new_user_login(data):
 @SOCKET.on(DATE_AVAILABILITY_REQUEST_CHANNEL)
 def on_date_availability_request(data):
     print("Got an event for date input with data:", data)
-    date = datetime.datetime.fromtimestamp(data[DATE_KEY] / 1000.0)
-    available_dates = db_utils.get_available_dates_after_date(
-        date=date,
-        date_range=3,
-    )
+    date = datetime.datetime.strptime(data[DATE_KEY], DATE_FORMAT)
+    if (flask.request.sid in CONNECTED_USERS
+            and CONNECTED_USERS[flask.request.sid].role == models.UserRole.LIBRARIAN
+    ):
+        available_dates = db_utils.get_available_dates_for_month(date)
+    else:
+        available_dates = db_utils.get_available_dates_after_date(
+            date=date,
+            date_range=3,
+        )
     available_date_timestamps = [
         available_date.timestamp() * 1000.0
         for available_date in available_dates
@@ -106,7 +112,7 @@ def on_date_availability_request(data):
 @SOCKET.on(TIME_AVAILABILITY_REQUEST_CHANNEL)
 def on_time_availability_request(data):
     print("Got an event for time input with data:", data)
-    date = datetime.datetime.fromtimestamp(data[DATE_KEY] / 1000.0)
+    date = datetime.datetime.strptime(data[DATE_KEY], DATE_FORMAT)
     available_times = db_utils.get_available_times_for_date(date=date.date())
     # TODO: jlh29, extend this for timeslots that are not 2 hours
     all_times = [
@@ -183,8 +189,8 @@ def on_request_appointments(data):
         return
     if CONNECTED_USERS[flask.request.sid].role != models.UserRole.LIBRARIAN:
         return
-    # appointments = db_utils.get_all_appointments()
-    appointments = []
+    date = datetime.datetime.strptime(data[DATE_KEY], DATE_FORMAT)
+    appointments = db_utils.get_all_appointments_for_date(date, True)
     SOCKET.emit(
         APPOINTMENTS_RESPONSE_CHANNEL, 
         {APPOINTMENTS_KEY: appointments},
@@ -197,8 +203,7 @@ def on_request_users(data):
         return
     if CONNECTED_USERS[flask.request.sid].role != models.UserRole.LIBRARIAN:
         return
-    # users = db_utils.get_all_users()
-    users = []
+    users = db_utils.get_all_user_objs(True)
     SOCKET.emit(
         USERS_RESPONSE_CHANNEL, 
         {USERS_KEY: users},
@@ -211,28 +216,10 @@ def on_request_rooms(data):
         return
     if CONNECTED_USERS[flask.request.sid].role != models.UserRole.LIBRARIAN:
         return
-    # rooms = db_utils.get_all_rooms()
-    rooms = []
+    rooms = db_utils.get_all_room_objs(True)
     SOCKET.emit(
         ROOMS_RESPONSE_CHANNEL, 
         {ROOMS_KEY: rooms},
-        room=flask.request.sid,
-    )
-
-@SOCKET.on(UNAVAILABLE_DATES_REQUEST_CHANNEL)
-def on_request_unavailable_dates(data):
-    if flask.request.sid not in CONNECTED_USERS:
-        return
-    if CONNECTED_USERS[flask.request.sid].role != models.UserRole.LIBRARIAN:
-        return
-    selectedDate = datetime.datetime.strptime(
-        data[UNAVAILABLE_DATES_REQUEST_DATE_KEY],
-        UNAVAILABLE_DATES_REQUEST_DATE_FORMAT,
-    )
-    unavailable = db_utils.get_unavailable_dates_for_month(selectedDate)
-    SOCKET.emit(
-        UNAVAILABLE_DATES_RESPONSE_CHANNEL,
-        {UNAVAILABLE_DATES_KEY: unavailable},
         room=flask.request.sid,
     )
 
