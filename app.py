@@ -54,6 +54,11 @@ ROOMS_REQUEST_CHANNEL = "rooms request"
 ROOMS_RESPONSE_CHANNEL = "rooms response"
 ROOMS_KEY = "rooms"
 
+CHECK_IN_CHANNEL = 'check in'
+CHECK_IN_RESPONSE_CHANNEL = 'check in response'
+CHECK_IN_CODE_KEY = 'code'
+CHECK_IN_SUCCESS_KEY = 'successful'
+
 DATE_KEY = "date"
 TIME_KEY = "time"
 ATTENDEES_KEY = "attendees"
@@ -63,6 +68,13 @@ AVAILABLE_ROOMS_KEY = "availableRooms"
 DATE_FORMAT = "%m/%d/%Y"
 
 CONNECTED_USERS = {}
+
+def is_user_librarian():
+    if flask.request.sid not in CONNECTED_USERS:
+        return False
+    if CONNECTED_USERS[flask.request.sid].role != models.UserRole.LIBRARIAN:
+        return False
+    return True
 
 @SOCKET.on(CONNECT_CHANNEL)
 def on_connect():
@@ -175,9 +187,7 @@ def index():
 
 @SOCKET.on(LIBRARIAN_DATA_REQUEST_CHANNEL)
 def on_librarian_data_request(data):
-    if flask.request.sid not in CONNECTED_USERS:
-        return
-    if CONNECTED_USERS[flask.request.sid].role != models.UserRole.LIBRARIAN:
+    if not is_user_librarian():
         return
     on_request_appointments(data)
     on_request_rooms(data)
@@ -185,9 +195,7 @@ def on_librarian_data_request(data):
 
 @SOCKET.on(APPOINTMENTS_REQUEST_CHANNEL)
 def on_request_appointments(data):
-    if flask.request.sid not in CONNECTED_USERS:
-        return
-    if CONNECTED_USERS[flask.request.sid].role != models.UserRole.LIBRARIAN:
+    if not is_user_librarian():
         return
     date = datetime.datetime.strptime(data[DATE_KEY], DATE_FORMAT)
     appointments = db_utils.get_all_appointments_for_date(date, True)
@@ -199,9 +207,7 @@ def on_request_appointments(data):
 
 @SOCKET.on(USERS_REQUEST_CHANNEL)
 def on_request_users(data):
-    if flask.request.sid not in CONNECTED_USERS:
-        return
-    if CONNECTED_USERS[flask.request.sid].role != models.UserRole.LIBRARIAN:
+    if not is_user_librarian():
         return
     users = db_utils.get_all_user_objs(True)
     SOCKET.emit(
@@ -212,14 +218,24 @@ def on_request_users(data):
 
 @SOCKET.on(ROOMS_REQUEST_CHANNEL)
 def on_request_rooms(data):
-    if flask.request.sid not in CONNECTED_USERS:
-        return
-    if CONNECTED_USERS[flask.request.sid].role != models.UserRole.LIBRARIAN:
+    if not is_user_librarian():
         return
     rooms = db_utils.get_all_room_objs(True)
     SOCKET.emit(
         ROOMS_RESPONSE_CHANNEL, 
         {ROOMS_KEY: rooms},
+        room=flask.request.sid,
+    )
+
+@SOCKET.on(CHECK_IN_CHANNEL)
+def on_check_in(data):
+    if not is_user_librarian():
+        return
+    check_in_code = data[CHECK_IN_CODE_KEY]
+    result = db_utils.check_in_with_code(check_in_code)
+    SOCKET.emit(
+        CHECK_IN_RESPONSE_CHANNEL,
+        {CHECK_IN_SUCCESS_KEY: result},
         room=flask.request.sid,
     )
 

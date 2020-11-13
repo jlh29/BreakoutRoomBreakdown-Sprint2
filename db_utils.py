@@ -315,3 +315,21 @@ def create_reservation(room_id, start_time, end_time, organizer_id, attendee_ids
     DB.session.add(new_check_in)
     DB.session.commit()
     return True, new_check_in_code
+
+def check_in_with_code(check_in_code):
+    reservation = (DB.session.query(models.CheckIn)
+                        .filter(
+                            models.CheckIn.validation_code == check_in_code
+                        ).first())
+    if reservation is None:
+        print("Reservation not found.")
+        DB.session.commit()
+        return False
+    appointment = (DB.session.query(models.Appointment)
+                        .filter(
+                            models.Appointment.id == reservation.reservation_id
+                        ).first())
+    appointment.status = models.AppointmentStatus.CHECKED_IN.value
+    DB.session.delete(reservation)
+    DB.session.commit()
+    return True

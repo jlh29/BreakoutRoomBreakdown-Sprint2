@@ -76,8 +76,9 @@ export default function LibrarianOverview() {
         requestAllData();
     }
 
-    function updateCheckInSuccess(success) {
-        setCheckInSuccess(success);
+    function updateCheckInSuccess(data) {
+        console.log(data.successful);
+        setCheckInSuccess(data.successful);
         setShowCheckInResult(true);
         if (checkInResultTimeoutId >= 0) {
             clearTimeout(checkInResultTimeoutId);
@@ -93,7 +94,7 @@ export default function LibrarianOverview() {
     function onCheckInSubmitClicked() {
         let checkInID = checkInRef.current.value.trim();
         if (checkInID.length > 0) {
-            Socket.emit('check in', {checkInID}, updateCheckInSuccess);
+            Socket.emit('check in', {code: checkInID});
         }
         checkInRef.current.value = '';
     }
@@ -162,12 +163,14 @@ export default function LibrarianOverview() {
             Socket.on('users response', updateUsers);
             Socket.on('rooms response', updateRooms);
             Socket.on('unavailable dates response', updateUnavailableDates);
+            Socket.on('check in response', updateCheckInSuccess);
             return () => {
                 Socket.off('connect', establishConnection);
                 Socket.off('appointments response', updateAppointments);
                 Socket.off('users response', updateUsers);
                 Socket.off('rooms response', updateRooms);
                 Socket.off('unavailable dates response', updateUnavailableDates);
+                Socket.off('check in response', updateCheckInSuccess);
             };
         });
     }
