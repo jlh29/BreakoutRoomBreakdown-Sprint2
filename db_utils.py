@@ -16,17 +16,12 @@ def get_available_times_for_date(date):
                             .filter(
                                 func.DATE(models.Appointment.start_time) == date,
                             ).all())
-    available_times = set(AVAILABLE_TIMES)
     appointments_by_time = {}
     for appointment in appointments:
         appointments_by_time.setdefault(appointment.date.hour, 0)
         appointments_by_time[appointment.date.hour] += 1
 
     total_rooms = get_number_of_rooms()
-    unavailable_times = {
-        hour for hour in appointments_by_time
-        if appointments_by_time[hour] < total_rooms
-    }
     availability = {
         hour: (total_rooms - appointments_by_time.get(hour, 0))
         for hour in AVAILABLE_TIMES
