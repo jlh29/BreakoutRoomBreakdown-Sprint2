@@ -1,15 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
+import LibrarianOverview from './LibrarianOverview';
 import ReservationOverview from './ReservationOverview';
 import GoogleButton from './GoogleButton';
 import Socket from './Socket';
 
 export default function LoginPage() {
     function onSuccessfulLogin(data) {
-        ReactDOM.render(
-            <ReservationOverview name={data.name} />,
-            document.getElementById('content')
-        );
+        if (data.role.toLowerCase().trim() == 'librarian') {
+            ReactDOM.render(
+                <LibrarianOverview />,
+                document.getElementById('content'),
+            );
+        } else {
+            ReactDOM.render(
+                <ReservationOverview name={data.name} />,
+                document.getElementById('content'),
+            );
+        }
     }
 
     function listenToServer() {

@@ -21,6 +21,7 @@ USERS_UPDATED_CHANNEL = "users updated"
 USER_LOGIN_CHANNEL = "new login"
 USER_LOGIN_NAME_KEY = "name"
 USER_LOGIN_EMAIL_KEY = "email"
+USER_LOGIN_ROLE_KEY = "role"
 
 SUCCESSFUL_LOGIN_CHANNEL = "successful login"
 
@@ -34,6 +35,29 @@ ALL_DATES_KEY = "dates"
 
 RESERVATION_SUBMIT_CHANNEL = "reservation submit"
 RESERVATION_RESPONSE_CHANNEL = "reservation response"
+CONNECT_CHANNEL = "connect"
+DISCONNECT_CHANNEL = "disconnect"
+
+LIBRARIAN_DATA_REQUEST_CHANNEL = "overview request"
+
+APPOINTMENTS_REQUEST_CHANNEL = "appointments request"
+APPOINTMENTS_RESPONSE_CHANNEL = "appointments response"
+APPOINTMENTS_KEY = "appointments"
+APPOINTMENTS_REQUEST_DATE_KEY = "date"
+APPOINTMENTS_REQUEST_DATE_FORMAT = "%m/%d/%Y"
+
+USERS_REQUEST_CHANNEL = "users request"
+USERS_RESPONSE_CHANNEL = "users response"
+USERS_KEY = "users"
+
+ROOMS_REQUEST_CHANNEL = "rooms request"
+ROOMS_RESPONSE_CHANNEL = "rooms response"
+ROOMS_KEY = "rooms"
+
+CHECK_IN_CHANNEL = 'check in'
+CHECK_IN_RESPONSE_CHANNEL = 'check in response'
+CHECK_IN_CODE_KEY = 'code'
+CHECK_IN_SUCCESS_KEY = 'successful'
 
 DATE_KEY = "date"
 TIME_KEY = "time"
@@ -41,14 +65,22 @@ ATTENDEES_KEY = "attendees"
 TIMESLOT_KEY = "timeslot"
 TIME_AVAILABILITY_KEY = "isAvailable"
 AVAILABLE_ROOMS_KEY = "availableRooms"
+DATE_FORMAT = "%m/%d/%Y"
 
 CONNECTED_USERS = {}
 
-@SOCKET.on("connect")
+def is_user_librarian():
+    if flask.request.sid not in CONNECTED_USERS:
+        return False
+    if CONNECTED_USERS[flask.request.sid].role != models.UserRole.LIBRARIAN:
+        return False
+    return True
+
+@SOCKET.on(CONNECT_CHANNEL)
 def on_connect():
     print("Someone connected!")
     
-@SOCKET.on("disconnect")
+@SOCKET.on(DISCONNECT_CHANNEL)
 def on_disconnect():
     print ("Someone disconnected!")
     CONNECTED_USERS.pop(flask.request.sid, None)
@@ -58,21 +90,27 @@ def on_new_user_login(data):
     print(f"Got an event for new user login with data: {data}")
     name = data[USER_LOGIN_NAME_KEY]
     ucid = data[USER_LOGIN_EMAIL_KEY].split("@")[0]
-    CONNECTED_USERS[flask.request.sid] = db_utils.add_or_get_auth_user(ucid, name)
+    auth_user = db_utils.add_or_get_auth_user(ucid, name)
+    CONNECTED_USERS[flask.request.sid] = auth_user
     SOCKET.emit(
         SUCCESSFUL_LOGIN_CHANNEL,
-        {USER_LOGIN_NAME_KEY: name},
+        {USER_LOGIN_NAME_KEY: name, USER_LOGIN_ROLE_KEY: auth_user.role.value},
         room=flask.request.sid,
     )
 
 @SOCKET.on(DATE_AVAILABILITY_REQUEST_CHANNEL)
 def on_date_availability_request(data):
     print("Got an event for date input with data:", data)
-    date = datetime.datetime.fromtimestamp(data[DATE_KEY] / 1000.0)
-    available_dates = db_utils.get_available_dates_after_date(
-        date=date,
-        date_range=3,
-    )
+    date = datetime.datetime.strptime(data[DATE_KEY], DATE_FORMAT)
+    if (flask.request.sid in CONNECTED_USERS
+            and CONNECTED_USERS[flask.request.sid].role == models.UserRole.LIBRARIAN
+    ):
+        available_dates = db_utils.get_available_dates_for_month(date)
+    else:
+        available_dates = db_utils.get_available_dates_after_date(
+            date=date,
+            date_range=3,
+        )
     available_date_timestamps = [
         available_date.timestamp() * 1000.0
         for available_date in available_dates
@@ -86,7 +124,7 @@ def on_date_availability_request(data):
 @SOCKET.on(TIME_AVAILABILITY_REQUEST_CHANNEL)
 def on_time_availability_request(data):
     print("Got an event for time input with data:", data)
-    date = datetime.datetime.fromtimestamp(data[DATE_KEY] / 1000.0)
+    date = datetime.datetime.strptime(data[DATE_KEY], DATE_FORMAT)
     available_times = db_utils.get_available_times_for_date(date=date.date())
     # TODO: jlh29, extend this for timeslots that are not 2 hours
     all_times = [
@@ -147,7 +185,61 @@ def on_reservation_submit(data):
 def index():
     return flask.render_template("index.html")
 
-if __name__ == "__main__":
+@SOCKET.on(LIBRARIAN_DATA_REQUEST_CHANNEL)
+def on_librarian_data_request(data):
+    if not is_user_librarian():
+        return
+    on_request_appointments(data)
+    on_request_rooms(data)
+    on_request_users(data)
+
+@SOCKET.on(APPOINTMENTS_REQUEST_CHANNEL)
+def on_request_appointments(data):
+    if not is_user_librarian():
+        return
+    date = datetime.datetime.strptime(data[DATE_KEY], DATE_FORMAT)
+    appointments = db_utils.get_all_appointments_for_date(date, True)
+    SOCKET.emit(
+        APPOINTMENTS_RESPONSE_CHANNEL, 
+        {APPOINTMENTS_KEY: appointments},
+        room=flask.request.sid,
+    )
+
+@SOCKET.on(USERS_REQUEST_CHANNEL)
+def on_request_users(data):
+    if not is_user_librarian():
+        return
+    users = db_utils.get_all_user_objs(True)
+    SOCKET.emit(
+        USERS_RESPONSE_CHANNEL, 
+        {USERS_KEY: users},
+        room=flask.request.sid,
+    )
+
+@SOCKET.on(ROOMS_REQUEST_CHANNEL)
+def on_request_rooms(data):
+    if not is_user_librarian():
+        return
+    rooms = db_utils.get_all_room_objs(True)
+    SOCKET.emit(
+        ROOMS_RESPONSE_CHANNEL, 
+        {ROOMS_KEY: rooms},
+        room=flask.request.sid,
+    )
+
+@SOCKET.on(CHECK_IN_CHANNEL)
+def on_check_in(data):
+    if not is_user_librarian():
+        return
+    check_in_code = data[CHECK_IN_CODE_KEY]
+    result = db_utils.check_in_with_code(check_in_code)
+    SOCKET.emit(
+        CHECK_IN_RESPONSE_CHANNEL,
+        {CHECK_IN_SUCCESS_KEY: result},
+        room=flask.request.sid,
+    )
+
+if __name__ == "__main__": 
     db_instance.init_db(APP)
     socket_utils.init_socket(APP)
     SOCKET.run(
