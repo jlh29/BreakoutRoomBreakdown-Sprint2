@@ -114,3 +114,9 @@ h1 {
     height:15vw;
     align-self:center;
 }
+
+#reservationConfirmationContainer {
+    background:#E4E4E4;
+    width:35%;
+    border-radius:30px;
+}

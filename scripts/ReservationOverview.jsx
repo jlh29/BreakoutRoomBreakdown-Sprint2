@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import LoginPage from './LoginPage';
 import MyCalendar from './Calendar';
+import ReservationConfirmation from './ReservationConfirmation';
 import RoomReservationSelector from './RoomReservationSelector';
 import RoomReservationAttendeeInput from './RoomReservationAttendeeInput';
 import RoomReservationSubmit from './RoomReservationSubmit';
@@ -72,11 +73,26 @@ export default function ReservationOverview(props) {
         if (!timeChanged || !dateChanged) {
             return;
         }
+        if (attendees.length == 0) {
+            return;
+        }
         let selectedDateTimestamp = date.getTime();
         Socket.emit(
             'reservation submit',
             {date: selectedDateTimestamp, time, attendees},
         );
+    }
+
+    function handleReservationResponse(data) {
+        if (data.successful) {
+            ReactDOM.render(
+                <ReservationConfirmation
+                    reservation={data.reservation}
+                    checkInCode={data.code}
+                />,
+                document.getElementById('content'),
+            );
+        }
     }
 
     function logout(event) {
@@ -87,9 +103,11 @@ export default function ReservationOverview(props) {
         useEffect(() => {
             Socket.on('time availability response', updateAllTimes);
             Socket.on('date availability response', updateAvailableDates);
+            Socket.on('reservation response', handleReservationResponse);
             return () => {
                 Socket.off('time availability response', updateAllTimes);
                 Socket.off('date availability response', updateAvailableDates);
+                Socket.off('reservation response', handleReservationResponse);
             };
         });
     }

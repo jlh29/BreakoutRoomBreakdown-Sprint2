@@ -267,7 +267,7 @@ def get_all_appointments_for_date(date, as_dicts=False):
                 room=get_room_obj_by_id(appointment.room_id, as_dicts),
                 start_time=start_time_ts if as_dicts else appointment.start_time,
                 end_time=end_time_ts if as_dicts else appointment.end_time,
-                organizer=get_user_obj_from_id(appointment.organizer.id, as_dicts),
+                organizer=get_user_obj_from_id(appointment.organizer_id, as_dicts),
                 attendees=None if appointment.attendee_ids is None else [
                     get_attendee_obj_from_id(id, as_dicts)
                     for id in appointment.attendee_ids
@@ -292,7 +292,7 @@ def create_reservation(room_id, start_time, end_time, organizer_id, attendee_ids
     if existing_reservation:
         print("A reservation already exists for this room at the given time")
         DB.session.commit()
-        return False, None
+        return False, None, None
 
     # TODO: jlh29, eventually check to make sure all attendee IDs are valid
     new_reservation = models.Appointment(
@@ -314,7 +314,19 @@ def create_reservation(room_id, start_time, end_time, organizer_id, attendee_ids
     )
     DB.session.add(new_check_in)
     DB.session.commit()
-    return True, new_check_in_code
+    reservation_obj = models.AppointmentInfo(
+        id=new_reservation.id,
+        room=get_room_obj_by_id(new_reservation.room_id, True),
+        start_time=new_reservation.start_time.timestamp() * 1000.0,
+        end_time=new_reservation.end_time.timestamp() * 1000.0,
+        organizer=get_user_obj_from_id(new_reservation.organizer_id, True),
+        attendees=None if new_reservation.attendee_ids is None else [
+            get_attendee_obj_from_id(id, True)
+            for id in new_reservation.attendee_ids
+        ],
+        status=new_reservation.status,
+    )
+    return True, new_check_in_code, reservation_obj._asdict()
 
 def check_in_with_code(check_in_code):
     reservation = (DB.session.query(models.CheckIn)
