@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Socket from './Socket';
 import Calendar from 'react-calendar';
-import { Slot } from './Slot';
+import Slot from './Slot';
 
-export function MyCalendar() {
-    const [date, setDate] = React.useState(new Date());
+export default function MyCalendar() {
+    const [date, setDate] = useState(new Date());
     
     function sendDate(){
         console.log(`User selected the date "${date}"`);
@@ -43,15 +43,15 @@ export function MyCalendar() {
 
     return (
         <div>
-          <Calendar
-            onClickDay={handleClickDay}
-            value={date}
-            tileDisabled={handleDisable}
-          />
-          <Slot timeslot="9:00-11:00"></Slot>
-          <Slot timeslot="11:00-1:00"></Slot>
-          <Slot timeslot="1:00-3:00"></Slot>
-          <Slot timeslot="3:00-5:00"></Slot>
+            <Calendar
+                onClickDay={handleClickDay}
+                value={date}
+                tileDisabled={handleDisable}
+            />
+            <Slot timeslot="9:00-11:00"></Slot>
+            <Slot timeslot="11:00-1:00"></Slot>
+            <Slot timeslot="1:00-3:00"></Slot>
+            <Slot timeslot="3:00-5:00"></Slot>
         </div>
       );
 }
