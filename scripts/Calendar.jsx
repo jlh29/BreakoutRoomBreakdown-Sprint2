@@ -4,8 +4,9 @@ import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import Slot from './Slot';
 
-export default function MyCalendar() {
-    const [date, setDate] = useState(new Date());
+export default function MyCalendar(props) {
+    const { date, setDate } = props;
+    const { time, setTime } = props;
     
     function sendDate(){
         console.log(`User selected the date "${date}"`);
@@ -49,10 +50,10 @@ export default function MyCalendar() {
                 value={date}
                 tileDisabled={handleDisable}
             />
-            <Slot timeslot="9:00-11:00"></Slot>
-            <Slot timeslot="11:00-1:00"></Slot>
-            <Slot timeslot="1:00-3:00"></Slot>
-            <Slot timeslot="3:00-5:00"></Slot>
+            <Slot timeslot="9:00-11:00" time={time} setTime={setTime}></Slot>
+            <Slot timeslot="11:00-1:00" time={time} setTime={setTime}></Slot>
+            <Slot timeslot="1:00-3:00" time={time} setTime={setTime}></Slot>
+            <Slot timeslot="3:00-5:00" time={time} setTime={setTime}></Slot>
         </div>
       );
 }

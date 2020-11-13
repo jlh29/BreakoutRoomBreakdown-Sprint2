@@ -2,7 +2,7 @@ import React from 'react';
 import Socket from './Socket';
 
 export default function Slot(props) {
-  const [time, setTime] = React.useState();
+  const {time, setTime} = props;
   const [timeAvailable, setTimeAvailable] = React.useState("");
   const [send, setSend] = React.useState(false);
 
