@@ -5,43 +5,38 @@ import 'react-calendar/dist/Calendar.css';
 import Slot from './Slot';
 
 export default function MyCalendar(props) {
-    const { date, setDate } = props;
-    const { time, setTime } = props;
-    
-    function sendDate(){
-        console.log(`User selected the date "${date}"`);
-    
-        Socket.emit('date availability', { 
-            'date': date
-        });
-        
-        console.log(`Sent the date "${date}" to the server`);  
-    }
+    const { date, setDate, time, setTime, allTimes, availableDates } = props;
   
     function handleClickDay(event){
         setDate(event);
     }
-    
-    sendDate();
-    
+
     function handleDisable({activeStartDate, date, view }){
-        let disableDate = false;
+        let disableDate = true;
         let today = new Date();
-        
-        if (date.getDay() === 0 || date.getDay() === 6)
+        for (let available of availableDates) {
+            if (date.getDate() == available.getDate()
+                    && date.getMonth() == available.getMonth()
+                    && date.getFullYear() == available.getFullYear()) {
+                disableDate = false;
+                break;
+            }
+        }
+
+        if (date.getDay() === 0 || date.getDay() === 6) {
             disableDate = true;
-            
-        if (date.getDate() === 24)
+        }
+
+        if (date.getDate() < today.getDate()) {
             disableDate = true;
-            
-        // date.getDate() !== today.getDate() 
-        if (date.getDate() !== today.getDate() + 1
-            && date.getDate() !== today.getDate() + 2)
+        }
+
+        if (date.getDate() - today.getDate() > 2) {
             disableDate = true;
-            
+        }
+
         return disableDate;
     }
-    
 
     return (
         <div>
@@ -50,10 +45,17 @@ export default function MyCalendar(props) {
                 value={date}
                 tileDisabled={handleDisable}
             />
-            <Slot timeslot="9:00-11:00" time={time} setTime={setTime}></Slot>
-            <Slot timeslot="11:00-1:00" time={time} setTime={setTime}></Slot>
-            <Slot timeslot="1:00-3:00" time={time} setTime={setTime}></Slot>
-            <Slot timeslot="3:00-5:00" time={time} setTime={setTime}></Slot>
+            {
+                allTimes.map(
+                    time => {
+                        return <Slot
+                            timeslot={time.timeslot}
+                            setTime={setTime}
+                            isAvailable={time.isAvailable}
+                        />;
+                    }
+                )
+            }
         </div>
       );
 }
