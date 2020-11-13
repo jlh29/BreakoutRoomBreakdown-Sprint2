@@ -21,6 +21,7 @@ USERS_UPDATED_CHANNEL = "users updated"
 USER_LOGIN_CHANNEL = "new login"
 USER_LOGIN_NAME_KEY = "name"
 USER_LOGIN_EMAIL_KEY = "email"
+USER_LOGIN_ROLE_KEY = "role"
 
 SUCCESSFUL_LOGIN_CHANNEL = "successful login"
 
@@ -76,10 +77,11 @@ def on_new_user_login(data):
     print(f"Got an event for new user login with data: {data}")
     name = data[USER_LOGIN_NAME_KEY]
     ucid = data[USER_LOGIN_EMAIL_KEY].split("@")[0]
-    CONNECTED_USERS[flask.request.sid] = db_utils.add_or_get_auth_user(ucid, name)
+    auth_user = db_utils.add_or_get_auth_user(ucid, name)
+    CONNECTED_USERS[flask.request.sid] = auth_user
     SOCKET.emit(
         SUCCESSFUL_LOGIN_CHANNEL,
-        {USER_LOGIN_NAME_KEY: name},
+        {USER_LOGIN_NAME_KEY: name, USER_LOGIN_ROLE_KEY: auth_user.role.value},
         room=flask.request.sid,
     )
 
@@ -165,22 +167,22 @@ def on_reservation_submit(data):
 def index():
     return flask.render_template("index.html")
 
-@APP.route("/overview")
-def librarian_overview():
-    # TODO: jlh29, ensure that the requesting user has correct permissions
-    # i.e. is a librarian
-    return flask.render_template("librarian_overview.html")
-
 @SOCKET.on(LIBRARIAN_DATA_REQUEST_CHANNEL)
 def on_librarian_data_request(data):
-    # TODO: jlh29, ensure that the requesting user has correct permissions
+    if flask.request.sid not in CONNECTED_USERS:
+        return
+    if CONNECTED_USERS[flask.request.sid].role != models.UserRole.LIBRARIAN:
+        return
     on_request_appointments(data)
     on_request_rooms(data)
     on_request_users(data)
 
 @SOCKET.on(APPOINTMENTS_REQUEST_CHANNEL)
 def on_request_appointments(data):
-    # TODO: jlh29, ensure that the requesting user has correct permissions
+    if flask.request.sid not in CONNECTED_USERS:
+        return
+    if CONNECTED_USERS[flask.request.sid].role != models.UserRole.LIBRARIAN:
+        return
     # appointments = db_utils.get_all_appointments()
     appointments = []
     SOCKET.emit(
@@ -191,7 +193,10 @@ def on_request_appointments(data):
 
 @SOCKET.on(USERS_REQUEST_CHANNEL)
 def on_request_users(data):
-    # TODO: jlh29, ensure that the requesting user has correct permissions
+    if flask.request.sid not in CONNECTED_USERS:
+        return
+    if CONNECTED_USERS[flask.request.sid].role != models.UserRole.LIBRARIAN:
+        return
     # users = db_utils.get_all_users()
     users = []
     SOCKET.emit(
@@ -202,7 +207,10 @@ def on_request_users(data):
 
 @SOCKET.on(ROOMS_REQUEST_CHANNEL)
 def on_request_rooms(data):
-    # TODO: jlh29, ensure that the requesting user has correct permissions
+    if flask.request.sid not in CONNECTED_USERS:
+        return
+    if CONNECTED_USERS[flask.request.sid].role != models.UserRole.LIBRARIAN:
+        return
     # rooms = db_utils.get_all_rooms()
     rooms = []
     SOCKET.emit(
@@ -213,7 +221,10 @@ def on_request_rooms(data):
 
 @SOCKET.on(UNAVAILABLE_DATES_REQUEST_CHANNEL)
 def on_request_unavailable_dates(data):
-    # TODO: jlh29, ensure that the requesting user has correct permissions
+    if flask.request.sid not in CONNECTED_USERS:
+        return
+    if CONNECTED_USERS[flask.request.sid].role != models.UserRole.LIBRARIAN:
+        return
     selectedDate = datetime.datetime.strptime(
         data[UNAVAILABLE_DATES_REQUEST_DATE_KEY],
         UNAVAILABLE_DATES_REQUEST_DATE_FORMAT,
