@@ -6,7 +6,7 @@ import LibrarianCheckInResult from './LibrarianCheckInResult';
 export default function LibrarianCheckIn(props) {
     const { inputRef, submitClick, showResult, isSuccess } = props;
     return (
-        <div id='librarianCheckInContainer'>
+        <div id='librarianCheckInContainer'  className='flexColumn'>
             <div id='librarianCheckInInputContainer'>
                 <LibrarianCheckInInput inputRef={inputRef} />
                 <LibrarianCheckInSubmit submitClick={submitClick} />
