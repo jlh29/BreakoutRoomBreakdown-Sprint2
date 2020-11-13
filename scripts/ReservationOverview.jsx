@@ -20,8 +20,28 @@ export default function ReservationOverview(props) {
     const [timeChanged, setTimeChanged] = useState(false);
 
     function getTimesForSelectedDate(){
+        let selectedDateTimestamp = date.getTime();
         console.log(`User selected the date "${date}"`);
-        Socket.emit('date availability', {date});
+        Socket.emit('time availability request', {date: selectedDateTimestamp});
+    }
+
+    function getAvailableDates() {
+        let today = new Date();
+        let todayTimestamp = today.getTime();
+        console.log(`User requesting available dates near ${today}`);
+        Socket.emit('date availability request', {date: todayTimestamp});
+    }
+
+    function updateAllTimes(data) {
+        setAllTimes(data.times);
+    }
+
+    function updateAvailableDates(data) {
+        let constructedDates = [];
+        for (let dateTimestamp of data.dates) {
+            constructedDates.push(new Date(dateTimestamp));
+        }
+        setAvailableDates(constructedDates);
     }
 
     function updateDate(newDate) {
@@ -46,11 +66,28 @@ export default function ReservationOverview(props) {
         ReactDOM.render(<LoginPage />, document.getElementById('content'));
     }
 
+    function listenToServer() {
+        useEffect(() => {
+            Socket.on('time availability response', updateAllTimes);
+            Socket.on('date availability response', updateAvailableDates);
+            return () => {
+                Socket.off('time availability response', updateAllTimes);
+                Socket.off('date availability response', updateAvailableDates);
+            };
+        });
+    }
+
     useEffect(() => {
         if (dateChanged) {
             getTimesForSelectedDate();
         }
     }, [date, dateChanged]);
+
+    useEffect(() => {
+        getAvailableDates();
+    }, []);
+
+    listenToServer();
 
     return (
         <div id='contentContainer'>
