@@ -6,6 +6,37 @@ import models
 
 AVAILABLE_TIMES = [9, 11, 13, 15]
 
+def add_or_get_auth_user(ucid, name):
+    existing_user = (DB.session.query(models.AuthUser)
+                        .filter(
+                            func.lower(models.AuthUser.ucid) == func.lower(ucid)
+                        ).first())
+    if existing_user:
+        user_info = models.UserInfo(
+            id=existing_user.id,
+            ucid=existing_user.ucid,
+            role=models.UserRole(existing_user.role),
+            name=existing_user.name,
+        )
+    else:
+        new_user = models.AuthUser(
+            ucid=ucid,
+            auth_type=models.AuthUserType.GOOGLE,
+            role=models.UserRole.STUDENT,
+            name=name,
+        )
+        DB.session.add(new_user)
+        DB.session.flush()
+        user_info = models.UserInfo(
+            id=new_user.id,
+            ucid=new_user.ucid,
+            role=models.UserRole(new_user.role),
+            name=new_user.name,
+        )
+
+    DB.session.commit()
+    return user_info
+
 def get_all_room_ids():
     rooms = DB.session.query(models.Room).all()
     room_ids = [room.id for room in rooms]
