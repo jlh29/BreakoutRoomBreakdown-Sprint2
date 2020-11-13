@@ -2,7 +2,7 @@ import datetime
 import random
 import string
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import and_, func
+from sqlalchemy import and_, func, extract
 from db_instance import DB
 import models
 
@@ -40,11 +40,45 @@ def add_or_get_auth_user(ucid, name):
     DB.session.commit()
     return user_info
 
+def get_all_user_objs(as_dicts=False):
+    users = DB.session.query(models.AuthUser).all()
+    user_objs = [
+        models.UserInfo(
+            id=user.id,
+            ucid=user.ucid,
+            role=user.role,
+            name=user.name,
+        )
+        for user in users
+    ]
+    DB.session.commit()
+    if as_dicts:
+        return [user._asdict() for user in user_objs]
+    else:
+        return user_objs
+
 def get_all_room_ids():
     rooms = DB.session.query(models.Room).all()
     room_ids = [room.id for room in rooms]
     DB.session.commit()
     return room_ids
+
+def get_all_room_objs(as_dicts=False):
+    rooms = DB.session.query(models.Room).all()
+    room_objs = [
+        models.BreakoutRoom(
+            id=room.id,
+            room_number=room.room_number,
+            size=room.size,
+            capacity=room.capacity,
+        )
+        for room in rooms
+    ]
+    DB.session.commit()
+    if as_dicts:
+        return [room._asdict() for room in room_objs]
+    else:
+        return room_objs
 
 def get_number_of_rooms():
     rooms_count = DB.session.query(func.count(models.Room.id)).scalar()
@@ -112,6 +146,39 @@ def get_available_dates_after_date(date, date_range=3):
         for available in available_dates.difference(unavailable_dates)
     )
 
+def get_available_dates_for_month(date):
+    unavailable_date_models = (DB.session.query(models.UnavailableDate)
+                                .filter(
+                                    and_(
+                                        extract('year', models.UnavailableDate.date) == date.year,
+                                        extract('month', models.UnavailableDate.date) == date.month,
+                                    ),
+                                ).all())
+    unavailable_dates = set(model.date.date() for model in unavailable_date_models)
+
+    all_dates_in_month = set()
+    curr_date = date.date().replace(day=1)
+    while curr_date.month == date.month:
+        all_dates_in_month.add(curr_date)
+        curr_date = curr_date + datetime.timedelta(days=1)
+
+    available_dates = set()
+    for possible_date in all_dates_in_month:
+        available_times = get_available_times_for_date(possible_date)
+        free_timeslots = len([
+            hour
+            for hour, free in available_times.items()
+            if free > 0
+        ])
+        if free_timeslots > 0:
+            available_dates.add(possible_date)
+
+    DB.session.commit()
+    return list(
+        datetime.datetime(available.year, available.month, available.day)
+        for available in available_dates.difference(unavailable_dates)
+    )
+
 def get_attendee_ids_from_ucids(ucids):
     lower_ucids = [ucid.lower() for ucid in ucids]
     existing_attendee_models = (DB.session.query(models.Attendee)
@@ -130,7 +197,6 @@ def get_attendee_ids_from_ucids(ucids):
         models.Attendee(ucid) for ucid in lower_ucids
         if ucid not in existing_attendees.values()
     ]
-<<<<<<< HEAD
     DB.session.add_all(new_attendees)
     DB.session.flush()
     new_attendee_ids = [attendee.id for attendee in new_attendees]
@@ -171,41 +237,3 @@ def create_reservation(room_id, start_time, end_time, organizer_id, attendee_ids
     DB.session.add(new_check_in)
     DB.session.commit()
     return True, new_check_in_code
-=======
-
-    for appointment in appointment_dicts:
-        if appointment.get("organizer", None) is not None:
-            appointment["organizer"] = _user_info_as_dict(
-                appointment["organizer"]
-            )
-        if appointment.get("room", None) is not None:
-            appointment["room"] = appointment["room"]._asdict()
-        if appointment.get("attendees", None) is not None:
-            appointment["attendees"] = [
-                _user_info_as_dict(attendee)
-                for attendee in appointment["attendees"]
-            ]
-        if appointment.get("start_time", None) is not None:
-            appointment["start_time"] = (appointment["start_time"].timestamp()
-                                         * 1000)
-        if appointment.get("end_time", None) is not None:
-            appointment["end_time"] = (appointment["end_time"].timestamp()
-                                         * 1000)
-    return appointment_dicts
-
-def get_unavailable_dates_for_month(date):
-    # TODO: jlh29, actually obtain appointments from database
-    unavailable_dates = [
-        unavailable.timestamp() * 1000 for unavailable in MOCK_UNAVAILABLE_DATES
-        if unavailable.month == date.month and unavailable.year == date.year
-    ]
-    return unavailable_dates
-
-def get_all_users():
-    # TODO: jlh29, actually obtain appointments from database
-    return [_user_info_as_dict(user) for user in MOCK_USERS]
-
-def get_all_rooms():
-    # TODO: jlh29, actually obtain appointments from database
-    return [room._asdict() for room in MOCK_ROOMS]
->>>>>>> Add methods to obtain unavailable dates from database (using mocked data for now)
