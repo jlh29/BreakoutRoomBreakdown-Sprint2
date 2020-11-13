@@ -1,10 +1,13 @@
 import datetime
+import random
+import string
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import and_, func
 from db_instance import DB
 import models
 
 AVAILABLE_TIMES = [9, 11, 13, 15]
+CHECK_IN_CODE_LENGTH = 6
 
 def add_or_get_auth_user(ucid, name):
     existing_user = (DB.session.query(models.AuthUser)
@@ -61,8 +64,8 @@ def get_available_room_ids_for_date(date):
         for hour in AVAILABLE_TIMES
     }
     for appointment in appointments:
-        room_ids_by_time.setdefault(appointment.date.hour, set(all_room_ids))
-        room_ids_by_time[appointment.date.hour].discard(appointment.room_id)
+        room_ids_by_time.setdefault(appointment.start_time.hour, set(all_room_ids))
+        room_ids_by_time[appointment.start_time.hour].discard(appointment.room_id)
     DB.session.commit()
     for hour, rooms in room_ids_by_time.items():
         room_ids_by_time[hour] = sorted(list(rooms))
@@ -70,7 +73,6 @@ def get_available_room_ids_for_date(date):
 
 def get_available_times_for_date(date):
     room_availability = get_available_room_ids_for_date(date)
-    total_rooms = get_number_of_rooms()
     availability = {
         hour: len(room_availability.get(hour, []))
         for hour in AVAILABLE_TIMES
@@ -134,3 +136,38 @@ def get_attendee_ids_from_ucids(ucids):
     DB.session.commit()
 
     return list(existing_attendees.keys()).extend(new_attendee_ids)
+
+def create_reservation(room_id, start_time, end_time, organizer_id, attendee_ids=None):
+    existing_reservation = (DB.session.query(models.Appointment)
+                                .filter(
+                                    and_(
+                                        models.Appointment.room_id == room_id,
+                                        models.Appointment.start_time == start_time,
+                                    )
+                                ).first())
+    if existing_reservation:
+        print("A reservation already exists for this room at the given time")
+        DB.session.commit()
+        return False, None
+
+    # TODO: jlh29, eventually check to make sure all attendee IDs are valid
+    new_reservation = models.Appointment(
+        room_id=room_id,
+        start_time=start_time,
+        end_time=end_time,
+        organizer_id=organizer_id,
+        attendee_ids=attendee_ids,
+    )
+    possible_characters = string.ascii_letters + string.digits
+    new_check_in_code = ''.join(
+        random.choice(possible_characters) for i in range(CHECK_IN_CODE_LENGTH)
+    )
+    DB.session.add(new_reservation)
+    DB.session.flush()
+    new_check_in = models.CheckIn(
+        reservation_id=new_reservation.id,
+        validation_code=new_check_in_code,
+    )
+    DB.session.add(new_check_in)
+    DB.session.commit()
+    return True, new_check_in_code
