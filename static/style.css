@@ -10,14 +10,43 @@ P{
     float: left;
 }
 
-.gbutton{
-    position:fixed;
-    left:900px;
-    top:400px;
+.gbutton {
+    margin:10%;
 }
 
-button{
-    position: fixed;
-    left:1400px;
-    top: 15px;
+#loginContainer {
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+}
+
+#logoutForm {
+    position:fixed;
+    top:10px;
+    right:10px;
+}
+
+#contentContainer {
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+}
+
+#reservationForm {
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    background-color:#FFFFFF;
+    padding:15px;
+    border-radius:15px;
+}
+
+#attendeeInputContainer {
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+}
+
+.attendeeInput {
+    margin:10px;
 }
