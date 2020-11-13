@@ -1,30 +1,35 @@
-import * as React from 'react';
+import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
+import MyCalendar from './Calendar';
+import RoomReservationSelector from './RoomReservationSelector';
+import RoomReservationAttendeeInput from './RoomReservationAttendeeInput';
+import RoomReservationSubmit from './RoomReservationSubmit';
 import Socket from './Socket';
 
-export function Content_Auth() {
-    const [name, setName] = React.useState([]);
-    
-    function getNewAddresses() {
-        React.useEffect(() => {
-            Socket.on('username', (data) => {
-                 console.log("Received addresses from server: " + data['names']);
-                 setName(data['names']);
-            })
-        });
-    }
-    getNewAddresses();
-    
+export default function Content_Auth(props) {
+    const { name } = props;
+    const [attendeeCount, setAttendeeCount] = useState(0);
+    const [attendees, setAttendees] = useState([]);
+
     function logout(event) {
         ReactDOM.render(<Content />, document.getElementById('Content'));
     }
 
     return (
-        <div>
-          <h1>Breakout Room Breakdown</h1>
-          <p> Welcome {name} </p>
-          <form onClick={logout}>
-          <button>Logout</button></form>
+        <div id='contentContainer'>
+            <h1>Breakout Room Breakdown</h1>
+            <p> Welcome {name} </p>
+
+            <form onClick={logout}>
+                <button>Logout</button>
+            </form>
+            <MyCalendar />
+            <RoomReservationSelector setAttendeeCount={setAttendeeCount} />
+            <RoomReservationAttendeeInput 
+                attendeeCount={attendeeCount}
+                setAttendees={setAttendees}
+            />
+            <RoomReservationSubmit />
         </div>
     );
 }
