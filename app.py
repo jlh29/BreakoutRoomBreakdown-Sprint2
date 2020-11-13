@@ -35,6 +35,8 @@ ALL_DATES_KEY = "dates"
 
 RESERVATION_SUBMIT_CHANNEL = "reservation submit"
 RESERVATION_RESPONSE_CHANNEL = "reservation response"
+RESERVATION_SUCCESS_KEY = "successful"
+RESERVATION_KEY = "reservation"
 CONNECT_CHANNEL = "connect"
 DISCONNECT_CHANNEL = "disconnect"
 
@@ -171,15 +173,22 @@ def on_reservation_submit(data):
         0,
     )
     organizer_id = CONNECTED_USERS[flask.request.sid].id
-    reservation_success, reservation_code = db_utils.create_reservation(
+    reservation_success, reservation_code, reservation_dict = db_utils.create_reservation(
         room_id=room_id,
         start_time=start_time,
         end_time=end_time,
         organizer_id=organizer_id,
         attendee_ids=attendee_ids,
     )
-    print(f"RESERVATION SUCCESS? {reservation_success}")
-    print(f"CODE: {reservation_code}")
+    SOCKET.emit(
+        RESERVATION_RESPONSE_CHANNEL,
+        {
+            RESERVATION_SUCCESS_KEY: reservation_success,
+            CHECK_IN_CODE_KEY: reservation_code,
+            RESERVATION_KEY: reservation_dict,
+        },
+        room=flask.request.sid,
+    )
 
 @APP.route("/")
 def index():
