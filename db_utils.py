@@ -49,23 +49,30 @@ def get_number_of_rooms():
     return rooms_count
 
 def get_available_room_ids_for_date(date):
+    if isinstance(date, datetime.datetime):
+        date = date.date()
     appointments = (DB.session.query(models.Appointment)
                             .filter(
                                 func.DATE(models.Appointment.start_time) == date,
                             ).all())
-    room_ids_by_time = {}
     all_room_ids = get_all_room_ids()
+    room_ids_by_time = {
+        hour: set(all_room_ids)
+        for hour in AVAILABLE_TIMES
+    }
     for appointment in appointments:
         room_ids_by_time.setdefault(appointment.date.hour, set(all_room_ids))
         room_ids_by_time[appointment.date.hour].discard(appointment.room_id)
     DB.session.commit()
+    for hour, rooms in room_ids_by_time.items():
+        room_ids_by_time[hour] = sorted(list(rooms))
     return room_ids_by_time
 
 def get_available_times_for_date(date):
     room_availability = get_available_room_ids_for_date(date)
     total_rooms = get_number_of_rooms()
     availability = {
-        hour: (total_rooms - len(room_availability.get(hour, [])))
+        hour: len(room_availability.get(hour, []))
         for hour in AVAILABLE_TIMES
     }
     DB.session.commit()
