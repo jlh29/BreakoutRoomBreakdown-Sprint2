@@ -1,25 +1,32 @@
-import React, { useState } from 'react';
-import RoomReservationSelector from './RoomReservationSelector';
-import RoomReservationAttendeeInput from './RoomReservationAttendeeInput';
-import RoomReservationSubmit from './RoomReservationSubmit';
+import React, { useState, useEffect } from 'react';
+import ReactDOM from 'react-dom';
+import Content_Auth from './Content_Auth';
+import GoogleButton from './GoogleButton';
+import Socket from './Socket';
 
 export function Content() {
-    const [attendeeCount, setAttendeeCount] = useState(0);
-    const [attendees, setAttendees] = useState([]);
+    function onSuccessfulLogin(data) {
+        ReactDOM.render(
+            <Content_Auth name={data.name} />,
+            document.getElementById('content')
+        );
+    }
+
+    function listenToServer() {
+        useEffect(() => {
+            Socket.on('successful login', onSuccessfulLogin);
+            return () => {
+                Socket.off('successful login', onSuccessfulLogin);
+            };
+        });
+    }
+
+    listenToServer();
 
     return (
         <div>
-<<<<<<< HEAD
             <h1>Webauth Authentication Service</h1>
             <GoogleButton />
-=======
->>>>>>> f1bc40127746f9e6a507187becbc2485b20d99ee
-            <RoomReservationSelector setAttendeeCount={setAttendeeCount} />
-            <RoomReservationAttendeeInput 
-                attendeeCount={attendeeCount}
-                setAttendees={setAttendees}
-            />
-            <RoomReservationSubmit />
         </div>
     );
 }
