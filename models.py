@@ -1,7 +1,10 @@
+from collections import namedtuple
 import datetime
 import flask_sqlalchemy
 from db_instance import DB
 from enum import Enum
+
+UserInfo = namedtuple("UserInfo", ["id", "ucid", "role", "name"])
 
 class AuthUser(DB.Model):
     id = DB.Column(DB.Integer, primary_key=True)
