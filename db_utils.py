@@ -272,6 +272,7 @@ def get_all_appointments_for_date(date, as_dicts=False):
                     get_attendee_obj_from_id(id, as_dicts)
                     for id in appointment.attendee_ids
                 ],
+                status=appointment.status,
             ),
         )
     DB.session.commit()

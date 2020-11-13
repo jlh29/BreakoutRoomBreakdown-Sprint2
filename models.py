@@ -8,7 +8,7 @@ UserInfo = namedtuple("UserInfo", ["id", "ucid", "role", "name"])
 AttendeeInfo = namedtuple("AttendeeInfo", ["id", "ucid"])
 BreakoutRoom = namedtuple("BreakoutRoom", ["id", "room_number", "size", "capacity"])
 AppointmentInfo = namedtuple(
-    "AppointmentInfo", 
+    "AppointmentInfo",
     [
         "id",
         "room",
@@ -16,6 +16,7 @@ AppointmentInfo = namedtuple(
         "end_time",
         "organizer",
         "attendees",
+        "status",
     ],
 )
 

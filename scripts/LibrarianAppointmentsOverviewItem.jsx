@@ -13,6 +13,7 @@ export default function LibrarianAppointmentsOverviewItem(props) {
     
     return (
         <div className='appointment'>
+            <p>Status: {appointment.status}</p>
             <p>
                 Organizer: {appointment.organizer.name} (
                 {appointment.organizer.ucid})
