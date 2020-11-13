@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
-import Content_Auth from './Content_Auth';
+import ReservationOverview from './ReservationOverview';
 import GoogleButton from './GoogleButton';
 import Socket from './Socket';
 
-export function Content() {
+export default function LoginPage() {
     function onSuccessfulLogin(data) {
         ReactDOM.render(
-            <Content_Auth name={data.name} />,
+            <ReservationOverview name={data.name} />,
             document.getElementById('content')
         );
     }

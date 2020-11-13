@@ -1,8 +1,6 @@
 import * as React from 'react';
 import Socket from './Socket';
-import ReactDOM from 'react-dom';
 import GoogleLogin from 'react-google-login';
-import Content_Auth from './Content_Auth';
 
 export default function GoogleButton() {
     function handleSuccess(response) {

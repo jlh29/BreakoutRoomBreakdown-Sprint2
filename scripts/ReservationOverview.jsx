@@ -1,18 +1,19 @@
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
+import LoginPage from './LoginPage';
 import MyCalendar from './Calendar';
 import RoomReservationSelector from './RoomReservationSelector';
 import RoomReservationAttendeeInput from './RoomReservationAttendeeInput';
 import RoomReservationSubmit from './RoomReservationSubmit';
 import Socket from './Socket';
 
-export default function Content_Auth(props) {
+export default function ReservationOverview(props) {
     const { name } = props;
     const [attendeeCount, setAttendeeCount] = useState(0);
     const [attendees, setAttendees] = useState([]);
 
     function logout(event) {
-        ReactDOM.render(<Content />, document.getElementById('Content'));
+        ReactDOM.render(<LoginPage />, document.getElementById('content'));
     }
 
     return (
