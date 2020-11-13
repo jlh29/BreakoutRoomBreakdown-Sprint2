@@ -1,7 +1,10 @@
+from collections import namedtuple
 import datetime
 import flask_sqlalchemy
-from db_utils import DB
+from db_instance import DB
 from enum import Enum
+
+UserInfo = namedtuple("UserInfo", ["id", "ucid", "role", "name"])
 
 class AuthUser(DB.Model):
     id = DB.Column(DB.Integer, primary_key=True)
@@ -9,13 +12,18 @@ class AuthUser(DB.Model):
     auth_type = DB.Column(DB.String(120), nullable=False)
     role = DB.Column(DB.String(120), nullable=False)
     name = DB.Column(DB.String(120))
-    appointments = DB.relationship("Appointment", backref="organizer", lazy="True")
+    appointments = DB.relationship(
+        "Appointment",
+        backref="organizer",
+        lazy="dynamic",
+        primaryjoin="Appointment.organizer_id == AuthUser.id",
+    )
 
     def __init__(self, ucid, auth_type, role, name):
         assert isinstance(auth_type, AuthUserType)
         assert isinstance(role, UserRole)
         self.name = name
-        self.auth_type = auth_type
+        self.auth_type = auth_type.value
         self.ucid = ucid
         self.role = role.value
 
@@ -42,12 +50,16 @@ class Appointment(DB.Model):
     room_id = DB.Column(DB.Integer, DB.ForeignKey("room.id"), nullable=False)
     start_time = DB.Column(DB.DateTime, nullable=False)
     end_time = DB.Column(DB.DateTime, nullable=False)
-    organizer_id = DB.Column(DB.Integer, DB.ForeignKey("AuthUser.id"), nullable=False)
+    organizer_id = DB.Column(DB.Integer, DB.ForeignKey("auth_user.id"), nullable=False)
     attendee_ids = DB.Column(DB.ARRAY(DB.Integer))
     status = DB.Column(DB.String(20), nullable=False)
 
-    attendee_relation = DB.relationship(Attendee, backref="appointment", lazy="True")
-    checkin_relation = DB.relationship("CheckIn", backref="appointment", lazy="True")
+    checkin_relation = DB.relationship(
+        "CheckIn",
+        backref="appointment",
+        lazy="dynamic",
+        primaryjoin="CheckIn.reservation_id == Appointment.id",
+    )
 
     def __init__(self, room_id, start_time, end_time, organizer_id, attendee_ids=None):
         assert isinstance(start_time, datetime.datetime)
@@ -64,7 +76,12 @@ class Room(DB.Model):
     room_number = DB.Column(DB.String(40), nullable=False, unique=True)
     size = DB.Column(DB.String(4), nullable=False)
     capacity = DB.Column(DB.Integer)
-    appointments = DB.relationship(Appointment, backref="room", lazy="True")
+    appointments = DB.relationship(
+        "Appointment",
+        backref="room",
+        lazy="dynamic",
+        primaryjoin="Appointment.room_id == Room.id",
+    )
 
     def __init__(self, room_number, capacity, size=None):
         assert capacity > 0

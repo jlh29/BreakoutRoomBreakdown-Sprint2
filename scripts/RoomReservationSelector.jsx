@@ -11,7 +11,7 @@ export default function RoomReservationSelector(props) {
 
     return (
         <div>
-            <label htmlFor="studentCount">How Many Students (Including You)?</label>
+            <label htmlFor="studentCount">Number of students (including you)</label>
             <select
                 name="studentCount"
                 id="studentCount"

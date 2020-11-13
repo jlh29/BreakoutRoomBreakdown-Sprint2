@@ -19,7 +19,7 @@ export default function RoomReservationAttendeeInput(props) {
     useEffect(() => updateAttendees(), [attendeeCount]);
 
     return (
-        <div id='attendeeInputContainer'>
+        <div id='attendeeInputContainer' className='flexColumn'>
             {
                 attendeeCount > 0 ?
                     [...Array(attendeeCount - 1).keys()].map(

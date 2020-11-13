@@ -24,7 +24,7 @@ export default function LoginPage() {
     listenToServer();
 
     return (
-        <div id='loginContainer'>
+        <div id='loginContainer' className='flexColumn'>
             <h1>Webauth Authentication Service</h1>
             <GoogleButton />
         </div>
