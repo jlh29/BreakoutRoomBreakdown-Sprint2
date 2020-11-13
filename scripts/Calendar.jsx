@@ -39,25 +39,27 @@ export default function MyCalendar(props) {
     }
 
     return (
-        <div id='calendar'>
+        <div id='calendar' className='flexColumn'>
             <Calendar
                 onClickDay={handleClickDay}
                 value={date}
                 tileDisabled={handleDisable}
             />
-            {
-                allTimes.map(
-                    time => {
-                        return <Slot
-                            timeslot={time.timeslot}
-                            setTime={setTime}
-                            isAvailable={time.isAvailable}
-                            availableRooms={time.availableRooms}
-                            key={time.timeslot}
-                        />;
-                    }
-                )
-            }
+            <div id='timeButtonsContainer'>
+                {
+                    allTimes.map(
+                        time => {
+                            return <Slot
+                                timeslot={time.timeslot}
+                                setTime={setTime}
+                                isAvailable={time.isAvailable}
+                                availableRooms={time.availableRooms}
+                                key={time.timeslot}
+                            />;
+                        }
+                    )
+                }
+            </div>
         </div>
       );
 }

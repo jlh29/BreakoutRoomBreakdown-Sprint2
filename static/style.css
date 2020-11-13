@@ -14,7 +14,7 @@ P{
     margin:10%;
 }
 
-#loginContainer {
+.flexColumn {
     display:flex;
     flex-direction:column;
     align-items:center;
@@ -26,35 +26,14 @@ P{
     right:10px;
 }
 
-#contentContainer {
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-}
-
 #reservationForm {
-    display:flex;
-    flex-direction:column;
-    align-items:center;
     background-color:#FFFFFF;
     padding:15px;
     border-radius:15px;
 }
 
-#attendeeInputContainer {
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-}
-
 #reservationSubmit {
     margin:10px;
-}
-
-#roomReservationTimeInfoContainer {
-    display:flex;
-    flex-direction:column;
-    align-items:center;
 }
 
 #roomReservationTimeInfo {
@@ -71,4 +50,8 @@ P{
 
 #calendar {
     margin:10px;
+}
+
+#timeButtonsContainer {
+    margin-top:10px;
 }

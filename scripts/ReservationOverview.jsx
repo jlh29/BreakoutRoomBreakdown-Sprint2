@@ -90,7 +90,7 @@ export default function ReservationOverview(props) {
     listenToServer();
 
     return (
-        <div id='contentContainer'>
+        <div id='contentContainer' className='flexColumn'>
             <h1>Breakout Room Breakdown</h1>
             <p id='welcomeText'> Welcome {name} </p>
             <form id='logoutForm' onClick={logout}>
@@ -104,7 +104,7 @@ export default function ReservationOverview(props) {
                 allTimes={allTimes}
                 availableDates={availableDates}
             />
-            <div id='reservationForm'>
+            <div id='reservationForm' className='flexColumn'>
                 <RoomReservationTimeInfo
                     selectedDate={dateChanged ? date : null}
                     selectedTime={timeChanged ? time : null}
