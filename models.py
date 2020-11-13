@@ -1,6 +1,5 @@
 import datetime
 import flask_sqlalchemy
-from app import db
 from db_utils import DB
 from enum import Enum
 
