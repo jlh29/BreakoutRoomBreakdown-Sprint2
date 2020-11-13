@@ -11,6 +11,7 @@ import Socket from './Socket';
 export default function LibrarianOverview() {
     const [connected, setConnected] = useState(false);
     const [appointments, setAppointments] = useState([]);
+    const [selectedAppointment, setSelectedAppointment] = useState({});
     const [users, setUsers] = useState([]);
     const [rooms, setRooms] = useState([]);
     const [selectedDate, setSelectedDate] = useState(new Date());
@@ -48,7 +49,7 @@ export default function LibrarianOverview() {
 
     function requestAllData() {
         Socket.emit('overview request', {date: getDateString(selectedDate)});
-        Socket.emit('unavailable dates request', {date: getDateString(new Date())});
+        Socket.emit('date availability request', {date: getDateString(new Date())});
     }
 
     function requestAppointmentsForDate(date) {
@@ -56,14 +57,16 @@ export default function LibrarianOverview() {
     }
     
     function onMonthChanged({activeStartDate, value, view}) {
+        setSelectedAppointment({});
         Socket.emit(
-            'unavailable dates request',
+            'date availability request',
             {date: getDateString(activeStartDate)},
         );
     }
 
     function onCalendarChanged(newDate) {
         setSelectedDate(oldDate => newDate);
+        setSelectedAppointment({});
         requestAppointmentsForDate(newDate);
     }
 
@@ -179,7 +182,7 @@ export default function LibrarianOverview() {
     }, [connected]);
 
     return (
-        <div id='librarianOverviewContainer'>
+        <div id='librarianOverviewContainer' className='flexColumn'>
             {!connected ? <ConnectingBanner /> : null}
             <h1 id='reservationsBanner'>Reservations</h1>
             <div id='appointmentsAndCalendarContainer'>
@@ -192,7 +195,11 @@ export default function LibrarianOverview() {
                     calendarType='US'
                     className={'appointmentsCalendar'}
                 />
-                <LibrarianAppointmentsOverview appointments={appointments} />
+                <LibrarianAppointmentsOverview
+                    appointments={appointments}
+                    selectedAppointment={selectedAppointment}
+                    setSelectedAppointment={setSelectedAppointment}
+                />
             </div>
             <h1 id='checkInBanner'>Check-in</h1>
             <LibrarianCheckIn

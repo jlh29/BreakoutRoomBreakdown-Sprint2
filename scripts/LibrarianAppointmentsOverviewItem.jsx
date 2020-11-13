@@ -17,11 +17,15 @@ export default function LibrarianAppointmentsOverviewItem(props) {
                 Organizer: {appointment.organizer.name} (
                 {appointment.organizer.ucid})
             </p>
+
             <p>Attendees:{
+                appointment.attendees ?
                 '\n\t' + 
                 appointment.attendees.map(
-                    attendee => `${attendee.name} (${attendee.ucid})`
+                    attendee => `${attendee.ucid}`
                 ).join('\n\t')
+                :
+                'None'
             }</p>
             <p>Room Number: {appointment.room.room_number}</p>
             <p>Start Time: {getDateString(appointment.start_time)}</p>

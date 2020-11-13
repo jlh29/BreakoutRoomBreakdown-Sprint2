@@ -1,13 +1,11 @@
 body {
     background-image: linear-gradient(to bottom right, orange, red);
     color: black;
+    font-family:sans-serif;
 }
 
 h1 {
      text-align: center;
-}
-P{
-    float: left;
 }
 
 .gbutton {
@@ -97,24 +95,8 @@ P{
     align-items:center;
 }
 
-body {
-    font-family:sans-serif;
-}
-
 #librarianCheckInContainer {
     margin:0px 20px 20px 20px;
-}
-
-#librarianOverviewContainer {
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-}
-
-#librarianCheckInContainer {
-    display:flex;
-    flex-direction:column;
-    align-items:center;
 }
 
 #usersContainer {

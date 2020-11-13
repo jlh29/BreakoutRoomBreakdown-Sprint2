@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import LibrarianAppointmentsOverviewItem from './LibrarianAppointmentsOverviewItem';
 
 export default function LibrarianAppointmentsOverview(props) {
-    const { appointments } = props;
-    const [selectedAppointment, setSelectedAppointment] = useState({});
+    const { appointments, selectedAppointment, setSelectedAppointment } = props;
 
     return (
         <div id='appointmentsContainer' className='menuContainer'>
