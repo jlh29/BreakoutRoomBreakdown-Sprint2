@@ -1,57 +1,65 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Socket from './Socket';
 import Calendar from 'react-calendar';
-import { Slot } from './Slot';
+import 'react-calendar/dist/Calendar.css';
+import Slot from './Slot';
 
-export function MyCalendar() {
-    const [date, setDate] = React.useState(new Date());
-    
-    function sendDate(){
-        console.log(`User selected the date "${date}"`);
-    
-        Socket.emit('date availability', { 
-            'date': date
-        });
-        
-        console.log(`Sent the date "${date}" to the server`);  
-    }
+export default function MyCalendar(props) {
+    const { date, setDate, time, setTime, allTimes, availableDates } = props;
   
     function handleClickDay(event){
         setDate(event);
     }
-    
-    sendDate();
-    
+
     function handleDisable({activeStartDate, date, view }){
-        let disableDate = false;
+        let disableDate = true;
         let today = new Date();
-        
-        if (date.getDay() === 0 || date.getDay() === 6)
+        for (let available of availableDates) {
+            if (date.getDate() == available.getDate()
+                    && date.getMonth() == available.getMonth()
+                    && date.getFullYear() == available.getFullYear()) {
+                disableDate = false;
+                break;
+            }
+        }
+
+        if (date.getDay() === 0 || date.getDay() === 6) {
             disableDate = true;
-            
-        if (date.getDate() === 24)
+        }
+
+        if (date.getDate() < today.getDate()) {
             disableDate = true;
-            
-        // date.getDate() !== today.getDate() 
-        if (date.getDate() !== today.getDate() + 1
-            && date.getDate() !== today.getDate() + 2)
+        }
+
+        if (date.getDate() - today.getDate() > 2) {
             disableDate = true;
-            
+        }
+
         return disableDate;
     }
-    
 
     return (
-        <div>
-          <Calendar
-            onClickDay={handleClickDay}
-            value={date}
-            tileDisabled={handleDisable}
-          />
-          <Slot timeslot="9:00-11:00"></Slot>
-          <Slot timeslot="11:00-1:00"></Slot>
-          <Slot timeslot="1:00-3:00"></Slot>
-          <Slot timeslot="3:00-5:00"></Slot>
+        <div id='calendar' className='flexColumn'>
+            <Calendar
+                onClickDay={handleClickDay}
+                value={date}
+                tileDisabled={handleDisable}
+            />
+            <div id='timeButtonsContainer'>
+                {
+                    allTimes.map(
+                        time => {
+                            return <Slot
+                                timeslot={time.timeslot}
+                                setTime={setTime}
+                                isAvailable={time.isAvailable}
+                                availableRooms={time.availableRooms}
+                                key={time.timeslot}
+                            />;
+                        }
+                    )
+                }
+            </div>
         </div>
       );
 }

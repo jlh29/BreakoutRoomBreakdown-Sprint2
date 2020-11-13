@@ -1,23 +1,122 @@
 body {
     background-image: linear-gradient(to bottom right, orange, red);
     color: black;
+    font-family:sans-serif;
 }
 
 h1 {
      text-align: center;
 }
-P{
-    float: left;
+
+.gbutton {
+    margin:10%;
 }
 
-.gbutton{
+.flexColumn {
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+}
+
+#logoutForm {
     position:fixed;
-    left:900px;
-    top:400px;
+    top:10px;
+    right:10px;
 }
 
-button{
-    position: fixed;
-    left:1400px;
-    top: 15px;
+#reservationForm {
+    background-color:#FFFFFF;
+    padding:15px;
+    border-radius:15px;
+}
+
+#reservationSubmit {
+    margin:10px;
+}
+
+#roomReservationTimeInfo {
+    margin-top:0px;
+}
+
+#roomReservationDateInfo {
+    margin-bottom:0px;
+}
+
+.attendeeInput {
+    margin:10px;
+}
+
+#calendar {
+    margin:10px;
+}
+
+#timeButtonsContainer {
+    margin-top:10px;
+}
+
+.menuContainer {
+    background:#E4E4E4;
+    width:100%;
+    display:flex;
+    align-self:stretch;
+    margin:0px 10px;
+    border-radius:10px;
+}
+
+.menuSelector {
+    background:#CCCCCC;
+    width:30%;
+    height:100%;
+    border-radius:10px 0px 0px 10px;
+    overflow-y:scroll;
+    display:flex;
+    flex-direction:column;
+}
+
+.menuContents {
+    margin:10px 15px;
+    align-self:center;
+}
+
+.menuSelectorButton {
+    width:80%;
+    margin:5px 0px 10px 0px;
+    align-self:center;
+}
+
+.appointmentsCalendar {
+    border-radius:10px;
+}
+
+#appointmentsAndCalendarContainer {
+    display:flex;
+    height:30%;
+    width:70%;
+    align-items:center;
+}
+
+#librarianCheckInContainer {
+    margin:0px 20px 20px 20px;
+}
+
+#librarianCheckInOutput {
+    text-align:center;
+}
+
+#usersContainer {
+    width:70%;
+    height:15vw;
+    align-self:center;
+}
+
+#roomsContainer {
+    width:70%;
+    height:15vw;
+    align-self:center;
+}
+
+#reservationConfirmationContainer {
+    background:#E4E4E4;
+    width:35%;
+    border-radius:30px;
 }
