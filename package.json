@@ -4,7 +4,7 @@
     "dev-build": "webpack --progress -d --config webpack.config.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch": "webpack --progress -d --config webpack.config.js --watch",
-    "heroku-postbuild": "webpack --progress -d --config webpack.config.js --watch"
+    "heroku-postbuild": "webpack --progress -d --config webpack.config.js"
   },
   "devDependencies": {
     "@babel/core": "^7.4.3",
