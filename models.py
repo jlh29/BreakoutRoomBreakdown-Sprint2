@@ -5,6 +5,19 @@ from db_instance import DB
 from enum import Enum
 
 UserInfo = namedtuple("UserInfo", ["id", "ucid", "role", "name"])
+AttendeeInfo = namedtuple("AttendeeInfo", ["id", "ucid"])
+BreakoutRoom = namedtuple("BreakoutRoom", ["id", "room_number", "size", "capacity"])
+AppointmentInfo = namedtuple(
+    "AppointmentInfo", 
+    [
+        "id",
+        "room",
+        "start_time",
+        "end_time",
+        "organizer",
+        "attendees",
+    ],
+)
 
 class AuthUser(DB.Model):
     id = DB.Column(DB.Integer, primary_key=True)

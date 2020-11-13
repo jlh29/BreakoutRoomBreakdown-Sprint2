@@ -57,6 +57,23 @@ def get_all_user_objs(as_dicts=False):
     else:
         return user_objs
 
+def get_user_obj_from_id(id, as_dict=False):
+    user = DB.session.query(models.AuthUser).filter(models.AuthUser.id == id).first()
+    if not user:
+        DB.session.commit()
+        return None
+    user_obj = models.UserInfo(
+            id=user.id,
+            ucid=user.ucid,
+            role=user.role,
+            name=user.name,
+    )
+    DB.session.commit()
+    if as_dict:
+        return user_obj._asdict()
+    else:
+        return user_obj
+
 def get_all_room_ids():
     rooms = DB.session.query(models.Room).all()
     room_ids = [room.id for room in rooms]
@@ -79,6 +96,23 @@ def get_all_room_objs(as_dicts=False):
         return [room._asdict() for room in room_objs]
     else:
         return room_objs
+
+def get_room_obj_by_id(id, as_dict=False):
+    room = DB.session.query(models.Room).filter(models.Room.id == id).first()
+    if room is None:
+        DB.session.commit()
+        return None
+    room_obj = models.BreakoutRoom(
+        id=room.id,
+        room_number=room.room_number,
+        size=room.size,
+        capacity=room.capacity,
+    )
+    DB.session.commit()
+    if as_dict:
+        return room_obj._asdict()
+    else:
+        return room_obj
 
 def get_number_of_rooms():
     rooms_count = DB.session.query(func.count(models.Room.id)).scalar()
@@ -202,6 +236,49 @@ def get_attendee_ids_from_ucids(ucids):
     new_attendee_ids = [attendee.id for attendee in new_attendees]
     DB.session.commit()
     return list(existing_attendees.keys()) + new_attendee_ids
+
+def get_attendee_obj_from_id(id, as_dict=False):
+    attendee = DB.session.query(models.Attendee).filter(models.Attendee.id == id).first()
+    if not attendee:
+        DB.session.commit()
+        return None
+    attendee_obj = models.AttendeeInfo(
+            id=attendee.id,
+            ucid=attendee.ucid,
+    )
+    DB.session.commit()
+    if as_dict:
+        return attendee_obj._asdict()
+    else:
+        return attendee_obj
+
+def get_all_appointments_for_date(date, as_dicts=False):
+    all_appointments = (DB.session.query(models.Appointment)
+                                .filter(
+                                    func.DATE(models.Appointment.start_time) == date.date()
+                                ).all())
+    appointment_objs = []
+    for appointment in all_appointments:
+        start_time_ts = appointment.start_time.timestamp() * 1000.0
+        end_time_ts = appointment.end_time.timestamp() * 1000.0
+        appointment_objs.append(
+            models.AppointmentInfo(
+                id=appointment.id,
+                room=get_room_obj_by_id(appointment.room_id, as_dicts),
+                start_time=start_time_ts if as_dicts else appointment.start_time,
+                end_time=end_time_ts if as_dicts else appointment.end_time,
+                organizer=get_user_obj_from_id(appointment.organizer.id, as_dicts),
+                attendees=None if appointment.attendee_ids is None else [
+                    get_attendee_obj_from_id(id, as_dicts)
+                    for id in appointment.attendee_ids
+                ],
+            ),
+        )
+    DB.session.commit()
+    if as_dicts:
+        return [appointment._asdict() for appointment in appointment_objs]
+    else:
+        return appointment_objs
 
 def create_reservation(room_id, start_time, end_time, organizer_id, attendee_ids=None):
     existing_reservation = (DB.session.query(models.Appointment)
