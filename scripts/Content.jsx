@@ -24,7 +24,7 @@ export function Content() {
     listenToServer();
 
     return (
-        <div>
+        <div id='loginContainer'>
             <h1>Webauth Authentication Service</h1>
             <GoogleButton />
         </div>

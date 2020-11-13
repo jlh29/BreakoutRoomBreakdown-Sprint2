@@ -18,18 +18,21 @@ export default function Content_Auth(props) {
     return (
         <div id='contentContainer'>
             <h1>Breakout Room Breakdown</h1>
-            <p> Welcome {name} </p>
-
-            <form onClick={logout}>
-                <button>Logout</button>
-            </form>
+            <div id='logoutContainer'>
+                <p id='welcomeText'> Welcome {name} </p>
+                <form id='logoutForm' onClick={logout}>
+                    <button>Logout</button>
+                </form>
+            </div>
             <MyCalendar />
-            <RoomReservationSelector setAttendeeCount={setAttendeeCount} />
-            <RoomReservationAttendeeInput 
-                attendeeCount={attendeeCount}
-                setAttendees={setAttendees}
-            />
-            <RoomReservationSubmit />
+            <div id='reservationForm'>
+                <RoomReservationSelector setAttendeeCount={setAttendeeCount} />
+                <RoomReservationAttendeeInput
+                    attendeeCount={attendeeCount}
+                    setAttendees={setAttendees}
+                />
+                <RoomReservationSubmit />
+            </div>
         </div>
     );
 }
