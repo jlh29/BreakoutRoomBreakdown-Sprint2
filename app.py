@@ -1,3 +1,4 @@
+import datetime
 import os
 from os.path import join, dirname
 from dotenv import load_dotenv
@@ -7,10 +8,7 @@ import db_utils
 from db_utils import DB
 import models 
 import socket_utils
-from socket_utils import SOCKET 
-import requests
-import json
-from datetime import datetime
+from socket_utils import SOCKET
 
 load_dotenv(join(dirname(__file__), 'sql.env'))
 
@@ -38,7 +36,7 @@ def on_new_google_user(data):
 @SOCKET.on('date availability')
 def on_date_availability(data):
     print("Got an event for date input with data:", data)
-    date = datetime.strptime(data['date'], '%Y-%m-%dT%H:%M:%S.%fZ')
+    date = datetime.datetime.strptime(data['date'], '%Y-%m-%dT%H:%M:%S.%fZ')
     day = str(date.date())
     print(date.date())
     
