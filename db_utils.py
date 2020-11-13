@@ -6,24 +6,35 @@ import models
 
 AVAILABLE_TIMES = [9, 11, 13, 15]
 
+def get_all_room_ids():
+    rooms = DB.session.query(models.Room).all()
+    room_ids = [room.id for room in rooms]
+    DB.session.commit()
+    return room_ids
+
 def get_number_of_rooms():
     rooms_count = DB.session.query(func.count(models.Room.id)).scalar()
     DB.session.commit()
     return rooms_count
 
-def get_available_times_for_date(date):
+def get_available_room_ids_for_date(date):
     appointments = (DB.session.query(models.Appointment)
                             .filter(
                                 func.DATE(models.Appointment.start_time) == date,
                             ).all())
-    appointments_by_time = {}
+    room_ids_by_time = {}
+    all_room_ids = get_all_room_ids()
     for appointment in appointments:
-        appointments_by_time.setdefault(appointment.date.hour, 0)
-        appointments_by_time[appointment.date.hour] += 1
+        room_ids_by_time.setdefault(appointment.date.hour, set(all_room_ids))
+        room_ids_by_time[appointment.date.hour].discard(appointment.room_id)
+    DB.session.commit()
+    return room_ids_by_time
 
+def get_available_times_for_date(date):
+    room_availability = get_available_room_ids_for_date(date)
     total_rooms = get_number_of_rooms()
     availability = {
-        hour: (total_rooms - appointments_by_time.get(hour, 0))
+        hour: (total_rooms - len(room_availability.get(hour, [])))
         for hour in AVAILABLE_TIMES
     }
     DB.session.commit()
@@ -60,3 +71,28 @@ def get_available_dates_after_date(date, date_range=3):
         datetime.datetime(available.year, available.month, available.day)
         for available in available_dates.difference(unavailable_dates)
     )
+
+def get_attendee_ids_from_ucids(ucids):
+    lower_ucids = [ucid.lower() for ucid in ucids]
+    existing_attendee_models = (DB.session.query(models.Attendee)
+                            .filter(
+                                func.lower(
+                                    models.Attendee.ucid
+                                ).in_(
+                                    lower_ucids
+                                )
+                            ).all())
+    existing_attendees = {
+        attendee.id: attendee.ucid
+        for attendee in existing_attendee_models
+    }
+    new_attendees = [
+        models.Attendee(ucid) for ucid in lower_ucids
+        if ucid not in existing_attendees.values()
+    ]
+    DB.session.add_all(new_attendees)
+    DB.session.flush()
+    new_attendee_ids = [attendee.id for attendee in new_attendees]
+    DB.session.commit()
+
+    return list(existing_attendees.keys()).extend(new_attendee_ids)
