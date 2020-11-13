@@ -32,7 +32,12 @@ DATE_AVAILABILITY_REQUEST_CHANNEL = "date availability request"
 DATE_AVAILABILITY_RESPONSE_CHANNEL = "date availability response"
 ALL_DATES_KEY = "dates"
 
+RESERVATION_SUBMIT_CHANNEL = "reservation submit"
+RESERVATION_RESPONSE_CHANNEL = "reservation response"
+
 DATE_KEY = "date"
+TIME_KEY = "time"
+ATTENDEES_KEY = "attendees"
 TIMESLOT_KEY = "timeslot"
 TIME_AVAILABILITY_KEY = "isAvailable"
 AVAILABLE_ROOMS_KEY = "availableRooms"
@@ -51,11 +56,12 @@ def on_disconnect():
 @SOCKET.on(USER_LOGIN_CHANNEL)
 def on_new_user_login(data):
     print(f"Got an event for new user login with data: {data}")
-    # TODO: jlh29, update this
-    CONNECTED_USERS[flask.request.sid] = "new user"
+    name = data[USER_LOGIN_NAME_KEY]
+    ucid = data[USER_LOGIN_EMAIL_KEY].split("@")[0]
+    CONNECTED_USERS[flask.request.sid] = db_utils.add_or_get_auth_user(ucid, name)
     SOCKET.emit(
         SUCCESSFUL_LOGIN_CHANNEL,
-        {USER_LOGIN_NAME_KEY: data[USER_LOGIN_NAME_KEY]},
+        {USER_LOGIN_NAME_KEY: name},
         room=flask.request.sid,
     )
 
@@ -96,6 +102,46 @@ def on_time_availability_request(data):
         {ALL_TIMES_KEY: all_times},
         room=flask.request.sid,
     )
+
+@SOCKET.on(RESERVATION_SUBMIT_CHANNEL)
+def on_reservation_submit(data):
+    date = datetime.datetime.fromtimestamp(data[DATE_KEY] / 1000.0)
+    attendee_ids = db_utils.get_attendee_ids_from_ucids(data[ATTENDEES_KEY])
+    # TODO: jlh29, actually allow the user to choose a room
+    available_rooms_by_time = db_utils.get_available_room_ids_for_date(date.date())
+    # TODO: jlh29, fix this messy messy messy code for Sprint 2
+    selected_hour = int(data[TIME_KEY].split(":")[0])
+    if len(available_rooms_by_time[selected_hour]) == 0:
+        return
+    room_id = available_rooms_by_time[selected_hour][0]
+    # TODO: jlh29, fix this time/date mess
+    start_time_string, end_time_string = data[TIME_KEY].split("-")
+    start_time = datetime.datetime(
+        date.year,
+        date.month,
+        date.day,
+        int(start_time_string.split(":")[0]),
+        0,
+        0,
+    )
+    end_time = datetime.datetime(
+        date.year,
+        date.month,
+        date.day,
+        int(end_time_string.split(":")[0]),
+        0,
+        0,
+    )
+    organizer_id = CONNECTED_USERS[flask.request.sid].id
+    reservation_success, reservation_code = db_utils.create_reservation(
+        room_id=room_id,
+        start_time=start_time,
+        end_time=end_time,
+        organizer_id=organizer_id,
+        attendee_ids=attendee_ids,
+    )
+    print(f"RESERVATION SUCCESS? {reservation_success}")
+    print(f"CODE: {reservation_code}")
 
 @APP.route("/")
 def index():

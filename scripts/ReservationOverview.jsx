@@ -59,7 +59,15 @@ export default function ReservationOverview(props) {
     }
 
     function handleReservationSubmit() {
-        // TODO: jlh29, actually send the info to the server
+        // TODO: Make sure that the rooms can accommodate the number of users
+        if (!timeChanged || !dateChanged) {
+            return;
+        }
+        let selectedDateTimestamp = date.getTime();
+        Socket.emit(
+            'reservation submit',
+            {date: selectedDateTimestamp, time, attendees},
+        );
     }
 
     function logout(event) {
