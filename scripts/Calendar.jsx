@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Socket from './Socket';
 import Calendar from 'react-calendar';
+import 'react-calendar/dist/Calendar.css';
 import Slot from './Slot';
 
 export default function MyCalendar() {
