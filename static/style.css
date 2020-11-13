@@ -20,21 +20,10 @@ P{
     align-items:center;
 }
 
-#logoutContainer {
-    display:flex;
-    align-items:baseline;
-    width:70%;
-}
-
-#welcomeText {
-    margin-right:10%;
-    width:100%;
-    text-align:right;
-}
-
 #logoutForm {
-    margin-left:10%;
-    width:100%;
+    position:fixed;
+    top:10px;
+    right:10px;
 }
 
 #contentContainer {

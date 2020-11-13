@@ -19,12 +19,10 @@ export default function ReservationOverview(props) {
     return (
         <div id='contentContainer'>
             <h1>Breakout Room Breakdown</h1>
-            <div id='logoutContainer'>
-                <p id='welcomeText'> Welcome {name} </p>
-                <form id='logoutForm' onClick={logout}>
-                    <button>Logout</button>
-                </form>
-            </div>
+            <p id='welcomeText'> Welcome {name} </p>
+            <form id='logoutForm' onClick={logout}>
+                <button>Logout</button>
+            </form>
             <MyCalendar />
             <div id='reservationForm'>
                 <RoomReservationSelector setAttendeeCount={setAttendeeCount} />
