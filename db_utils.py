@@ -134,8 +134,7 @@ def get_attendee_ids_from_ucids(ucids):
     DB.session.flush()
     new_attendee_ids = [attendee.id for attendee in new_attendees]
     DB.session.commit()
-
-    return list(existing_attendees.keys()).extend(new_attendee_ids)
+    return list(existing_attendees.keys()) + new_attendee_ids
 
 def create_reservation(room_id, start_time, end_time, organizer_id, attendee_ids=None):
     existing_reservation = (DB.session.query(models.Appointment)
