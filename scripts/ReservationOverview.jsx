@@ -19,17 +19,26 @@ export default function ReservationOverview(props) {
     const [dateChanged, setDateChanged] = useState(false);
     const [timeChanged, setTimeChanged] = useState(false);
 
+    function getDateString(inputDate) {
+        return inputDate.toLocaleDateString(
+            'en-US',
+            {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+            },
+        );
+    }
+
     function getTimesForSelectedDate(){
-        let selectedDateTimestamp = date.getTime();
         console.log(`User selected the date "${date}"`);
-        Socket.emit('time availability request', {date: selectedDateTimestamp});
+        Socket.emit('time availability request', {date: getDateString(date)});
     }
 
     function getAvailableDates() {
         let today = new Date();
-        let todayTimestamp = today.getTime();
         console.log(`User requesting available dates near ${today}`);
-        Socket.emit('date availability request', {date: todayTimestamp});
+        Socket.emit('date availability request', {date: getDateString(today)});
     }
 
     function updateAllTimes(data) {
