@@ -19,16 +19,20 @@ def get_available_times_for_date(date):
     available_times = set(AVAILABLE_TIMES)
     appointments_by_time = {}
     for appointment in appointments:
-        appointments_by_time.setdefault(appointment.date.hour, [])
+        appointments_by_time.setdefault(appointment.date.hour, 0)
         appointments_by_time[appointment.date.hour] += 1
 
     total_rooms = get_number_of_rooms()
-    unavailable_times = set(
+    unavailable_times = {
         hour for hour in appointments_by_time
         if appointments_by_time[hour] < total_rooms
-    )
+    }
+    availability = {
+        hour: (total_rooms - appointments_by_time.get(hour, 0))
+        for hour in AVAILABLE_TIMES
+    }
     DB.session.commit()
-    return list(available_times.difference(unavailable_times))
+    return availability
 
 def get_available_dates_after_date(date, date_range=3):
     assert date_range >= 0
@@ -45,10 +49,17 @@ def get_available_dates_after_date(date, date_range=3):
         date.date() + datetime.timedelta(days=day)
         for day in range(date_range)
     )
-    available_dates = set(
-        possible_date for possible_date in all_dates_in_range
-        if len(get_available_times_for_date(possible_date)) > 0
-    )
+    available_dates = set()
+    for possible_date in all_dates_in_range:
+        available_times = get_available_times_for_date(possible_date)
+        free_timeslots = len([
+            hour
+            for hour, free in available_times.items()
+            if free > 0
+        ])
+        if free_timeslots > 0:
+            available_dates.add(possible_date)
+
     DB.session.commit()
     return list(
         datetime.datetime(available.year, available.month, available.day)

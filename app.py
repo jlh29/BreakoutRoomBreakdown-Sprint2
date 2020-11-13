@@ -32,6 +32,11 @@ DATE_AVAILABILITY_REQUEST_CHANNEL = "date availability request"
 DATE_AVAILABILITY_RESPONSE_CHANNEL = "date availability response"
 ALL_DATES_KEY = "dates"
 
+DATE_KEY = "date"
+TIMESLOT_KEY = "timeslot"
+TIME_AVAILABILITY_KEY = "isAvailable"
+AVAILABLE_ROOMS_KEY = "availableRooms"
+
 CONNECTED_USERS = {}
 
 @SOCKET.on("connect")
@@ -57,19 +62,38 @@ def on_new_user_login(data):
 @SOCKET.on(DATE_AVAILABILITY_REQUEST_CHANNEL)
 def on_date_availability_request(data):
     print("Got an event for date input with data:", data)
-    date = datetime.datetime.fromtimestamp(data["date"] / 1000.0)
+    date = datetime.datetime.fromtimestamp(data[DATE_KEY] / 1000.0)
     available_dates = db_utils.get_available_dates_after_date(
         date=date,
         date_range=3,
     )
-    print(available_dates)
     available_date_timestamps = [
         available_date.timestamp() * 1000.0
         for available_date in available_dates
     ]
     SOCKET.emit(
         DATE_AVAILABILITY_RESPONSE_CHANNEL,
-        {"dates": available_date_timestamps},
+        {ALL_DATES_KEY: available_date_timestamps},
+        room=flask.request.sid,
+    )
+
+@SOCKET.on(TIME_AVAILABILITY_REQUEST_CHANNEL)
+def on_time_availability_request(data):
+    print("Got an event for time input with data:", data)
+    date = datetime.datetime.fromtimestamp(data[DATE_KEY] / 1000.0)
+    available_times = db_utils.get_available_times_for_date(date=date.date())
+    # TODO: jlh29, extend this for timeslots that are not 2 hours
+    all_times = [
+        {
+            TIMESLOT_KEY: f"{hour}:00-{hour+2}:00",
+            AVAILABLE_ROOMS_KEY: available_times[hour],
+            TIME_AVAILABILITY_KEY: available_times[hour] != 0,
+        }
+        for hour in sorted(available_times)
+    ]
+    SOCKET.emit(
+        TIME_AVAILABILITY_RESPONSE_CHANNEL,
+        {ALL_TIMES_KEY: all_times},
         room=flask.request.sid,
     )
 

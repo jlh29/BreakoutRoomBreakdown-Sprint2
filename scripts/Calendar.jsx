@@ -52,6 +52,8 @@ export default function MyCalendar(props) {
                             timeslot={time.timeslot}
                             setTime={setTime}
                             isAvailable={time.isAvailable}
+                            availableRooms={time.availableRooms}
+                            key={time.timeslot}
                         />;
                     }
                 )
