@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { Socket } from './Socket';
 import ReactDOM from 'react-dom';
+import Socket from './Socket';
 
 export function Content_Auth() {
     const [name, setName] = React.useState([]);
