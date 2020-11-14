@@ -6,15 +6,14 @@ https://brb-mvp.herokuapp.com/
 #### Individual Work
 
 ##### Binarynelle Sune
-* Worked on displaying the calendar, as well as disabling the days that are not in two days from today's date.
-* Created the a Calendar and Slot component.
-* Displayed the slots available on each Slot component.
-* Attempted to display the available timeslot based on the date.
+* Worked on displaying the calendar, as well as disabling the days that are not in two days from today's date
+* Created the a Calendar and Slot component that displayed the available timeslot
+* Attempted to display the available timeslot based on the date
 * Mock Testing for python files 
 
 ##### Jacob Haynie
 * Created the entire librarian's overview including creating components 
-* Made the available timeslot clickable.
+* Made the available timeslot clickable
 * Finished the database and added additional tables
 * Deployed the app to Heroku
 
