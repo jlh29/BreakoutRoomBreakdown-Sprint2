@@ -1,3 +1,14 @@
+# pylint: disable=no-member
+# pylint: disable=missing-function-docstring
+# pylint: disable=missing-module-docstring
+# pylint: disable=invalid-name
+# pylint: disable=missing-final-newline
+# pylint: disable=(line-too-long
+# pylint: disable=fixme
+# pylint: disable=no-else-return
+# pylint: disable=redefined-builtin
+# pylint: disable=unused-import
+
 import datetime
 import random
 import string

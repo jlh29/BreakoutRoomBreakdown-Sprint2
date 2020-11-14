@@ -33,5 +33,19 @@
     "react-calendar": "^3.2.0",
     "react-google-login": "^5.1.22",
     "socket.io-client": "^2.3.1"
-  }
+  },
+  "name": "breakoutroombreakdown",
+  "description": "https://brb-mvp.herokuapp.com/ # [Breakout Room Breakdown](https://brb-mvp.herokuapp.com/) ### a browser-based booking appointment app for easy scheduling of breakout rooms",
+  "version": "1.0.0",
+  "main": "webpack.config.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jlh29/BreakoutRoomBreakdown.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jlh29/BreakoutRoomBreakdown/issues"
+  },
+  "homepage": "https://github.com/jlh29/BreakoutRoomBreakdown#readme"
 }

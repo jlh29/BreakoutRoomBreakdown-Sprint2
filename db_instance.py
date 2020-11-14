@@ -1,3 +1,7 @@
+# pylint: disable=missing-module-docstring
+# pylint: disable=missing-function-docstring
+# pylint: disable=no-member
+
 from flask_sqlalchemy import SQLAlchemy
 
 DB = SQLAlchemy()
