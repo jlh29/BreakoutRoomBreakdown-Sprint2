@@ -1,5 +1,6 @@
-# Breakout Room Breakdown 
-##### a web-based app
+https://brb-mvp.herokuapp.com/
+# [Breakout Room Breakdown](https://brb-mvp.herokuapp.com/)
+### a browser-based booking appointment app for easy scheduling of breakout rooms
 
 1. Install python dotenv and flask module in your terminal:
 ```bash
