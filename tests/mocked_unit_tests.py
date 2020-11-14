@@ -188,12 +188,16 @@ class DbUtilTestCase(unittest.TestCase):
         return MockedSocket("connected", {"test": "Connected"})
         
     def mocked_add_or_get_auth_user(self, ucid, name):
-        """ x """
+        """ Mock adding auth user """
         return MockedDB
         
     def mocked_get_user_obj_from_id(self, id, as_dict=False):
-        """ x """
+        """ Mock the user id obj """
         return MockedDB
+        
+    def mocked_date(self, data):
+        """ Mock receiving date """
+        return MockedSocket("channel", {'DATE_KEY': '11-11-2020'})
       
     def test_on_connect(self):
         """ Test who successfully connected """
@@ -298,6 +302,27 @@ class DbUtilTestCase(unittest.TestCase):
             response = db_instance.init_db(app)
 
         self.assertTrue(response)
-    
+        
+    def on_date_availability_request(self):
+        """ Test availability being sent from client """
+        for test in self.test_date_info:
+            with mock.patch("app.on_date_availability_request", self.mocked_date):
+                data = {'DATE_KEY': '11-11-2020'}
+                response = app.on_date_availability_request(data)
+                expected = test[KEY_EXPECTED]
+            
+            self.assertNotEqual(response, expected)
+            
+    def on_reservation_submit(self):
+        """ Test reservation availability being sent from client """
+        for test in self.test_room_info:
+            with mock.patch("app.on_date_availability_request", self.mocked_date):
+                data = {'DATE_KEY': '11-11-2020'}
+                response = app.on_reservation_submit(data)
+                expected = test[KEY_EXPECTED]
+            
+            self.assertEqual(response, expected)
+            
+            
 if __name__ == "__main__":
     unittest.main()
