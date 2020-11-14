@@ -6,29 +6,29 @@ https://brb-mvp.herokuapp.com/
 #### Individual Work
 
 ##### Binarynelle Sune
-Worked on displaying the calendar, as well as disabling the days that are not in two days from today's date.
-Created the a Calendar and Slot component.
-Displayed the slots available on each Slot component.
-Attempted to display the available timeslot based on the date.
-Did the testing for python files 
+* Worked on displaying the calendar, as well as disabling the days that are not in two days from today's date.
+* Created the a Calendar and Slot component.
+* Displayed the slots available on each Slot component.
+* Attempted to display the available timeslot based on the date.
+* Mock Testing for python files 
 
 ##### Jacob Haynie
-Created the entire librarian's overview including creating components 
-Made the available timeslot clickable.
-Finished the database and added additional tables
-Deployed the app to Heroku
+* Created the entire librarian's overview including creating components 
+* Made the available timeslot clickable.
+* Finished the database and added additional tables
+* Deployed the app to Heroku
 
 ##### Dipam Patel
-Implement Google OAuth (Don’t allow others to login without the @njit.edu email)
-Pull the username for the welcome page
-Sign out Button Created
-Linting - Pylint/Eslint
+* Implement Google OAuth (Don’t allow others to login without the @njit.edu email)
+* Pull the username for the welcome page
+* Sign out Button Created
+* Linting - Pylint/Eslint
 
 ##### Timothy Schutte
-Created the number of students checking in
-Made a database for student's info as well as number of participants 
-Created a new table for participants only
-Created the submit button and save the details to the database created
+* Created the number of students checking in
+* Made a database for student's info as well participant's info
+* Created a new table for participants
+* Created the submit button and save the details to the database created
 
 -----------------------------------------------
 
