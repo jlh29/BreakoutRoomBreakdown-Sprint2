@@ -204,23 +204,9 @@ class DbUtilTestCase(unittest.TestCase):
 
             self.assertNotEqual(response, expected[KEY_COUNT])    
 
-    
-    # @mock.patch("db_utils.DB")
-    # def test_add_or_get_auth_user(self, mocked_db):
-    #     """ x """
-    #     for test in self.test_login_info:
-    #         response = db_utils.add_or_get_auth_user(test[KEY_UCID],test[KEY_UCID])
-    #         expected = test[KEY_EXPECTED]
-            
-    #         db_utils.get_user_obj_from_id(response)
-    #         mocked_db.session.commit.assert_called()
-            
-    #     self.assertNotEqual(response, expected)
-        
-        
     @mock.patch("db_utils.DB")
     def test_get_user_obj_from_id(self, mocked_db):
-        """ x """
+        """ Test the user's info based on id """
         for test in self.test_login_info:
             response = db_utils.get_user_obj_from_id(test[KEY_ID],True)
             expected = test[KEY_EXPECTED]
@@ -232,7 +218,7 @@ class DbUtilTestCase(unittest.TestCase):
     
     @mock.patch("db_utils.DB")
     def test_get_all_user_objs(self, mocked_db):
-        """ x """
+        """ Test all the users' login info in the database """
         for test in self.test_login_info:
             response = db_utils.get_all_user_objs(False)
             expected = test[KEY_EXPECTED]
@@ -245,6 +231,7 @@ class DbUtilTestCase(unittest.TestCase):
         
     @mock.patch("db_utils.DB")
     def test_get_all_room_objs(self, mocked_db):
+        """ Test the room for availability """
         for test in self.test_room_info:
             response = db_utils.get_all_room_objs()
             expected = test[KEY_EXPECTED]
@@ -256,6 +243,7 @@ class DbUtilTestCase(unittest.TestCase):
         
     @mock.patch("db_utils.DB")
     def test_get_room_obj_by_id(self, mocked_db):
+        """ Test the room based on the id given """
         for test in self.test_room_info:
             response = db_utils.get_room_obj_by_id(test[KEY_ID], False)
             expected = test[KEY_EXPECTED]
@@ -268,6 +256,7 @@ class DbUtilTestCase(unittest.TestCase):
        
     @mock.patch("db_utils.DB")
     def test_get_number_of_rooms(self, mocked_db):
+        """ Test the number of rooms availabile """
         for test in self.test_room_info:
             response = db_utils.get_number_of_rooms()
             expected = test[KEY_EXPECTED]
@@ -280,6 +269,7 @@ class DbUtilTestCase(unittest.TestCase):
         
     @mock.patch("db_utils.DB")
     def test_get_available_room_ids_for_date(self, mocked_db):
+        """ Test the room's availability based on date """
         for test in self.test_date_info:
             response = db_utils.get_available_room_ids_for_date(test[KEY_DATE])
             expected = test[KEY_EXPECTED]
@@ -291,6 +281,7 @@ class DbUtilTestCase(unittest.TestCase):
         
     @mock.patch("db_utils.DB")
     def test_get_available_times_for_date(self, mocked_db):
+        """ Test the given date """
         for test in self.test_date_info:
             response = db_utils.get_available_times_for_date(test[KEY_DATE])
             expected = test[KEY_EXPECTED]
@@ -310,5 +301,3 @@ class DbUtilTestCase(unittest.TestCase):
     
 if __name__ == "__main__":
     unittest.main()
-
-
