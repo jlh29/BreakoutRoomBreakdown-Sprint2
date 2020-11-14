@@ -121,6 +121,8 @@ npm install react-google-login
 ```
 
 Resources: [Google React Component](https://www.npmjs.com/package/react-google-login)
+
+
   -----------------------------------
   
   ##### When deploying the app to Heroku, a cloud platform that hosts web applications
@@ -158,7 +160,7 @@ git pull origin master
 git push origin master
 git push heroku master
 ```
-Click the link of your Heroku webpage, you should be able to see a functional web app called IRON.
+Click the link of your Heroku webpage, you should be able to see a functional web app called Breakout Room Breakdown.
 
   ------------------------------------
 
