@@ -1,3 +1,10 @@
+# pylint: disable=missing-function-docstring
+# pylint: disable=missing-final-newline
+# pylint: disable=trailing-whitespace
+# pylint: disable=fixme
+# pylint: disable=missing-module-docstring
+# pylint: disable=unused-argument
+# pylint: disable=unused-import
 import datetime
 import os
 from os.path import join, dirname
