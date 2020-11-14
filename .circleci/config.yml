@@ -1,0 +1,23 @@
+version: 2.1
+
+orbs:
+  python: circleci/python@0.2.1
+  heroku: circleci/heroku@0.0.10
+
+jobs:
+  build-and-test:
+    executor: python/default
+    steps:
+      - checkout
+      - python/load-cache
+      - python/install-deps
+      - python/save-cache
+      - run:
+          command: python -m unittest tests.mocked_unit_tests
+          name: Mocked Tests
+      - heroku/deploy-via-git
+
+workflows:
+  main:
+    jobs:
+      - build-and-test
