@@ -6,35 +6,35 @@ import GoogleButton from './GoogleButton';
 import Socket from './Socket';
 
 export default function LoginPage() {
-    function onSuccessfulLogin(data) {
-        if (data.role.toLowerCase().trim() == 'librarian') {
-            ReactDOM.render(
-                <LibrarianOverview />,
-                document.getElementById('content'),
-            );
-        } else {
-            ReactDOM.render(
-                <ReservationOverview name={data.name} />,
-                document.getElementById('content'),
-            );
-        }
+  function onSuccessfulLogin(data) {
+    if (data.role.toLowerCase().trim() == 'librarian') {
+      ReactDOM.render(
+        <LibrarianOverview />,
+        document.getElementById('content'),
+      );
+    } else {
+      ReactDOM.render(
+        <ReservationOverview name={data.name} />,
+        document.getElementById('content'),
+      );
     }
+  }
 
-    function listenToServer() {
-        useEffect(() => {
-            Socket.on('successful login', onSuccessfulLogin);
-            return () => {
-                Socket.off('successful login', onSuccessfulLogin);
-            };
-        });
-    }
+  function listenToServer() {
+    useEffect(() => {
+      Socket.on('successful login', onSuccessfulLogin);
+      return () => {
+        Socket.off('successful login', onSuccessfulLogin);
+      };
+    });
+  }
 
-    listenToServer();
+  listenToServer();
 
-    return (
-        <div id='loginContainer' className='flexColumn'>
-            <h1>Webauth Authentication Service</h1>
-            <GoogleButton />
-        </div>
-    );
+  return (
+    <div id="loginContainer" className="flexColumn">
+      <h1>Webauth Authentication Service</h1>
+      <GoogleButton />
+    </div>
+  );
 }
