@@ -5,3 +5,4 @@ __pycache__
 static/script.js
 cronofy.env
 sql.env
+*/__pycache__

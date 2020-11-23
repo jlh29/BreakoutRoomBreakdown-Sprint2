@@ -1,20 +1,15 @@
-# pylint: disable=missing-function-docstring
-# pylint: disable=missing-final-newline
-# pylint: disable=trailing-whitespace
-# pylint: disable=fixme
-# pylint: disable=missing-module-docstring
-# pylint: disable=unused-argument
-# pylint: disable=unused-import
+"""
+    This module handles the Flask application and receiving and responding to
+    data over socketio.
+"""
 import datetime
 import os
 from os.path import join, dirname
 from dotenv import load_dotenv
 import flask
-import flask_socketio
 import db_instance
-from db_instance import DB
 import db_utils
-import models 
+import models
 import socket_utils
 from socket_utils import SOCKET
 
@@ -63,10 +58,10 @@ ROOMS_REQUEST_CHANNEL = "rooms request"
 ROOMS_RESPONSE_CHANNEL = "rooms response"
 ROOMS_KEY = "rooms"
 
-CHECK_IN_CHANNEL = 'check in'
-CHECK_IN_RESPONSE_CHANNEL = 'check in response'
-CHECK_IN_CODE_KEY = 'code'
-CHECK_IN_SUCCESS_KEY = 'successful'
+CHECK_IN_CHANNEL = "check in"
+CHECK_IN_RESPONSE_CHANNEL = "check in response"
+CHECK_IN_CODE_KEY = "code"
+CHECK_IN_SUCCESS_KEY = "successful"
 
 DATE_KEY = "date"
 TIME_KEY = "time"
@@ -78,24 +73,43 @@ DATE_FORMAT = "%m/%d/%Y"
 
 CONNECTED_USERS = {}
 
+
 def is_user_librarian():
+    """
+        Returns whether or not the currently communicating client has the
+        librarian role
+    """
     if flask.request.sid not in CONNECTED_USERS:
         return False
     if CONNECTED_USERS[flask.request.sid].role != models.UserRole.LIBRARIAN:
         return False
     return True
 
+
 @SOCKET.on(CONNECT_CHANNEL)
 def on_connect():
+    """
+        Called whenever a user connects
+    """
     print("Someone connected!")
-    
+
+
 @SOCKET.on(DISCONNECT_CHANNEL)
 def on_disconnect():
-    print ("Someone disconnected!")
+    """
+        Called whenever a user disconnects
+    """
+    print("Someone disconnected!")
     CONNECTED_USERS.pop(flask.request.sid, None)
-    
+
+
 @SOCKET.on(USER_LOGIN_CHANNEL)
 def on_new_user_login(data):
+    """
+        Called whenever a user successfully passes through the Google OAuth login
+        Sends the user's name and role back to the client so that the webpage
+        is rendered correctly
+    """
     print(f"Got an event for new user login with data: {data}")
     name = data[USER_LOGIN_NAME_KEY]
     ucid = data[USER_LOGIN_EMAIL_KEY].split("@")[0]
@@ -107,11 +121,17 @@ def on_new_user_login(data):
         room=flask.request.sid,
     )
 
+
 @SOCKET.on(DATE_AVAILABILITY_REQUEST_CHANNEL)
 def on_date_availability_request(data):
+    """
+        Called whenever the reservation form is first loaded
+        Returns a list of dates that are not fully booked or otherwise unavailable
+    """
     print("Got an event for date input with data:", data)
     date = datetime.datetime.strptime(data[DATE_KEY], DATE_FORMAT)
-    if (flask.request.sid in CONNECTED_USERS
+    if (
+            flask.request.sid in CONNECTED_USERS
             and CONNECTED_USERS[flask.request.sid].role == models.UserRole.LIBRARIAN
     ):
         available_dates = db_utils.get_available_dates_for_month(date)
@@ -121,8 +141,7 @@ def on_date_availability_request(data):
             date_range=3,
         )
     available_date_timestamps = [
-        available_date.timestamp() * 1000.0
-        for available_date in available_dates
+        available_date.timestamp() * 1000.0 for available_date in available_dates
     ]
     SOCKET.emit(
         DATE_AVAILABILITY_RESPONSE_CHANNEL,
@@ -130,8 +149,13 @@ def on_date_availability_request(data):
         room=flask.request.sid,
     )
 
+
 @SOCKET.on(TIME_AVAILABILITY_REQUEST_CHANNEL)
 def on_time_availability_request(data):
+    """
+        Called whenever a user clicks on a date in the reservation form
+        Checks to see what timeslots are available and sends them to the client
+    """
     print("Got an event for time input with data:", data)
     date = datetime.datetime.strptime(data[DATE_KEY], DATE_FORMAT)
     available_times = db_utils.get_available_times_for_date(date=date.date())
@@ -150,8 +174,13 @@ def on_time_availability_request(data):
         room=flask.request.sid,
     )
 
+
 @SOCKET.on(RESERVATION_SUBMIT_CHANNEL)
 def on_reservation_submit(data):
+    """
+        Called whenever a user submits the reservation form
+        Creates a new Appointment (if possible) and returns its details
+    """
     date = datetime.datetime.fromtimestamp(data[DATE_KEY] / 1000.0)
     attendee_ids = db_utils.get_attendee_ids_from_ucids(data[ATTENDEES_KEY])
     # TODO: jlh29, actually allow the user to choose a room
@@ -180,7 +209,11 @@ def on_reservation_submit(data):
         0,
     )
     organizer_id = CONNECTED_USERS[flask.request.sid].id
-    reservation_success, reservation_code, reservation_dict = db_utils.create_reservation(
+    (
+        reservation_success,
+        reservation_code,
+        reservation_dict,
+    ) = db_utils.create_reservation(
         room_id=room_id,
         start_time=start_time,
         end_time=end_time,
@@ -197,54 +230,83 @@ def on_reservation_submit(data):
         room=flask.request.sid,
     )
 
+
 @APP.route("/")
 def index():
+    """
+        Provides the client with the main webpage
+    """
     return flask.render_template("index.html")
+
 
 @SOCKET.on(LIBRARIAN_DATA_REQUEST_CHANNEL)
 def on_librarian_data_request(data):
+    """
+        Called whenever the Librarian Overview UI first loads to obtain all
+        essential information simultaneously
+    """
     if not is_user_librarian():
         return
     on_request_appointments(data)
-    on_request_rooms(data)
-    on_request_users(data)
+    on_request_rooms()
+    on_request_users()
+
 
 @SOCKET.on(APPOINTMENTS_REQUEST_CHANNEL)
 def on_request_appointments(data):
+    """
+        Called whenever the librarian clicks on a date in the Librarian Overview
+        UI
+        Returns a list of all Appointments for a given date
+    """
     if not is_user_librarian():
         return
     date = datetime.datetime.strptime(data[DATE_KEY], DATE_FORMAT)
     appointments = db_utils.get_all_appointments_for_date(date, True)
     SOCKET.emit(
-        APPOINTMENTS_RESPONSE_CHANNEL, 
+        APPOINTMENTS_RESPONSE_CHANNEL,
         {APPOINTMENTS_KEY: appointments},
         room=flask.request.sid,
     )
 
+
 @SOCKET.on(USERS_REQUEST_CHANNEL)
-def on_request_users(data):
+def on_request_users():
+    """
+        Called whenever the Librarian Overview UI loads the User Overview section
+        Returns a list of all AuthUsers
+    """
     if not is_user_librarian():
         return
     users = db_utils.get_all_user_objs(True)
     SOCKET.emit(
-        USERS_RESPONSE_CHANNEL, 
+        USERS_RESPONSE_CHANNEL,
         {USERS_KEY: users},
         room=flask.request.sid,
     )
 
+
 @SOCKET.on(ROOMS_REQUEST_CHANNEL)
-def on_request_rooms(data):
+def on_request_rooms():
+    """
+        Called whenever the Librarian Overview UI loads the Room Overview section
+        Returns a list of all BreakoutRooms
+    """
     if not is_user_librarian():
         return
     rooms = db_utils.get_all_room_objs(True)
     SOCKET.emit(
-        ROOMS_RESPONSE_CHANNEL, 
+        ROOMS_RESPONSE_CHANNEL,
         {ROOMS_KEY: rooms},
         room=flask.request.sid,
     )
 
+
 @SOCKET.on(CHECK_IN_CHANNEL)
 def on_check_in(data):
+    """
+        Called whenever the librarian checks in a group via their check-in code
+    """
     if not is_user_librarian():
         return
     check_in_code = data[CHECK_IN_CODE_KEY]
@@ -255,12 +317,13 @@ def on_check_in(data):
         room=flask.request.sid,
     )
 
-if __name__ == "__main__": 
+
+if __name__ == "__main__":
     db_instance.init_db(APP)
     socket_utils.init_socket(APP)
     SOCKET.run(
         APP,
         host=os.getenv("IP", "0.0.0.0"),
         port=int(os.getenv("PORT", "8080")),
-        debug=True
+        debug=True,
     )

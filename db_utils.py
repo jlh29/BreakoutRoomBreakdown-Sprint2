@@ -1,18 +1,10 @@
+"""
+    This module handles reading from and writing to the database
+"""
 # pylint: disable=no-member
-# pylint: disable=missing-function-docstring
-# pylint: disable=missing-module-docstring
-# pylint: disable=invalid-name
-# pylint: disable=missing-final-newline
-# pylint: disable=(line-too-long
-# pylint: disable=fixme
-# pylint: disable=no-else-return
-# pylint: disable=redefined-builtin
-# pylint: disable=unused-import
-
 import datetime
 import random
 import string
-from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import and_, func, extract
 from db_instance import DB
 import models
@@ -20,11 +12,17 @@ import models
 AVAILABLE_TIMES = [9, 11, 13, 15]
 CHECK_IN_CODE_LENGTH = 6
 
+
 def add_or_get_auth_user(ucid, name):
-    existing_user = (DB.session.query(models.AuthUser)
-                        .filter(
-                            func.lower(models.AuthUser.ucid) == func.lower(ucid)
-                        ).first())
+    """
+    Obtains the AuthUser corresponding to the given UCID and name (or creates
+    one if one does not exist)
+    """
+    existing_user = (
+        DB.session.query(models.AuthUser)
+        .filter(func.lower(models.AuthUser.ucid) == func.lower(ucid))
+        .first()
+    )
     if existing_user:
         user_info = models.UserInfo(
             id=existing_user.id,
@@ -51,7 +49,11 @@ def add_or_get_auth_user(ucid, name):
     DB.session.commit()
     return user_info
 
+
 def get_all_user_objs(as_dicts=False):
+    """
+    Obtains all AuthUsers and returns them as UserInfo objects or dictionaries
+    """
     users = DB.session.query(models.AuthUser).all()
     user_objs = [
         models.UserInfo(
@@ -65,33 +67,46 @@ def get_all_user_objs(as_dicts=False):
     DB.session.commit()
     if as_dicts:
         return [user._asdict() for user in user_objs]
-    else:
-        return user_objs
+    return user_objs
 
-def get_user_obj_from_id(id, as_dict=False):
-    user = DB.session.query(models.AuthUser).filter(models.AuthUser.id == id).first()
+
+def get_user_obj_from_id(user_id, as_dict=False):
+    """
+    Obtains the AuthUser corresponding to the given ID and returns it as
+    a UserInfo object or dictionary
+    """
+    user = (
+        DB.session.query(models.AuthUser).filter(models.AuthUser.id == user_id).first()
+    )
     if not user:
         DB.session.commit()
         return None
     user_obj = models.UserInfo(
-            id=user.id,
-            ucid=user.ucid,
-            role=user.role,
-            name=user.name,
+        id=user.id,
+        ucid=user.ucid,
+        role=user.role,
+        name=user.name,
     )
     DB.session.commit()
     if as_dict:
         return user_obj._asdict()
-    else:
-        return user_obj
+    return user_obj
+
 
 def get_all_room_ids():
+    """
+    Returns the IDs of all Rooms
+    """
     rooms = DB.session.query(models.Room).all()
     room_ids = [room.id for room in rooms]
     DB.session.commit()
     return room_ids
 
+
 def get_all_room_objs(as_dicts=False):
+    """
+    Returns all Rooms as RoomInfo objects or dictionaries
+    """
     rooms = DB.session.query(models.Room).all()
     room_objs = [
         models.BreakoutRoom(
@@ -105,11 +120,15 @@ def get_all_room_objs(as_dicts=False):
     DB.session.commit()
     if as_dicts:
         return [room._asdict() for room in room_objs]
-    else:
-        return room_objs
+    return room_objs
 
-def get_room_obj_by_id(id, as_dict=False):
-    room = DB.session.query(models.Room).filter(models.Room.id == id).first()
+
+def get_room_obj_by_id(room_id, as_dict=False):
+    """
+    Returns the Room corresponding to the given ID as a RoomInfo object or
+    dictionary
+    """
+    room = DB.session.query(models.Room).filter(models.Room.id == room_id).first()
     if room is None:
         DB.session.commit()
         return None
@@ -122,26 +141,34 @@ def get_room_obj_by_id(id, as_dict=False):
     DB.session.commit()
     if as_dict:
         return room_obj._asdict()
-    else:
-        return room_obj
+    return room_obj
+
 
 def get_number_of_rooms():
+    """
+    Returns the total number of Rooms in the database
+    """
     rooms_count = DB.session.query(func.count(models.Room.id)).scalar()
     DB.session.commit()
     return rooms_count
 
+
 def get_available_room_ids_for_date(date):
+    """
+    Returns the IDs of all Rooms that are not fully booked or otherwise
+    unavailable for a given date
+    """
     if isinstance(date, datetime.datetime):
         date = date.date()
-    appointments = (DB.session.query(models.Appointment)
-                            .filter(
-                                func.DATE(models.Appointment.start_time) == date,
-                            ).all())
+    appointments = (
+        DB.session.query(models.Appointment)
+        .filter(
+            func.DATE(models.Appointment.start_time) == date,
+        )
+        .all()
+    )
     all_room_ids = get_all_room_ids()
-    room_ids_by_time = {
-        hour: set(all_room_ids)
-        for hour in AVAILABLE_TIMES
-    }
+    room_ids_by_time = {hour: set(all_room_ids) for hour in AVAILABLE_TIMES}
     for appointment in appointments:
         room_ids_by_time.setdefault(appointment.start_time.hour, set(all_room_ids))
         room_ids_by_time[appointment.start_time.hour].discard(appointment.room_id)
@@ -150,38 +177,47 @@ def get_available_room_ids_for_date(date):
         room_ids_by_time[hour] = sorted(list(rooms))
     return room_ids_by_time
 
+
 def get_available_times_for_date(date):
+    """
+    Returns a mapping of timeslot hours to the number of available rooms for that
+    timeslot
+    """
     room_availability = get_available_room_ids_for_date(date)
     availability = {
-        hour: len(room_availability.get(hour, []))
-        for hour in AVAILABLE_TIMES
+        hour: len(room_availability.get(hour, [])) for hour in AVAILABLE_TIMES
     }
     DB.session.commit()
     return availability
 
+
 def get_available_dates_after_date(date, date_range=3):
+    """
+    Returns a list of dates that are not fully booked or otherwise unavailable
+    that are within a certain distance from a given date
+    """
     assert date_range >= 0
     cutoff_date = date + datetime.timedelta(days=date_range)
-    unavailable_date_models = (DB.session.query(models.UnavailableDate)
-                                .filter(
-                                    and_(
-                                        func.DATE(models.UnavailableDate.date) >= date.date(),
-                                        func.DATE(models.UnavailableDate.date) <= cutoff_date.date(),
-                                    ),
-                                ).all())
+    unavailable_date_models = (
+        DB.session.query(models.UnavailableDate)
+        .filter(
+            and_(
+                func.DATE(models.UnavailableDate.date) >= date.date(),
+                func.DATE(models.UnavailableDate.date) <= cutoff_date.date(),
+            ),
+        )
+        .all()
+    )
     unavailable_dates = set(model.date.date() for model in unavailable_date_models)
     all_dates_in_range = set(
-        date.date() + datetime.timedelta(days=day)
-        for day in range(date_range)
+        date.date() + datetime.timedelta(days=day) for day in range(date_range)
     )
     available_dates = set()
     for possible_date in all_dates_in_range:
         available_times = get_available_times_for_date(possible_date)
-        free_timeslots = len([
-            hour
-            for hour, free in available_times.items()
-            if free > 0
-        ])
+        free_timeslots = len(
+            [hour for hour, free in available_times.items() if free > 0]
+        )
         if free_timeslots > 0:
             available_dates.add(possible_date)
 
@@ -191,14 +227,22 @@ def get_available_dates_after_date(date, date_range=3):
         for available in available_dates.difference(unavailable_dates)
     )
 
+
 def get_available_dates_for_month(date):
-    unavailable_date_models = (DB.session.query(models.UnavailableDate)
-                                .filter(
-                                    and_(
-                                        extract('year', models.UnavailableDate.date) == date.year,
-                                        extract('month', models.UnavailableDate.date) == date.month,
-                                    ),
-                                ).all())
+    """
+    Returns a list of dates that are not fully booked or otherwise unavailable
+    for the entire month of the given date
+    """
+    unavailable_date_models = (
+        DB.session.query(models.UnavailableDate)
+        .filter(
+            and_(
+                extract("year", models.UnavailableDate.date) == date.year,
+                extract("month", models.UnavailableDate.date) == date.month,
+            ),
+        )
+        .all()
+    )
     unavailable_dates = set(model.date.date() for model in unavailable_date_models)
 
     all_dates_in_month = set()
@@ -210,11 +254,9 @@ def get_available_dates_for_month(date):
     available_dates = set()
     for possible_date in all_dates_in_month:
         available_times = get_available_times_for_date(possible_date)
-        free_timeslots = len([
-            hour
-            for hour, free in available_times.items()
-            if free > 0
-        ])
+        free_timeslots = len(
+            [hour for hour, free in available_times.items() if free > 0]
+        )
         if free_timeslots > 0:
             available_dates.add(possible_date)
 
@@ -224,22 +266,24 @@ def get_available_dates_for_month(date):
         for available in available_dates.difference(unavailable_dates)
     )
 
+
 def get_attendee_ids_from_ucids(ucids):
+    """
+    Returns a list of IDs of Attendees that are obtained or generated using the
+    given list of UCIDs
+    """
     lower_ucids = [ucid.lower() for ucid in ucids]
-    existing_attendee_models = (DB.session.query(models.Attendee)
-                            .filter(
-                                func.lower(
-                                    models.Attendee.ucid
-                                ).in_(
-                                    lower_ucids
-                                )
-                            ).all())
+    existing_attendee_models = (
+        DB.session.query(models.Attendee)
+        .filter(func.lower(models.Attendee.ucid).in_(lower_ucids))
+        .all()
+    )
     existing_attendees = {
-        attendee.id: attendee.ucid
-        for attendee in existing_attendee_models
+        attendee.id: attendee.ucid for attendee in existing_attendee_models
     }
     new_attendees = [
-        models.Attendee(ucid) for ucid in lower_ucids
+        models.Attendee(ucid)
+        for ucid in lower_ucids
         if ucid not in existing_attendees.values()
     ]
     DB.session.add_all(new_attendees)
@@ -248,26 +292,40 @@ def get_attendee_ids_from_ucids(ucids):
     DB.session.commit()
     return list(existing_attendees.keys()) + new_attendee_ids
 
-def get_attendee_obj_from_id(id, as_dict=False):
-    attendee = DB.session.query(models.Attendee).filter(models.Attendee.id == id).first()
+
+def get_attendee_obj_from_id(attendee_id, as_dict=False):
+    """
+    Returns the Attendee corresponding to the given ID as an AttendeeInfo object
+    or dictionary
+    """
+    attendee = (
+        DB.session.query(models.Attendee)
+        .filter(models.Attendee.id == attendee_id)
+        .first()
+    )
     if not attendee:
         DB.session.commit()
         return None
     attendee_obj = models.AttendeeInfo(
-            id=attendee.id,
-            ucid=attendee.ucid,
+        id=attendee.id,
+        ucid=attendee.ucid,
     )
     DB.session.commit()
     if as_dict:
         return attendee_obj._asdict()
-    else:
-        return attendee_obj
+    return attendee_obj
+
 
 def get_all_appointments_for_date(date, as_dicts=False):
-    all_appointments = (DB.session.query(models.Appointment)
-                                .filter(
-                                    func.DATE(models.Appointment.start_time) == date.date()
-                                ).all())
+    """
+    Returns the list of Appointments occurring on a given date as AppointmentInfo
+    objects or dictionaries
+    """
+    all_appointments = (
+        DB.session.query(models.Appointment)
+        .filter(func.DATE(models.Appointment.start_time) == date.date())
+        .all()
+    )
     appointment_objs = []
     for appointment in all_appointments:
         start_time_ts = appointment.start_time.timestamp() * 1000.0
@@ -279,7 +337,9 @@ def get_all_appointments_for_date(date, as_dicts=False):
                 start_time=start_time_ts if as_dicts else appointment.start_time,
                 end_time=end_time_ts if as_dicts else appointment.end_time,
                 organizer=get_user_obj_from_id(appointment.organizer_id, as_dicts),
-                attendees=None if appointment.attendee_ids is None else [
+                attendees=None
+                if appointment.attendee_ids is None
+                else [
                     get_attendee_obj_from_id(id, as_dicts)
                     for id in appointment.attendee_ids
                 ],
@@ -289,17 +349,23 @@ def get_all_appointments_for_date(date, as_dicts=False):
     DB.session.commit()
     if as_dicts:
         return [appointment._asdict() for appointment in appointment_objs]
-    else:
-        return appointment_objs
+    return appointment_objs
+
 
 def create_reservation(room_id, start_time, end_time, organizer_id, attendee_ids=None):
-    existing_reservation = (DB.session.query(models.Appointment)
-                                .filter(
-                                    and_(
-                                        models.Appointment.room_id == room_id,
-                                        models.Appointment.start_time == start_time,
-                                    )
-                                ).first())
+    """
+    Creates and stores a reservation with the provided information
+    """
+    existing_reservation = (
+        DB.session.query(models.Appointment)
+        .filter(
+            and_(
+                models.Appointment.room_id == room_id,
+                models.Appointment.start_time == start_time,
+            )
+        )
+        .first()
+    )
     if existing_reservation:
         print("A reservation already exists for this room at the given time")
         DB.session.commit()
@@ -314,7 +380,7 @@ def create_reservation(room_id, start_time, end_time, organizer_id, attendee_ids
         attendee_ids=attendee_ids,
     )
     possible_characters = string.ascii_letters + string.digits
-    new_check_in_code = ''.join(
+    new_check_in_code = "".join(
         random.choice(possible_characters) for i in range(CHECK_IN_CODE_LENGTH)
     )
     DB.session.add(new_reservation)
@@ -331,27 +397,35 @@ def create_reservation(room_id, start_time, end_time, organizer_id, attendee_ids
         start_time=new_reservation.start_time.timestamp() * 1000.0,
         end_time=new_reservation.end_time.timestamp() * 1000.0,
         organizer=get_user_obj_from_id(new_reservation.organizer_id, True),
-        attendees=None if new_reservation.attendee_ids is None else [
-            get_attendee_obj_from_id(id, True)
-            for id in new_reservation.attendee_ids
+        attendees=None
+        if new_reservation.attendee_ids is None
+        else [
+            get_attendee_obj_from_id(id, True) for id in new_reservation.attendee_ids
         ],
         status=new_reservation.status,
     )
     return True, new_check_in_code, reservation_obj._asdict()
 
+
 def check_in_with_code(check_in_code):
-    reservation = (DB.session.query(models.CheckIn)
-                        .filter(
-                            models.CheckIn.validation_code == check_in_code
-                        ).first())
+    """
+    Attempts to change the status of the Appointment associated with a given
+    check-in code (if found)
+    """
+    reservation = (
+        DB.session.query(models.CheckIn)
+        .filter(models.CheckIn.validation_code == check_in_code)
+        .first()
+    )
     if reservation is None:
         print("Reservation not found.")
         DB.session.commit()
         return False
-    appointment = (DB.session.query(models.Appointment)
-                        .filter(
-                            models.Appointment.id == reservation.reservation_id
-                        ).first())
+    appointment = (
+        DB.session.query(models.Appointment)
+        .filter(models.Appointment.id == reservation.reservation_id)
+        .first()
+    )
     appointment.status = models.AppointmentStatus.CHECKED_IN.value
     DB.session.delete(reservation)
     DB.session.commit()

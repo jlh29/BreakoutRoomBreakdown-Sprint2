@@ -1,20 +1,14 @@
-# pylint: disable=superfluous-parens
-# pylint: disable=missing-module-docstring
+"""
+    This module defines the structure of the PostgreSQL database and related
+    data structures
+"""
 # pylint: disable=no-member
-# pylint: disable=missing-function-docstring
 # pylint: disable=too-few-public-methods
-# pylint: disable=missing-class-docstring
 # pylint: disable=too-many-arguments
-# pylint: disable=too-few-public-methods
-# pylint: disable=unused-import
-# pylint: disable=wrong-import-order
-
-
 from collections import namedtuple
 import datetime
-import flask_sqlalchemy
-from db_instance import DB
 from enum import Enum
+from db_instance import DB
 
 UserInfo = namedtuple("UserInfo", ["id", "ucid", "role", "name"])
 AttendeeInfo = namedtuple("AttendeeInfo", ["id", "ucid"])
@@ -32,7 +26,11 @@ AppointmentInfo = namedtuple(
     ],
 )
 
+
 class AuthUser(DB.Model):
+    """
+    This model defines a user that has signed in with OAuth
+    """
     id = DB.Column(DB.Integer, primary_key=True)
     ucid = DB.Column(DB.String(120), nullable=False)
     auth_type = DB.Column(DB.String(120), nullable=False)
@@ -54,24 +52,39 @@ class AuthUser(DB.Model):
         self.role = role.value
 
     def __repr__(self):
-        return (f"<User name: {self.name}"
-                f"\trole: {self.role}"
-                f"\tucid: {self.ucid}>")
+        return f"<User name: {self.name}" f"\trole: {self.role}" f"\tucid: {self.ucid}>"
 
     def get_email(self):
+        """
+        Returns the generated email address for a given AuthUser
+        """
         return f"{self.ucid}@njit.edu"
 
+
 class Attendee(DB.Model):
+    """
+    This model defines each of the participants in an appointment
+    """
     id = DB.Column(DB.Integer, primary_key=True)
     ucid = DB.Column(DB.String(120), nullable=False)
 
     def __init__(self, ucid):
         self.ucid = ucid
 
+    def __repr__(self):
+        return f"<Attendee ucid: {self.ucid}>"
+
     def get_email(self):
+        """
+        Returns the generated email address for a given Attendee
+        """
         return f"{self.ucid}@njit.edu"
 
+
 class Appointment(DB.Model):
+    """
+    This model defines a breakout room reservation
+    """
     id = DB.Column(DB.Integer, primary_key=True)
     room_id = DB.Column(DB.Integer, DB.ForeignKey("room.id"), nullable=False)
     start_time = DB.Column(DB.DateTime, nullable=False)
@@ -97,7 +110,18 @@ class Appointment(DB.Model):
         self.attendee_ids = attendee_ids
         self.status = AppointmentStatus.WAITING.value
 
+    def __repr__(self):
+        return (
+            f"<Appointment room id: {self.room_id}\tstart time: {self.start_time}"
+            f"\tend time: {self.end_time}\torganizer id: {self.organizer_id}"
+            f"\tattendee ids: {self.attendee_ids}\tstatus: {self.status}>"
+        )
+
+
 class Room(DB.Model):
+    """
+    This model defines a breakout room's information
+    """
     id = DB.Column(DB.Integer, primary_key=True)
     room_number = DB.Column(DB.String(40), nullable=False, unique=True)
     size = DB.Column(DB.String(4), nullable=False)
@@ -126,7 +150,17 @@ class Room(DB.Model):
         self.capacity = capacity
         self.size = size.value
 
+    def __repr__(self):
+        return (
+            f"<Room number: {self.room_number}\tcapacity: {self.capacity}"
+            f"\tsize: {self.size}>"
+        )
+
+
 class UnavailableDate(DB.Model):
+    """
+    This model defines a date that the librarian has made unavailable
+    """
     date = DB.Column(DB.DateTime, primary_key=True)
     reason = DB.Column(DB.String(150), nullable=True)
 
@@ -136,11 +170,17 @@ class UnavailableDate(DB.Model):
         self.reason = reason
 
     def __repr__(self):
-        return (f"<Unavailable Date: {self.date}\treason: {self.reason}>")
+        return f"<Unavailable Date: {self.date}\treason: {self.reason}>"
+
 
 class CheckIn(DB.Model):
+    """
+    This model defines the check-in code for each appointment
+    """
     id = DB.Column(DB.Integer, primary_key=True)
-    reservation_id = DB.Column(DB.Integer, DB.ForeignKey("appointment.id"), nullable=False)
+    reservation_id = DB.Column(
+        DB.Integer, DB.ForeignKey("appointment.id"), nullable=False
+    )
     validation_code = DB.Column(DB.String(32), nullable=False)
 
     def __init__(self, reservation_id, validation_code):
@@ -148,25 +188,43 @@ class CheckIn(DB.Model):
         self.validation_code = validation_code
 
     def __repr__(self):
-        return (f"<CheckIn reservation ID: {self.reservation_id}\t"
-                f"validation code: {self.validation_code}>")
+        return (
+            f"<CheckIn reservation ID: {self.reservation_id}\t"
+            f"validation code: {self.validation_code}>"
+        )
+
 
 class AuthUserType(Enum):
+    """
+    Defines the possible login types
+    """
     GOOGLE = "google"
     PASSWORD = "password"
 
+
 class UserRole(Enum):
+    """
+    Defines the possible set of permissions that a user can have
+    """
     LIBRARIAN = "librarian"
     PROFESSOR = "professor"
     STUDENT = "student"
 
+
 class RoomSize(Enum):
+    """
+    Defines the qualitative size of a breakout room
+    """
     SMALL = "s"
     MEDIUM = "m"
     LARGE = "l"
     XLARGE = "xl"
 
+
 class AppointmentStatus(Enum):
+    """
+    Defines the possible check-in statuses of an appointment
+    """
     CHECKED_IN = "checked-in"
     WAITING = "waiting"
     FREE = "free"
