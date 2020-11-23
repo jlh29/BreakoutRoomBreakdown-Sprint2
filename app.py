@@ -71,25 +71,25 @@ TIME_AVAILABILITY_KEY = "isAvailable"
 AVAILABLE_ROOMS_KEY = "availableRooms"
 DATE_FORMAT = "%m/%d/%Y"
 
+STUDENT_DATE_AVAILABILITY_RANGE = 3
+PROFESSOR_DATE_AVAILABILITY_RANGE = 7
+
 CONNECTED_USERS = {}
 
 
-def is_user_librarian():
+def _current_user_role():
     """
-        Returns whether or not the currently communicating client has the
-        librarian role
+    Returns the currently communicating client's UserRole
     """
     if flask.request.sid not in CONNECTED_USERS:
-        return False
-    if CONNECTED_USERS[flask.request.sid].role != models.UserRole.LIBRARIAN:
-        return False
-    return True
+        return None
+    return CONNECTED_USERS[flask.request.sid].role
 
 
 @SOCKET.on(CONNECT_CHANNEL)
 def on_connect():
     """
-        Called whenever a user connects
+    Called whenever a user connects
     """
     print("Someone connected!")
 
@@ -97,7 +97,7 @@ def on_connect():
 @SOCKET.on(DISCONNECT_CHANNEL)
 def on_disconnect():
     """
-        Called whenever a user disconnects
+    Called whenever a user disconnects
     """
     print("Someone disconnected!")
     CONNECTED_USERS.pop(flask.request.sid, None)
@@ -106,9 +106,9 @@ def on_disconnect():
 @SOCKET.on(USER_LOGIN_CHANNEL)
 def on_new_user_login(data):
     """
-        Called whenever a user successfully passes through the Google OAuth login
-        Sends the user's name and role back to the client so that the webpage
-        is rendered correctly
+    Called whenever a user successfully passes through the Google OAuth login
+    Sends the user's name and role back to the client so that the webpage
+    is rendered correctly
     """
     print(f"Got an event for new user login with data: {data}")
     name = data[USER_LOGIN_NAME_KEY]
@@ -125,21 +125,26 @@ def on_new_user_login(data):
 @SOCKET.on(DATE_AVAILABILITY_REQUEST_CHANNEL)
 def on_date_availability_request(data):
     """
-        Called whenever the reservation form is first loaded
-        Returns a list of dates that are not fully booked or otherwise unavailable
+    Called whenever the reservation form is first loaded
+    Returns a list of dates that are not fully booked or otherwise unavailable
     """
     print("Got an event for date input with data:", data)
     date = datetime.datetime.strptime(data[DATE_KEY], DATE_FORMAT)
-    if (
-            flask.request.sid in CONNECTED_USERS
-            and CONNECTED_USERS[flask.request.sid].role == models.UserRole.LIBRARIAN
-    ):
+    user_role = _current_user_role()
+    if user_role == models.UserRole.LIBRARIAN:
         available_dates = db_utils.get_available_dates_for_month(date)
-    else:
+    elif user_role == models.UserRole.PROFESSOR:
         available_dates = db_utils.get_available_dates_after_date(
             date=date,
-            date_range=3,
+            date_range=PROFESSOR_DATE_AVAILABILITY_RANGE,
         )
+    elif user_role == models.UserRole.STUDENT:
+        available_dates = db_utils.get_available_dates_after_date(
+            date=date,
+            date_range=STUDENT_DATE_AVAILABILITY_RANGE,
+        )
+    else:
+        return
     available_date_timestamps = [
         available_date.timestamp() * 1000.0 for available_date in available_dates
     ]
@@ -153,8 +158,8 @@ def on_date_availability_request(data):
 @SOCKET.on(TIME_AVAILABILITY_REQUEST_CHANNEL)
 def on_time_availability_request(data):
     """
-        Called whenever a user clicks on a date in the reservation form
-        Checks to see what timeslots are available and sends them to the client
+    Called whenever a user clicks on a date in the reservation form
+    Checks to see what timeslots are available and sends them to the client
     """
     print("Got an event for time input with data:", data)
     date = datetime.datetime.strptime(data[DATE_KEY], DATE_FORMAT)
@@ -178,10 +183,24 @@ def on_time_availability_request(data):
 @SOCKET.on(RESERVATION_SUBMIT_CHANNEL)
 def on_reservation_submit(data):
     """
-        Called whenever a user submits the reservation form
-        Creates a new Appointment (if possible) and returns its details
+    Called whenever a user submits the reservation form
+    Creates a new Appointment (if possible) and returns its details
     """
+    user_role = _current_user_role()
     date = datetime.datetime.fromtimestamp(data[DATE_KEY] / 1000.0)
+    date_difference = (date - datetime.datetime.utcnow()).days
+    if user_role is None:
+        return
+    if (
+            user_role == models.UserRole.STUDENT
+            and date_difference > STUDENT_DATE_AVAILABILITY_RANGE
+    ):
+        return
+    if (
+            user_role == models.UserRole.PROFESSOR
+            and date_difference > PROFESSOR_DATE_AVAILABILITY_RANGE
+    ):
+        return
     attendee_ids = db_utils.get_attendee_ids_from_ucids(data[ATTENDEES_KEY])
     # TODO: jlh29, actually allow the user to choose a room
     available_rooms_by_time = db_utils.get_available_room_ids_for_date(date.date())
@@ -234,7 +253,7 @@ def on_reservation_submit(data):
 @APP.route("/")
 def index():
     """
-        Provides the client with the main webpage
+    Provides the client with the main webpage
     """
     return flask.render_template("index.html")
 
@@ -242,10 +261,10 @@ def index():
 @SOCKET.on(LIBRARIAN_DATA_REQUEST_CHANNEL)
 def on_librarian_data_request(data):
     """
-        Called whenever the Librarian Overview UI first loads to obtain all
-        essential information simultaneously
+    Called whenever the Librarian Overview UI first loads to obtain all
+    essential information simultaneously
     """
-    if not is_user_librarian():
+    if not _current_user_role() == models.UserRole.LIBRARIAN:
         return
     on_request_appointments(data)
     on_request_rooms()
@@ -255,11 +274,11 @@ def on_librarian_data_request(data):
 @SOCKET.on(APPOINTMENTS_REQUEST_CHANNEL)
 def on_request_appointments(data):
     """
-        Called whenever the librarian clicks on a date in the Librarian Overview
-        UI
-        Returns a list of all Appointments for a given date
+    Called whenever the librarian clicks on a date in the Librarian Overview
+    UI
+    Returns a list of all Appointments for a given date
     """
-    if not is_user_librarian():
+    if not _current_user_role() == models.UserRole.LIBRARIAN:
         return
     date = datetime.datetime.strptime(data[DATE_KEY], DATE_FORMAT)
     appointments = db_utils.get_all_appointments_for_date(date, True)
@@ -273,10 +292,10 @@ def on_request_appointments(data):
 @SOCKET.on(USERS_REQUEST_CHANNEL)
 def on_request_users():
     """
-        Called whenever the Librarian Overview UI loads the User Overview section
-        Returns a list of all AuthUsers
+    Called whenever the Librarian Overview UI loads the User Overview section
+    Returns a list of all AuthUsers
     """
-    if not is_user_librarian():
+    if not _current_user_role() == models.UserRole.LIBRARIAN:
         return
     users = db_utils.get_all_user_objs(True)
     SOCKET.emit(
@@ -289,10 +308,10 @@ def on_request_users():
 @SOCKET.on(ROOMS_REQUEST_CHANNEL)
 def on_request_rooms():
     """
-        Called whenever the Librarian Overview UI loads the Room Overview section
-        Returns a list of all BreakoutRooms
+    Called whenever the Librarian Overview UI loads the Room Overview section
+    Returns a list of all BreakoutRooms
     """
-    if not is_user_librarian():
+    if not _current_user_role() == models.UserRole.LIBRARIAN:
         return
     rooms = db_utils.get_all_room_objs(True)
     SOCKET.emit(
@@ -305,9 +324,9 @@ def on_request_rooms():
 @SOCKET.on(CHECK_IN_CHANNEL)
 def on_check_in(data):
     """
-        Called whenever the librarian checks in a group via their check-in code
+    Called whenever the librarian checks in a group via their check-in code
     """
-    if not is_user_librarian():
+    if not _current_user_role() == models.UserRole.LIBRARIAN:
         return
     check_in_code = data[CHECK_IN_CODE_KEY]
     result = db_utils.check_in_with_code(check_in_code)
