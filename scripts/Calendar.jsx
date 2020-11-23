@@ -17,9 +17,9 @@ export default function MyCalendar(props) {
     let disableDate = true;
     const today = new Date();
     for (const available of availableDates) {
-      if (date.getDate() == available.getDate()
-                    && date.getMonth() == available.getMonth()
-                    && date.getFullYear() == available.getFullYear()) {
+      if (date.getUTCDate() == available.getUTCDate()
+                    && date.getUTCMonth() == available.getUTCMonth()
+                    && date.getUTCFullYear() == available.getUTCFullYear()) {
         disableDate = false;
         break;
       }
@@ -29,11 +29,7 @@ export default function MyCalendar(props) {
       disableDate = true;
     }
 
-    if (date.getDate() < today.getDate()) {
-      disableDate = true;
-    }
-
-    if (date.getDate() - today.getDate() > 2) {
+    if (date.getUTCDate() < today.getUTCDate()) {
       disableDate = true;
     }
 
