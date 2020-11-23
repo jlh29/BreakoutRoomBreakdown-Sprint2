@@ -49,7 +49,7 @@ git clone https://github.com/jlh29/BreakoutRoomBreakdown
 ----------------------------------------------
 
 ### React Setup
-1. Install the foloowing dependencies:
+1. Install the following dependencies:
 ```bash
 sudo npm install
 sudo pip install flask-socketio
@@ -128,7 +128,7 @@ git push origin master
 Enables the user's information to be accessed by Google to pass authorization to an app without having to login with user and password
 
 1. Sign up to Google developer account using your personal account. Click [Google Dev](https://console.developers.google.com)!
-2. Create a new app. In the top left next to Google APIs, select the dropdown menu __Select a Projet__, click __New Project__.
+2. Create a new app. In the top left next to Google APIs, select the dropdown menu __Select a Project__, click __New Project__.
 3. Enter your the name of your project in __Project Name__, and __Location__ is 'No organization', then __Create__.
 4. In the warning, click __Configure Consent Screen__. Choose __External__, in __Application name__, specify the name of your app. Press __Save__.
 5. On the left panel, click __Credentials__ > __Create Credentials__ > __OAuth client ID__
