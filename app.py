@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 import flask
 import db_instance
 import db_utils
+import login_utils
 import models
 import socket_utils
 from socket_utils import SOCKET
@@ -22,10 +23,11 @@ USERS_UPDATED_CHANNEL = "users updated"
 
 USER_LOGIN_CHANNEL = "new login"
 USER_LOGIN_NAME_KEY = "name"
-USER_LOGIN_EMAIL_KEY = "email"
+USER_LOGIN_TOKEN_KEY = "idToken"
 USER_LOGIN_ROLE_KEY = "role"
 
 SUCCESSFUL_LOGIN_CHANNEL = "successful login"
+FAILED_LOGIN_CHANNEL = "failed login"
 
 TIME_AVAILABILITY_REQUEST_CHANNEL = "time availability request"
 TIME_AVAILABILITY_RESPONSE_CHANNEL = "time availability response"
@@ -110,14 +112,21 @@ def on_new_user_login(data):
     Sends the user's name and role back to the client so that the webpage
     is rendered correctly
     """
-    print(f"Got an event for new user login with data: {data}")
-    name = data[USER_LOGIN_NAME_KEY]
-    ucid = data[USER_LOGIN_EMAIL_KEY].split("@")[0]
-    auth_user = db_utils.add_or_get_auth_user(ucid, name)
+    print(f"Got an event for new user login")
+    auth_user = login_utils.get_user_from_google_token(data[USER_LOGIN_TOKEN_KEY])
+    if auth_user is None:
+        SOCKET.emit(
+            FAILED_LOGIN_CHANNEL,
+            room=flask.request.sid,
+        )
+        return
     CONNECTED_USERS[flask.request.sid] = auth_user
     SOCKET.emit(
         SUCCESSFUL_LOGIN_CHANNEL,
-        {USER_LOGIN_NAME_KEY: name, USER_LOGIN_ROLE_KEY: auth_user.role.value},
+        {
+            USER_LOGIN_NAME_KEY: auth_user.name,
+            USER_LOGIN_ROLE_KEY: auth_user.role.value,
+        },
         room=flask.request.sid,
     )
 

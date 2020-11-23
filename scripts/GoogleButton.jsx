@@ -1,20 +1,20 @@
-import * as React from 'react';
+import React, { useEffect } from 'react';
 import GoogleLogin from 'react-google-login';
 import Socket from './Socket';
 
 export default function GoogleButton() {
   function handleSuccess(response) {
-    if (!('profileObj' in response)) {
+    /*global gapi*/
+    const auth = gapi.auth2.getAuthInstance();
+    const user = auth.currentUser.get();
+    let idToken;
+    if (user.isSignedIn()) {
+      idToken = user.getAuthResponse().id_token;
+    } else {
       handleFailure(response);
       return;
     }
-    const { name, email } = response.profileObj;
-    if (!email.toLowerCase().endsWith('@njit.edu')) {
-      handleFailure(response);
-      return;
-    }
-    Socket.emit('new login', { name, email });
-    console.log(`Sent the name ${name} and email ${email} to server!`);
+    Socket.emit('new login', { idToken });
   }
 
   function handleFailure(response) {
@@ -22,6 +22,17 @@ export default function GoogleButton() {
     console.log('Encountered an error while signing in.');
     console.log(response);
   }
+
+  function listenToServer() {
+    useEffect(() => {
+      Socket.on('failed login', handleFailure);
+      return () => {
+        Socket.off('failed login', handleFailure);
+      };
+    });
+  }
+
+  listenToServer();
 
   return (
     <GoogleLogin
