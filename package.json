@@ -13,7 +13,7 @@
     "babel-core": "7.0.0-bridge.0",
     "babel-loader": "^8.0.5",
     "css-loader": "^3.4.2",
-    "eslint": "^7.13.0",
+    "eslint": "^7.14.0",
     "eslint-config-airbnb": "^18.2.1",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-jsx-a11y": "^6.4.1",
@@ -53,5 +53,8 @@
   "bugs": {
     "url": "https://github.com/jlh29/BreakoutRoomBreakdown/issues"
   },
-  "homepage": "https://github.com/jlh29/BreakoutRoomBreakdown#readme"
+  "homepage": "https://github.com/jlh29/BreakoutRoomBreakdown#readme",
+  "directories": {
+    "test": "tests"
+  }
 }
