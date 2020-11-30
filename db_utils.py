@@ -449,9 +449,8 @@ def update_walk_ins():
     absent_checkins_delete = (
         DB.session.query(models.CheckIn)
         .filter(models.CheckIn.reservation_id.in_(absent_appointment_ids))
-        .delete()
+        .delete(synchronize_session=False)
     )
-    DB.session.execute(absent_checkins_delete)
 
     for appointment in absent_appointments:
         appointment.status = models.AppointmentStatus.FREE.value
