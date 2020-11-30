@@ -476,3 +476,17 @@ def mark_date_unavailable(date, reason="No reason specified."):
         new_unavailable_date = models.UnavailableDate(only_date, reason)
         DB.session.add(new_unavailable_date)
     DB.session.commit()
+
+def mark_date_available(date):
+    """
+    Marks a given date available for reservation if it was previously marked
+    unavailable.
+    """
+    assert isinstance(date, datetime.date)
+    only_date = date.date() if isinstance(date, datetime.datetime) else date
+    existing_unavailable_date = (
+        DB.session.query(models.UnavailableDate)
+        .filter(func.date(models.UnavailableDate.date) == func.date(only_date))
+        .delete(synchronize_session=False)
+    )
+    DB.session.commit()
