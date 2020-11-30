@@ -11,6 +11,7 @@ import models
 
 AVAILABLE_TIMES = [9, 11, 13, 15]
 CHECK_IN_CODE_LENGTH = 6
+MINUTES_UNTIL_MARKED_WALK_IN = 10
 
 
 def add_or_get_auth_user(ucid, name):
@@ -430,3 +431,29 @@ def check_in_with_code(check_in_code):
     DB.session.delete(reservation)
     DB.session.commit()
     return True
+
+def update_walk_ins():
+    """
+    Discovers any appointments that have not been checked in within a certain
+    timeframe and marks the room as available for walk-ins.
+    """
+    curr_time = datetime.datetime.now()
+    cutoff_time = curr_time + datetime.timedelta(minutes=-MINUTES_UNTIL_MARKED_WALK_IN)
+    absent_appointments = (
+        DB.session.query(models.Appointment)
+        .filter(models.Appointment.status == models.AppointmentStatus.WAITING.value)
+        .filter(models.Appointment.start_time <= cutoff_time)
+    )
+    absent_appointment_ids = [appointment.id for appointment in absent_appointments]
+
+    absent_checkins_delete = (
+        DB.session.query(models.CheckIn)
+        .filter(models.CheckIn.reservation_id.in_(absent_appointment_ids))
+        .delete(synchronize_session=False)
+    )
+
+    for appointment in absent_appointments:
+        appointment.status = models.AppointmentStatus.FREE.value
+
+    DB.session.commit()
+

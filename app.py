@@ -11,6 +11,7 @@ import db_instance
 import db_utils
 import login_utils
 import models
+import scheduled_tasks
 import socket_utils
 from socket_utils import SOCKET
 
@@ -351,6 +352,7 @@ def on_check_in(data):
 if __name__ == "__main__":
     db_instance.init_db(APP)
     socket_utils.init_socket(APP)
+    scheduled_tasks.start_tasks()
     SOCKET.run(
         APP,
         host=os.getenv("IP", "0.0.0.0"),
