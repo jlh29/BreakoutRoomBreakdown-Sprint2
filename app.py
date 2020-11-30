@@ -13,6 +13,8 @@ import login_utils
 import models
 import socket_utils
 from socket_utils import SOCKET
+from api_twilio import Twilio
+from api_sendgrid import SendGrid
 
 load_dotenv(join(dirname(__file__), "sql.env"))
 
@@ -259,6 +261,29 @@ def on_reservation_submit(data):
         },
         room=flask.request.sid,
     )
+
+# TODO: get the number, email, date, attendees, confirmation from user
+def send_confirmation():
+    # add student's number and email here
+    number = '2018884444'
+    email = 'ucid@njit.edu'
+    
+    # add the appointment details here
+    date = 'Nov 27'
+    time = '11:00am'
+    attendees = 'Jane Doe'
+    confirmation = 'ABC123'
+    
+    try:
+        to_number = "+1{}".format(number)
+        twilio = Twilio(to_number)
+        twilio.send_text(date, time, attendees, confirmation)
+        print("Text message sent!")
+    
+    except:
+        sendgrid = SendGrid(email)
+        sendgrid.send_email(date, time, attendees, confirmation)
+        print("Email sent!")
 
 
 @APP.route("/")
