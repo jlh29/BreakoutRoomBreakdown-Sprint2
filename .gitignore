@@ -7,3 +7,4 @@ sql.env
 */__pycache__
 oauth.env
 twilio.env
+sendgrid.env
