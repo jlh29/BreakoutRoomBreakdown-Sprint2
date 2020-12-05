@@ -51,6 +51,41 @@ def add_or_get_auth_user(ucid, name):
     return user_info
 
 
+def update_room(room_id, room_number, size, capacity):
+    """
+    Obtains the Room corresponding to the given ID and updates its properties
+    with the provided values
+    """
+    assert all(
+        [
+            isinstance(room_id, int),
+            isinstance(room_number, (int, str)),
+            isinstance(size, models.RoomSize),
+            isinstance(capacity, int),
+        ]
+    )
+
+    existing_room = (
+        DB.session.query(models.Room).filter(models.Room.id == room_id).first()
+    )
+
+    if not existing_room:
+        # TODO: jlh29, possibly create a room if one does not exist?
+        DB.session.commit()
+        return None
+
+    existing_room.room_number = str(room_number)
+    existing_room.size = size.value
+    existing_room.capacity = capacity
+    DB.session.commit()
+    return models.BreakoutRoom(
+        id=room_id,
+        room_number=str(room_number),
+        size=size,
+        capacity=capacity,
+    )
+
+
 def get_all_user_objs(as_dicts=False):
     """
     Obtains all AuthUsers and returns them as UserInfo objects or dictionaries
@@ -432,6 +467,7 @@ def check_in_with_code(check_in_code):
     DB.session.commit()
     return True
 
+
 def update_walk_ins():
     """
     Discovers any appointments that have not been checked in within a certain
@@ -456,4 +492,3 @@ def update_walk_ins():
         appointment.status = models.AppointmentStatus.FREE.value
 
     DB.session.commit()
-
