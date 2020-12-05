@@ -27,7 +27,6 @@ export default function LibrarianRoomsOverviewItem(props) {
             className='librarianEditFieldLabel'
           >Room Size:</p>
           <select
-            name='studentCount'
             id='roomSizeField'
             className='librarianEditField'
             defaultValue={room.size.toUpperCase()}
