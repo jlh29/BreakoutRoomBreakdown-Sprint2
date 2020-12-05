@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 import LibrarianRoomsOverviewItem from './LibrarianRoomsOverviewItem';
 import LibrarianEditButtonBar from './LibrarianEditButtonBar';
 
@@ -8,11 +9,11 @@ export default function LibrarianRoomsOverview(props) {
   const [isEditing, setIsEditing] = useState(false);
 
   function enableEditing() {
-      setIsEditing(true);
+    setIsEditing(true);
   }
 
   function disableEditing() {
-      setIsEditing(false);
+    setIsEditing(false);
   }
 
   function changeSelectedRoom(newRoom) {
@@ -60,3 +61,17 @@ export default function LibrarianRoomsOverview(props) {
     </div>
   );
 }
+
+LibrarianRoomsOverview.propTypes = {
+  rooms: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number.isRequired,
+      room_number: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.number,
+      ]).isRequired,
+      size: PropTypes.string.isRequired,
+      capacity: PropTypes.number.isRequired,
+    }),
+  ).isRequired,
+};
