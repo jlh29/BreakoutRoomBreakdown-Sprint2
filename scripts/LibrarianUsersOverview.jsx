@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import LibrarianUsersOverviewItem from './LibrarianUsersOverviewItem';
 import LibrarianEditButtonBar from './LibrarianEditButtonBar';
+import Socket from './Socket';
 
 export default function LibrarianUsersOverview(props) {
   const { users } = props;
   const [selectedUser, setSelectedUser] = useState({});
   const [isEditing, setIsEditing] = useState(false);
+  const roleRef = React.createRef();
 
   function enableEditing() {
     setIsEditing(true);
@@ -19,6 +21,17 @@ export default function LibrarianUsersOverview(props) {
   function changeSelectedUser(newUser) {
     setSelectedUser(newUser);
     disableEditing();
+  }
+
+  function onConfirmClick() {
+    disableEditing();
+    if (selectedUser.id === undefined) {
+      return;
+    }
+    Socket.emit('update user', {
+      id: selectedUser.id,
+      role: roleRef.current.value,
+    });
   }
 
   return (
@@ -46,11 +59,13 @@ export default function LibrarianUsersOverview(props) {
               <LibrarianUsersOverviewItem
                 user={selectedUser}
                 isEditing={isEditing}
+                roleRef={roleRef}
               />
               <LibrarianEditButtonBar
                 isEditing={isEditing}
                 enableEditing={enableEditing}
                 disableEditing={disableEditing}
+                onConfirmClick={onConfirmClick}
               />
             </div>
           )

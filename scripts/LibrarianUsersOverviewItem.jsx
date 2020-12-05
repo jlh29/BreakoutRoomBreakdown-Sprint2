@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 export default function LibrarianUsersOverviewItem(props) {
-  const { user, isEditing } = props;
+  const { user, isEditing, roleRef } = props;
 
   if (isEditing) {
     return (
@@ -29,6 +29,7 @@ export default function LibrarianUsersOverviewItem(props) {
             id="userRoleField"
             className="librarianEditField"
             defaultValue={user.role.toUpperCase()}
+            ref={roleRef}
           >
             <option value="STUDENT">Student</option>
             <option value="PROFESSOR">Professor</option>
@@ -67,4 +68,8 @@ LibrarianUsersOverviewItem.propTypes = {
     role: PropTypes.string.isRequired,
   }).isRequired,
   isEditing: PropTypes.bool.isRequired,
+  roleRef: PropTypes.oneOfType([
+    PropTypes.func,
+    PropTypes.shape({ current: PropTypes.element }),
+  ]).isRequired,
 };
