@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import LibrarianUsersOverviewItem from './LibrarianUsersOverviewItem';
 import LibrarianEditButtonBar from './LibrarianEditButtonBar';
 import Socket from './Socket';
 
 export default function LibrarianUsersOverview(props) {
-  const { users } = props;
+  const { users, redrawSelectedUser, setRedrawSelectedUser } = props;
   const [selectedUser, setSelectedUser] = useState({});
   const [isEditing, setIsEditing] = useState(false);
   const roleRef = React.createRef();
@@ -33,6 +33,26 @@ export default function LibrarianUsersOverview(props) {
       role: roleRef.current.value,
     });
   }
+
+  function redrawSelectedRoomOnUpdate() {
+    useEffect(() => {
+      if (redrawSelectedUser) {
+        if (selectedUser.id !== undefined) {
+          let newSelectedUser = {};
+          for (const user of users) {
+            if (selectedUser.id === user.id) {
+              newSelectedUser = user;
+              break;
+            }
+          }
+          setSelectedUser(newSelectedUser);
+        }
+        setRedrawSelectedUser(false);
+      }
+    }, [redrawSelectedUser]);
+  }
+
+  redrawSelectedRoomOnUpdate();
 
   return (
     <div id="usersContainer" className="menuContainer">
@@ -84,4 +104,6 @@ LibrarianUsersOverview.propTypes = {
       role: PropTypes.string.isRequired,
     }),
   ).isRequired,
+  redrawSelectedUser: PropTypes.bool.isRequired,
+  setRedrawSelectedUser: PropTypes.func.isRequired,
 };

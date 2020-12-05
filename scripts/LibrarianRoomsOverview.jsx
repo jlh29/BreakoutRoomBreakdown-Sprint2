@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import LibrarianRoomsOverviewItem from './LibrarianRoomsOverviewItem';
 import LibrarianEditButtonBar from './LibrarianEditButtonBar';
 import Socket from './Socket';
 
 export default function LibrarianRoomsOverview(props) {
-  const { rooms } = props;
+  const { rooms, redrawSelectedRoom, setRedrawSelectedRoom } = props;
   const [selectedRoom, setSelectedRoom] = useState({});
   const [isEditing, setIsEditing] = useState(false);
   const roomNumberRef = React.createRef();
@@ -37,6 +37,26 @@ export default function LibrarianRoomsOverview(props) {
       capacity: roomCapacityRef.current.value,
     });
   }
+
+  function redrawSelectedRoomOnUpdate() {
+    useEffect(() => {
+      if (redrawSelectedRoom) {
+        if (selectedRoom.id !== undefined) {
+          let newSelectedRoom = {};
+          for (const room of rooms) {
+            if (selectedRoom.id === room.id) {
+              newSelectedRoom = room;
+              break;
+            }
+          }
+          setSelectedRoom(newSelectedRoom);
+        }
+        setRedrawSelectedRoom(false);
+      }
+    }, [redrawSelectedRoom]);
+  }
+
+  redrawSelectedRoomOnUpdate();
 
   return (
     <div id="roomsContainer" className="menuContainer">
@@ -95,4 +115,6 @@ LibrarianRoomsOverview.propTypes = {
       capacity: PropTypes.number.isRequired,
     }),
   ).isRequired,
+  redrawSelectedRoom: PropTypes.bool.isRequired,
+  setRedrawSelectedRoom: PropTypes.func.isRequired,
 };

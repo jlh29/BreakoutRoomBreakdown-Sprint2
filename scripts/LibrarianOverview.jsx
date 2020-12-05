@@ -13,7 +13,9 @@ export default function LibrarianOverview() {
   const [appointments, setAppointments] = useState([]);
   const [selectedAppointment, setSelectedAppointment] = useState({});
   const [users, setUsers] = useState([]);
+  const [redrawSelectedUser, setRedrawSelectedUser] = useState(false);
   const [rooms, setRooms] = useState([]);
+  const [redrawSelectedRoom, setRedrawSelectedRoom] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [unavailableDates, setUnavailableDates] = useState([]);
   const [checkInSuccess, setCheckInSuccess] = useState(true);
@@ -147,6 +149,7 @@ export default function LibrarianOverview() {
       setConnected(true);
     }
     updateStateArray(setUsers, 'users', data);
+    setRedrawSelectedUser(true);
   }
 
   function updateRooms(data) {
@@ -154,6 +157,7 @@ export default function LibrarianOverview() {
       setConnected(true);
     }
     updateStateArray(setRooms, 'rooms', data);
+    setRedrawSelectedRoom(true);
   }
 
   function listenToServer() {
@@ -212,9 +216,17 @@ export default function LibrarianOverview() {
         isSuccess={checkInSuccess}
       />
       <h1 id="usersBanner">Users</h1>
-      <LibrarianUsersOverview users={users} />
+      <LibrarianUsersOverview
+        users={users}
+        redrawSelectedUser={redrawSelectedUser}
+        setRedrawSelectedUser={setRedrawSelectedUser}
+      />
       <h1 id="roomsBanner">Rooms</h1>
-      <LibrarianRoomsOverview rooms={rooms} />
+      <LibrarianRoomsOverview
+        rooms={rooms}
+        redrawSelectedRoom={redrawSelectedRoom}
+        setRedrawSelectedRoom={setRedrawSelectedRoom}
+      />
     </div>
   );
 }
