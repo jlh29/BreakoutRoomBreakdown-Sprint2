@@ -511,6 +511,7 @@ def update_walk_ins():
         DB.session.query(models.Appointment)
         .filter(models.Appointment.status == models.AppointmentStatus.WAITING.value)
         .filter(models.Appointment.start_time <= cutoff_time)
+        .all()
     )
     absent_appointment_ids = [appointment.id for appointment in absent_appointments]
 
@@ -523,4 +524,37 @@ def update_walk_ins():
     for appointment in absent_appointments:
         appointment.status = models.AppointmentStatus.FREE.value
 
+    DB.session.commit()
+
+def mark_date_unavailable(date, reason="No reason specified."):
+    """
+    Marks a given date unavailable for reservation for a given reason.
+    """
+    assert isinstance(reason, str)
+    assert isinstance(date, datetime.date)
+    only_date = date.date() if isinstance(date, datetime.datetime) else date
+    existing_unavailable_date = (
+        DB.session.query(models.UnavailableDate)
+        .filter(func.date(models.UnavailableDate.date) == func.date(only_date))
+        .first()
+    )
+    if existing_unavailable_date:
+        existing_unavailable_date.reason = reason
+    else:
+        new_unavailable_date = models.UnavailableDate(only_date, reason)
+        DB.session.add(new_unavailable_date)
+    DB.session.commit()
+
+def mark_date_available(date):
+    """
+    Marks a given date available for reservation if it was previously marked
+    unavailable.
+    """
+    assert isinstance(date, datetime.date)
+    only_date = date.date() if isinstance(date, datetime.datetime) else date
+    existing_unavailable_date = (
+        DB.session.query(models.UnavailableDate)
+        .filter(func.date(models.UnavailableDate.date) == func.date(only_date))
+        .delete(synchronize_session=False)
+    )
     DB.session.commit()
