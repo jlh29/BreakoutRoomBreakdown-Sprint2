@@ -90,7 +90,7 @@ def get_all_user_objs(as_dicts=False):
     """
     Obtains all AuthUsers and returns them as UserInfo objects or dictionaries
     """
-    users = DB.session.query(models.AuthUser).all()
+    users = DB.session.query(models.AuthUser).order_by(models.AuthUser.name).all()
     user_objs = [
         models.UserInfo(
             id=user.id,
@@ -127,6 +127,38 @@ def get_user_obj_from_id(user_id, as_dict=False):
     if as_dict:
         return user_obj._asdict()
     return user_obj
+
+
+def update_user_role(user_id, role):
+    """
+    Obtains the User corresponding to the given ID and updates its role
+    with the provided value
+    """
+    assert all(
+        [
+            isinstance(user_id, int),
+            isinstance(role, models.UserRole),
+        ]
+    )
+
+    existing_user = (
+        DB.session.query(models.AuthUser)
+        .filter(models.AuthUser.id == user_id)
+        .first()
+    )
+
+    if not existing_user:
+        DB.session.commit()
+        return None
+
+    existing_user.role = role.value
+    DB.session.commit()
+    return models.UserInfo(
+        id=user_id,
+        name=existing_user.name,
+        ucid=existing_user.ucid,
+        role=role,
+    )
 
 
 def get_all_room_ids():
