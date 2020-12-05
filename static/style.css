@@ -76,6 +76,7 @@ h1 {
 .menuContents {
     margin:10px 15px;
     align-self:center;
+    width:100%;
 }
 
 .menuSelectorButton {
@@ -119,4 +120,19 @@ h1 {
     background:#E4E4E4;
     width:35%;
     border-radius:30px;
+}
+
+.librarianEditFieldContainer {
+    display:flex;
+    width:100%;
+    align-items:center;
+}
+
+.librarianEditFieldLabel {
+    align-self:flex-start;
+    width:50%;
+}
+
+.librarianEditField {
+    height:max-content;
 }
