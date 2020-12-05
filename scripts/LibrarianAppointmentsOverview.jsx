@@ -20,6 +20,10 @@ export default function LibrarianAppointmentsOverview(props) {
     disableEditing();
   }
 
+  function onConfirmClick() {
+    disableEditing();
+  }
+
   return (
     <div id="appointmentsContainer" className="menuContainer">
       <div id="appointmentsSelector" className="menuSelector">
@@ -52,6 +56,7 @@ export default function LibrarianAppointmentsOverview(props) {
                 isEditing={isEditing}
                 enableEditing={enableEditing}
                 disableEditing={disableEditing}
+                onConfirmClick={onConfirmClick}
               />
             </div>
           )
@@ -71,7 +76,12 @@ LibrarianAppointmentsOverview.propTypes = {
         ucid: PropTypes.string.isRequired,
         role: PropTypes.string.isRequired,
       }).isRequired,
-      attendees: PropTypes.arrayOf(PropTypes.string).isRequired,
+      attendees: PropTypes.arrayOf(
+        PropTypes.shape({
+          id: PropTypes.number.isRequired,
+          ucid: PropTypes.string.isRequired,
+        }),
+      ).isRequired,
       room: PropTypes.shape({
         id: PropTypes.number.isRequired,
         room_number: PropTypes.oneOfType([
@@ -95,7 +105,12 @@ LibrarianAppointmentsOverview.propTypes = {
         ucid: PropTypes.string.isRequired,
         role: PropTypes.string.isRequired,
       }).isRequired,
-      attendees: PropTypes.arrayOf(PropTypes.string).isRequired,
+      attendees: PropTypes.arrayOf(
+        PropTypes.shape({
+          id: PropTypes.number.isRequired,
+          ucid: PropTypes.string.isRequired,
+        }),
+      ).isRequired,
       room: PropTypes.shape({
         id: PropTypes.number.isRequired,
         room_number: PropTypes.oneOfType([

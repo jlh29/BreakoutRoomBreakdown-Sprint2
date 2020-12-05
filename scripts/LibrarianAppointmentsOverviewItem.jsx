@@ -69,7 +69,12 @@ LibrarianAppointmentsOverviewItem.propTypes = {
       ucid: PropTypes.string.isRequired,
       role: PropTypes.string.isRequired,
     }).isRequired,
-    attendees: PropTypes.arrayOf(PropTypes.string).isRequired,
+    attendees: PropTypes.arrayOf(
+        PropTypes.shape({
+          id: PropTypes.number.isRequired,
+          ucid: PropTypes.string.isRequired,
+        }),
+      ).isRequired,
     room: PropTypes.shape({
       id: PropTypes.number.isRequired,
       room_number: PropTypes.oneOfType([
