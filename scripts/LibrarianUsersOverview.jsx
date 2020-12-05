@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 import LibrarianUsersOverviewItem from './LibrarianUsersOverviewItem';
 import LibrarianEditButtonBar from './LibrarianEditButtonBar';
 
@@ -8,11 +9,11 @@ export default function LibrarianUsersOverview(props) {
   const [isEditing, setIsEditing] = useState(false);
 
   function enableEditing() {
-      setIsEditing(true);
+    setIsEditing(true);
   }
 
   function disableEditing() {
-      setIsEditing(false);
+    setIsEditing(false);
   }
 
   function changeSelectedUser(newUser) {
@@ -58,3 +59,14 @@ export default function LibrarianUsersOverview(props) {
     </div>
   );
 }
+
+LibrarianUsersOverview.propTypes = {
+  users: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number.isRequired,
+      name: PropTypes.string.isRequired,
+      ucid: PropTypes.string.isRequired,
+      role: PropTypes.string.isRequired,
+    }),
+  ).isRequired,
+};
