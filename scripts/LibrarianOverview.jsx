@@ -13,7 +13,9 @@ export default function LibrarianOverview() {
   const [appointments, setAppointments] = useState([]);
   const [selectedAppointment, setSelectedAppointment] = useState({});
   const [users, setUsers] = useState([]);
+  const [redrawSelectedUser, setRedrawSelectedUser] = useState(false);
   const [rooms, setRooms] = useState([]);
+  const [redrawSelectedRoom, setRedrawSelectedRoom] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [unavailableDates, setUnavailableDates] = useState([]);
   const [checkInSuccess, setCheckInSuccess] = useState(true);
@@ -33,14 +35,14 @@ export default function LibrarianOverview() {
     );
   }
 
-  function isUnavailableDate({ activeStartDate, date, view }) {
-    if (view == 'month' && date.getDay() % 6 == 0) {
+  function isUnavailableDate({ date, view }) {
+    if (view === 'month' && date.getDay() % 6 === 0) {
       return true;
     }
     for (const unavailableDate of unavailableDates) {
-      if (date.getDate() == unavailableDate.getDate()
-                    && date.getMonth() == unavailableDate.getMonth()
-                    && date.getFullYear() == unavailableDate.getFullYear()) {
+      if (date.getDate() === unavailableDate.getDate()
+                    && date.getMonth() === unavailableDate.getMonth()
+                    && date.getFullYear() === unavailableDate.getFullYear()) {
         return true;
       }
     }
@@ -56,7 +58,7 @@ export default function LibrarianOverview() {
     Socket.emit('appointments request', { date: getDateString(date) });
   }
 
-  function onMonthChanged({ activeStartDate, value, view }) {
+  function onMonthChanged({ activeStartDate }) {
     setSelectedAppointment({});
     Socket.emit(
       'date availability request',
@@ -65,7 +67,7 @@ export default function LibrarianOverview() {
   }
 
   function onCalendarChanged(newDate) {
-    setSelectedDate((oldDate) => newDate);
+    setSelectedDate(newDate);
     setSelectedAppointment({});
     requestAppointmentsForDate(newDate);
   }
@@ -102,12 +104,12 @@ export default function LibrarianOverview() {
   function updateStateArray(stateSet, dataKey, data) {
     // TODO: jlh29, update this for when items can be removed from the array
     stateSet(
-      (oldValues) => {
+      () => {
         const updatedValues = [];
         for (const newValue of data[dataKey]) {
           let isNew = true;
           for (const index in updatedValues) {
-            if (updatedValues[index].id == newValue.id) {
+            if (updatedValues[index].id === newValue.id) {
               updatedValues[index] = newValue;
               isNew = false;
               break;
@@ -147,6 +149,7 @@ export default function LibrarianOverview() {
       setConnected(true);
     }
     updateStateArray(setUsers, 'users', data);
+    setRedrawSelectedUser(true);
   }
 
   function updateRooms(data) {
@@ -154,6 +157,7 @@ export default function LibrarianOverview() {
       setConnected(true);
     }
     updateStateArray(setRooms, 'rooms', data);
+    setRedrawSelectedRoom(true);
   }
 
   function listenToServer() {
@@ -212,9 +216,17 @@ export default function LibrarianOverview() {
         isSuccess={checkInSuccess}
       />
       <h1 id="usersBanner">Users</h1>
-      <LibrarianUsersOverview users={users} />
+      <LibrarianUsersOverview
+        users={users}
+        redrawSelectedUser={redrawSelectedUser}
+        setRedrawSelectedUser={setRedrawSelectedUser}
+      />
       <h1 id="roomsBanner">Rooms</h1>
-      <LibrarianRoomsOverview rooms={rooms} />
+      <LibrarianRoomsOverview
+        rooms={rooms}
+        redrawSelectedRoom={redrawSelectedRoom}
+        setRedrawSelectedRoom={setRedrawSelectedRoom}
+      />
     </div>
   );
 }

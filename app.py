@@ -46,6 +46,8 @@ CONNECT_CHANNEL = "connect"
 DISCONNECT_CHANNEL = "disconnect"
 
 LIBRARIAN_DATA_REQUEST_CHANNEL = "overview request"
+UPDATE_ROOM_CHANNEL = "update room"
+UPDATE_USER_CHANNEL = "update user"
 
 APPOINTMENTS_REQUEST_CHANNEL = "appointments request"
 APPOINTMENTS_RESPONSE_CHANNEL = "appointments response"
@@ -347,6 +349,56 @@ def on_check_in(data):
         {CHECK_IN_SUCCESS_KEY: result},
         room=flask.request.sid,
     )
+
+
+@SOCKET.on(UPDATE_ROOM_CHANNEL)
+def on_update_room(data):
+    """
+    Called whenever the librarian makes an edit to a room in the Librarian Overview
+    """
+    if not _current_user_role() == models.UserRole.LIBRARIAN:
+        return
+    assert set(models.BreakoutRoom._fields).issubset(data)
+
+    try:
+        room_size = models.RoomSize(data["size"].lower())
+    except ValueError:
+        print("Invalid value of 'size' passed to server when updating a room")
+    try:
+        room_capacity = int(data["capacity"])
+    except ValueError:
+        print("Invalid value of 'capacity' passed to server when updating a room")
+
+    db_utils.update_room(
+        room_id=data["id"],
+        room_number=data["room_number"],
+        size=room_size,
+        capacity=room_capacity,
+    )
+
+    on_request_rooms()
+
+
+@SOCKET.on(UPDATE_USER_CHANNEL)
+def on_update_user(data):
+    """
+    Called whenever the librarian makes an edit to a room in the Librarian Overview
+    """
+    if not _current_user_role() == models.UserRole.LIBRARIAN:
+        return
+    assert isinstance(data.get("id", None), int) and isinstance(data.get("role", None), str)
+
+    try:
+        role = models.UserRole(data["role"].lower())
+    except ValueError:
+        print("Invalid value of 'role' passed to server when updating a user")
+
+    db_utils.update_user_role(
+        user_id=data["id"],
+        role=role,
+    )
+
+    on_request_users()
 
 
 if __name__ == "__main__":

@@ -51,11 +51,46 @@ def add_or_get_auth_user(ucid, name):
     return user_info
 
 
+def update_room(room_id, room_number, size, capacity):
+    """
+    Obtains the Room corresponding to the given ID and updates its properties
+    with the provided values
+    """
+    assert all(
+        [
+            isinstance(room_id, int),
+            isinstance(room_number, (int, str)),
+            isinstance(size, models.RoomSize),
+            isinstance(capacity, int),
+        ]
+    )
+
+    existing_room = (
+        DB.session.query(models.Room).filter(models.Room.id == room_id).first()
+    )
+
+    if not existing_room:
+        # TODO: jlh29, possibly create a room if one does not exist?
+        DB.session.commit()
+        return None
+
+    existing_room.room_number = str(room_number)
+    existing_room.size = size.value
+    existing_room.capacity = capacity
+    DB.session.commit()
+    return models.BreakoutRoom(
+        id=room_id,
+        room_number=str(room_number),
+        size=size,
+        capacity=capacity,
+    )
+
+
 def get_all_user_objs(as_dicts=False):
     """
     Obtains all AuthUsers and returns them as UserInfo objects or dictionaries
     """
-    users = DB.session.query(models.AuthUser).all()
+    users = DB.session.query(models.AuthUser).order_by(models.AuthUser.name).all()
     user_objs = [
         models.UserInfo(
             id=user.id,
@@ -94,6 +129,38 @@ def get_user_obj_from_id(user_id, as_dict=False):
     return user_obj
 
 
+def update_user_role(user_id, role):
+    """
+    Obtains the User corresponding to the given ID and updates its role
+    with the provided value
+    """
+    assert all(
+        [
+            isinstance(user_id, int),
+            isinstance(role, models.UserRole),
+        ]
+    )
+
+    existing_user = (
+        DB.session.query(models.AuthUser)
+        .filter(models.AuthUser.id == user_id)
+        .first()
+    )
+
+    if not existing_user:
+        DB.session.commit()
+        return None
+
+    existing_user.role = role.value
+    DB.session.commit()
+    return models.UserInfo(
+        id=user_id,
+        name=existing_user.name,
+        ucid=existing_user.ucid,
+        role=role,
+    )
+
+
 def get_all_room_ids():
     """
     Returns the IDs of all Rooms
@@ -108,7 +175,7 @@ def get_all_room_objs(as_dicts=False):
     """
     Returns all Rooms as RoomInfo objects or dictionaries
     """
-    rooms = DB.session.query(models.Room).all()
+    rooms = DB.session.query(models.Room).order_by(models.Room.id).all()
     room_objs = [
         models.BreakoutRoom(
             id=room.id,
@@ -431,6 +498,7 @@ def check_in_with_code(check_in_code):
     DB.session.delete(reservation)
     DB.session.commit()
     return True
+
 
 def update_walk_ins():
     """
