@@ -143,7 +143,7 @@ def get_all_room_objs(as_dicts=False):
     """
     Returns all Rooms as RoomInfo objects or dictionaries
     """
-    rooms = DB.session.query(models.Room).all()
+    rooms = DB.session.query(models.Room).order_by(models.Room.id).all()
     room_objs = [
         models.BreakoutRoom(
             id=room.id,
