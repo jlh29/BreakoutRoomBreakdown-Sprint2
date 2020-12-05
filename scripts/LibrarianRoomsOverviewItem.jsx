@@ -2,7 +2,9 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 
 export default function LibrarianRoomsOverviewItem(props) {
-  const { room, isEditing } = props;
+  const {
+    room, isEditing, roomNumberRef, roomSizeRef, roomCapacityRef,
+  } = props;
 
   if (isEditing) {
     return (
@@ -20,6 +22,7 @@ export default function LibrarianRoomsOverviewItem(props) {
             id="roomNumberField"
             className="librarianEditField"
             defaultValue={room.room_number}
+            ref={roomNumberRef}
           />
         </div>
 
@@ -35,6 +38,7 @@ export default function LibrarianRoomsOverviewItem(props) {
             id="roomSizeField"
             className="librarianEditField"
             defaultValue={room.size.toUpperCase()}
+            ref={roomSizeRef}
           >
             <option value="S">S</option>
             <option value="M">M</option>
@@ -56,6 +60,7 @@ export default function LibrarianRoomsOverviewItem(props) {
             id="roomCapacityField"
             className="librarianEditField"
             defaultValue={room.capacity}
+            ref={roomCapacityRef}
             min="2"
             max="20"
           />
@@ -95,4 +100,16 @@ LibrarianRoomsOverviewItem.propTypes = {
     capacity: PropTypes.number.isRequired,
   }).isRequired,
   isEditing: PropTypes.bool.isRequired,
+  roomNumberRef: PropTypes.oneOfType([
+    PropTypes.func,
+    PropTypes.shape({ current: PropTypes.element }),
+  ]).isRequired,
+  roomSizeRef: PropTypes.oneOfType([
+    PropTypes.func,
+    PropTypes.shape({ current: PropTypes.element }),
+  ]).isRequired,
+  roomCapacityRef: PropTypes.oneOfType([
+    PropTypes.func,
+    PropTypes.shape({ current: PropTypes.element }),
+  ]).isRequired,
 };
