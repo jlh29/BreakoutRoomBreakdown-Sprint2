@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 export default function LibrarianRoomsOverviewItem(props) {
-  const { room } = props;
+  const { room, isEditing } = props;
 
   return (
     <div className="room">

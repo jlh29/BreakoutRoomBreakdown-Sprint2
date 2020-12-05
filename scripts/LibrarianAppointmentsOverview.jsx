@@ -1,8 +1,23 @@
 import React, { useState } from 'react';
 import LibrarianAppointmentsOverviewItem from './LibrarianAppointmentsOverviewItem';
+import LibrarianEditButtonBar from './LibrarianEditButtonBar';
 
 export default function LibrarianAppointmentsOverview(props) {
   const { appointments, selectedAppointment, setSelectedAppointment } = props;
+  const [isEditing, setIsEditing] = useState(false);
+
+  function enableEditing() {
+      setIsEditing(true);
+  }
+
+  function disableEditing() {
+      setIsEditing(false);
+  }
+
+  function changeSelectedAppointment(newAppointment) {
+    setSelectedAppointment(newAppointment);
+    disableEditing();
+  }
 
   return (
     <div id="appointmentsContainer" className="menuContainer">
@@ -13,7 +28,7 @@ export default function LibrarianAppointmentsOverview(props) {
                         <button
                           className="menuSelectorButton"
                           type="button"
-                          onClick={() => setSelectedAppointment(appointment)}
+                          onClick={() => changeSelectedAppointment(appointment)}
                           key={appointment.id}
                         >
                           Room:
@@ -27,9 +42,17 @@ export default function LibrarianAppointmentsOverview(props) {
       <div id="appointmentDetails" className="menuContents">
         {('id' in selectedAppointment)
           ? (
-            <LibrarianAppointmentsOverviewItem
-              appointment={selectedAppointment}
-            />
+            <div>
+              <LibrarianAppointmentsOverviewItem
+                appointment={selectedAppointment}
+                isEditing={isEditing}
+              />
+              <LibrarianEditButtonBar
+                isEditing={isEditing}
+                enableEditing={enableEditing}
+                disableEditing={disableEditing}
+              />
+            </div>
           )
           : null}
       </div>

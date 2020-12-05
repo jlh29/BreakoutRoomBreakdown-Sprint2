@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 export default function LibrarianUsersOverviewItem(props) {
-  const { user } = props;
+  const { user, isEditing } = props;
 
   return (
     <div className="user">

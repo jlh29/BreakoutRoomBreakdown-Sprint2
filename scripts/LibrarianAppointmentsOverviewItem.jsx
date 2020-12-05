@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 export default function LibrarianAppointmentsOverviewItem(props) {
-  const { appointment } = props;
+  const { appointment, isEditing } = props;
 
   function getDateString(timestamp) {
     const utcTs = new Date(timestamp);
