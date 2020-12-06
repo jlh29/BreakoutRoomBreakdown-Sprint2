@@ -12,12 +12,17 @@ import db_utils
 import db_instance
 import login_utils
 from login_utils import GOOGLE_CLIENT_ID, GOOGLE_EMAIL_KEY, GOOGLE_NAME_KEY
+import scheduled_tasks
+from scheduled_tasks import (SCHEDULE_INTERVAL_MINUTES, SCHEDULE_START_DATE,
+                             SCHEDULE_TRIGGER)
 import socket_utils
 
 KEY_INPUT = "input"
 KEY_EXPECTED = "expected"
 KEY_RESPONSE = "response"
 KEY_QUERY_RESPONSE = "query response"
+KEY_ARGS = "args"
+KEY_KWARGS = "kwargs"
 KEY_COUNT = "count"
 
 KEY_NAME = "name"
@@ -534,6 +539,46 @@ class LoginUtilsTestCase(unittest.TestCase):
             mocked_db_utils.add_or_get_auth_user.return_value = test[KEY_EXPECTED]
             result = login_utils.get_user_from_google_token(test[KEY_INPUT])
             self.assertEqual(result, test[KEY_EXPECTED])
+
+class ScheduledTasksTestCase(unittest.TestCase):
+    """
+    Tests the methods of scheduled_tasks.py that need to be mocked
+    """
+    def setUp(self):
+        """
+        Initializes test cases to evaluate
+        """
+        self.start_tasks_test_cases = [
+            {
+                KEY_INPUT: None,
+                KEY_EXPECTED: None,
+                KEY_KWARGS: {
+                    "func": db_utils.update_walk_ins,
+                    "trigger": SCHEDULE_TRIGGER,
+                    "minutes": SCHEDULE_INTERVAL_MINUTES,
+                    "start_date": SCHEDULE_START_DATE,
+                }
+            },
+        ]
+
+    @mock.patch("scheduled_tasks.atexit")
+    @mock.patch("scheduled_tasks.BackgroundScheduler")
+    def test_init_db(self, mocked_background_scheduler, mocked_atexit):
+        """
+        Tests scheduled_tasks.start_tasks to ensure that it correctly schedules
+        tasks
+        """
+        for test in self.start_tasks_test_cases:
+            mocked_atexit.reset_mock()
+            mocked_background_scheduler.reset_mock()
+            scheduled_tasks.start_tasks()
+            mocked_background_scheduler.return_value.add_job.assert_called_once_with(
+                **test[KEY_KWARGS]
+            )
+            mocked_background_scheduler.return_value.start.assert_called_once()
+            mocked_atexit.register.assert_called_once_with(
+                mocked_background_scheduler.return_value.shutdown
+            )
 
 
 if __name__ == "__main__":
