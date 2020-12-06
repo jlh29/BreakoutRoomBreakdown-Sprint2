@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import LoginPage from './LoginPage';
 import MyCalendar from './Calendar';
 import ReservationConfirmation from './ReservationConfirmation';
+import ReservationUsersNumber from './ReservationUsersNumber';
 import RoomReservationSelector from './RoomReservationSelector';
 import RoomReservationAttendeeInput from './RoomReservationAttendeeInput';
 import RoomReservationSubmit from './RoomReservationSubmit';
@@ -18,6 +19,7 @@ export default function ReservationOverview(props) {
   const [date, setDate] = useState(new Date());
   const [time, setTime] = useState('');
   const [dateChanged, setDateChanged] = useState(false);
+  const [number, setNumber] = useState();
   const [timeChanged, setTimeChanged] = useState(false);
 
   function getDateString(inputDate) {
@@ -66,6 +68,11 @@ export default function ReservationOverview(props) {
     if (!timeChanged) {
       setTimeChanged(true);
     }
+  }
+  
+  // TODO: Send number to DB
+  function updateNumber(){
+    
   }
 
   function handleReservationSubmit() {
@@ -153,6 +160,7 @@ export default function ReservationOverview(props) {
           attendeeCount={attendeeCount}
           setAttendees={setAttendees}
         />
+        <ReservationUsersNumber newNumber={number}/>
         <RoomReservationSubmit handleSubmit={handleReservationSubmit} />
       </div>
     </div>
