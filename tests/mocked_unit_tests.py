@@ -119,6 +119,30 @@ class MockedSocket:
         """ mock socket emit method"""
         return
 
+def get_mock_db(filtered_query_response=None):
+    """
+    Mocked version of flask_sqlalchemy.SQLAlchemy that tests can be performed on
+    without connecting to a database
+    """
+    mock_db = mock.Mock()
+    mock_session = mock_db.session
+    mock_query = mock_session.query.return_value
+    mock_filter = mock_query.filter.return_value
+    mock_order_by = mock_filter.order_by.return_value
+    mock_limit = mock_order_by.limit.return_value
+    if filtered_query_response:
+        mock_filter.first.return_value = filtered_query_response[0]
+        mock_filter.all.return_value = filtered_query_response
+        mock_limit.first.return_value = filtered_query_response[0]
+        mock_limit.all.return_value = filtered_query_response
+    else:
+        mock_filter.first.return_value = None
+        mock_filter.all.return_value = None
+        mock_limit.first.return_value = None
+        mock_limit.all.return_value = None
+
+    mock_session.add.return_value = None
+    return mock_db
 
 class DbUtilTestCase(unittest.TestCase):
     """ Test functions that uses socket """
