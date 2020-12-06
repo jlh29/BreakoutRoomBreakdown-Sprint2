@@ -119,6 +119,30 @@ class MockedSocket:
         """ mock socket emit method"""
         return
 
+def get_mock_db(filtered_query_response=None):
+    """
+    Mocked version of flask_sqlalchemy.SQLAlchemy that tests can be performed on
+    without connecting to a database
+    """
+    mock_db = mock.Mock()
+    mock_session = mock_db.session
+    mock_query = mock_session.query.return_value
+    mock_filter = mock_query.filter.return_value
+    mock_order_by = mock_filter.order_by.return_value
+    mock_limit = mock_order_by.limit.return_value
+    if filtered_query_response:
+        mock_filter.first.return_value = filtered_query_response[0]
+        mock_filter.all.return_value = filtered_query_response
+        mock_limit.first.return_value = filtered_query_response[0]
+        mock_limit.all.return_value = filtered_query_response
+    else:
+        mock_filter.first.return_value = None
+        mock_filter.all.return_value = None
+        mock_limit.first.return_value = None
+        mock_limit.all.return_value = None
+
+    mock_session.add.return_value = None
+    return mock_db
 
 class DbUtilTestCase(unittest.TestCase):
     """ Test functions that uses socket """
@@ -329,6 +353,38 @@ class DbUtilTestCase(unittest.TestCase):
 
             self.assertEqual(response, expected)
 
+class DBInstanceTestCase(unittest.TestCase):
+    """
+    Tests the methods of db_instance.py that need to be mocked
+    """
+    def setUp(self):
+        """
+        Initializes test cases to evaluate
+        """
+        self.init_db_test_cases = [
+            {
+                KEY_INPUT: None,
+                KEY_EXPECTED: None,
+            },
+            {
+                KEY_INPUT: "mock app",
+                KEY_EXPECTED: "mock app",
+            },
+        ]
+    
+    @mock.patch("db_instance.DB")
+    def test_init_db(self, mocked_db):
+        """
+        Tests db_instance.init_db to ensure that it correctly initializes the DB
+        """
+        for test in self.init_db_test_cases:
+            mocked_db.reset_mock()
+            db_instance.init_db(test[KEY_INPUT])
+
+            self.assertEqual(mocked_db.app, test[KEY_EXPECTED])
+            mocked_db.init_app.assert_called_once_with(test[KEY_INPUT])
+            mocked_db.create_all.assert_called_once()
+            mocked_db.session.commit.assert_called_once()
 
 if __name__ == "__main__":
     unittest.main()
