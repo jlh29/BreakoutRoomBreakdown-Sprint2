@@ -6,6 +6,10 @@ import atexit
 from apscheduler.schedulers.background import BackgroundScheduler
 import db_utils
 
+SCHEDULE_START_DATE = "2020-01-01 00:15:00"
+SCHEDULE_TRIGGER = "interval"
+SCHEDULE_INTERVAL_MINUTES = 1
+
 
 def start_tasks():
     """
@@ -14,9 +18,9 @@ def start_tasks():
     scheduler = BackgroundScheduler()
     scheduler.add_job(
         func=db_utils.update_walk_ins,
-        trigger="interval",
-        minutes=1,
-        start_date="2020-01-01 00:15:00",
+        trigger=SCHEDULE_TRIGGER,
+        minutes=SCHEDULE_INTERVAL_MINUTES,
+        start_date=SCHEDULE_START_DATE,
     )
 
     scheduler.start()
