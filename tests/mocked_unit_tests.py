@@ -10,10 +10,14 @@ import models
 from models import AuthUser, Room
 import db_utils
 import db_instance
+import login_utils
+from login_utils import GOOGLE_CLIENT_ID, GOOGLE_EMAIL_KEY, GOOGLE_NAME_KEY
 import socket_utils
 
 KEY_INPUT = "input"
 KEY_EXPECTED = "expected"
+KEY_RESPONSE = "response"
+KEY_QUERY_RESPONSE = "query response"
 KEY_COUNT = "count"
 
 KEY_NAME = "name"
@@ -32,6 +36,47 @@ KEY_DATA = "data sent"
 AUTH_TYPE = "auth_type"
 NAME = "name"
 EMAIL = "email"
+
+MOCK_AUTH_USER_DB_ENTRIES = {
+    1: models.AuthUser(
+        ucid="jd123",
+        auth_type=models.AuthUserType.GOOGLE,
+        role=models.UserRole.STUDENT,
+        name="John Doe",
+    ),
+    2: models.AuthUser(
+        ucid="johnny.appleseed",
+        auth_type=models.AuthUserType.GOOGLE,
+        role=models.UserRole.PROFESSOR,
+        name="Johnny Appleseed",
+    ),
+    3: models.AuthUser(
+        ucid="lr123",
+        auth_type=models.AuthUserType.GOOGLE,
+        role=models.UserRole.LIBRARIAN,
+        name="Libra Rian",
+    ),
+}
+MOCK_USER_INFOS = {
+    1: models.UserInfo(
+        id=1,
+        ucid="jd123",
+        role=models.UserRole.STUDENT,
+        name="John Doe",
+    ),
+    2: models.UserInfo(
+        id=2,
+        ucid="johnny.appleseed",
+        role=models.UserRole.LIBRARIAN,
+        name="Johnny Appleseed",
+    ),
+    3: models.UserInfo(
+        id=3,
+        ucid="lr123",
+        role=models.UserRole.LIBRARIAN,
+        name="Libra Rian",
+    ),
+}
 
 
 class MockedJson:
@@ -407,7 +452,7 @@ class SocketUtilsTestCase(unittest.TestCase):
     @mock.patch("socket_utils.SOCKET")
     def test_init_db(self, mocked_socket):
         """
-        Tests socket_utilos.init_socket to ensure that it correctly initializes
+        Tests socket_utils.init_socket to ensure that it correctly initializes
         the socket
         """
         for test in self.init_socket_test_cases:
@@ -417,6 +462,79 @@ class SocketUtilsTestCase(unittest.TestCase):
                 test[KEY_EXPECTED],
                 cors_allowed_origins="*",
             )
+
+class LoginUtilsTestCase(unittest.TestCase):
+    """
+    Tests the methods of login_utils.py that need to be mocked
+    """
+    def setUp(self):
+        """
+        Initializes test cases to evaluate
+        """
+        self.get_user_from_google_token_test_cases = [
+            {
+                KEY_INPUT: None,
+                KEY_RESPONSE: None,
+                KEY_EXPECTED: None,
+            },
+            {
+                KEY_INPUT: "bad token",
+                KEY_RESPONSE: ValueError(),
+                KEY_EXPECTED: None,
+            },
+            {
+                KEY_INPUT: "good token bad email",
+                KEY_RESPONSE: {
+                    GOOGLE_EMAIL_KEY: "",
+                    GOOGLE_NAME_KEY: "John Doe",
+                },
+                KEY_EXPECTED: None,
+            },
+            {
+                KEY_INPUT: "good token good email not njit",
+                KEY_RESPONSE: {
+                    GOOGLE_EMAIL_KEY: "jd123@gmail.com",
+                    GOOGLE_NAME_KEY: "John Doe",
+                },
+                KEY_EXPECTED: None,
+            },
+            {
+                KEY_INPUT: "good token good email is njit",
+                KEY_RESPONSE: {
+                    GOOGLE_EMAIL_KEY: MOCK_AUTH_USER_DB_ENTRIES[1].get_email(),
+                    GOOGLE_NAME_KEY: MOCK_AUTH_USER_DB_ENTRIES[1].name,
+                },
+                KEY_EXPECTED: MOCK_USER_INFOS[1],
+            },
+        ]
+
+    @mock.patch("login_utils.requests")
+    @mock.patch("login_utils.id_token")
+    @mock.patch("login_utils.db_utils")
+    def test_get_user_from_google_token(
+            self,
+            mocked_db_utils,
+            mocked_id_token,
+            mocked_requests,
+    ):
+        """
+        Tests login_utils.get_user_from_google_token
+        """
+        mocked_requests.Request().return_value = "mock request"
+        for test in self.get_user_from_google_token_test_cases:
+            mocked_db_utils.reset_mock()
+            mocked_id_token.reset_mock()
+            if isinstance(test[KEY_RESPONSE], Exception):
+                mocked_id_token.verify_oauth2_token.side_effect = test[KEY_RESPONSE]
+                mocked_id_token.verify_oauth2_token.return_value = None
+            else:
+                mocked_id_token.verify_oauth2_token.side_effect = None
+                mocked_id_token.verify_oauth2_token.return_value = test[KEY_RESPONSE]
+
+            mocked_db_utils.add_or_get_auth_user.return_value = test[KEY_EXPECTED]
+            result = login_utils.get_user_from_google_token(test[KEY_INPUT])
+            self.assertEqual(result, test[KEY_EXPECTED])
+
 
 if __name__ == "__main__":
     unittest.main()
