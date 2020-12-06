@@ -353,6 +353,38 @@ class DbUtilTestCase(unittest.TestCase):
 
             self.assertEqual(response, expected)
 
+class DBInstanceTestCase(unittest.TestCase):
+    """
+    Tests the methods of db_instance.py that need to be mocked
+    """
+    def setUp(self):
+        """
+        Initializes test cases to evaluate
+        """
+        self.init_db_test_cases = [
+            {
+                KEY_INPUT: None,
+                KEY_EXPECTED: None,
+            },
+            {
+                KEY_INPUT: "mock app",
+                KEY_EXPECTED: "mock app",
+            },
+        ]
+    
+    @mock.patch("db_instance.DB")
+    def test_init_db(self, mocked_db):
+        """
+        Tests db_instance.init_db to ensure that it correctly initializes the DB
+        """
+        for test in self.init_db_test_cases:
+            mocked_db.reset_mock()
+            db_instance.init_db(test[KEY_INPUT])
+
+            self.assertEqual(mocked_db.app, test[KEY_EXPECTED])
+            mocked_db.init_app.assert_called_once_with(test[KEY_INPUT])
+            mocked_db.create_all.assert_called_once()
+            mocked_db.session.commit.assert_called_once()
 
 if __name__ == "__main__":
     unittest.main()
