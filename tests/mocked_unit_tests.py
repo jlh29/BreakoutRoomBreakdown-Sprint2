@@ -1,17 +1,16 @@
 """ Use mock to test socket, db, oauth """
 from os.path import dirname, join
 import sys
-
-sys.path.append(join(dirname(__file__), "../"))
 import unittest
 import unittest.mock as mock
+
+sys.path.append(join(dirname(__file__), "../"))
 import app
 import models
+from models import AuthUser, Room
 import db_utils
 import db_instance
-from db_instance import DB
-from models import AuthUser
-from models import Room
+import socket_utils
 
 KEY_INPUT = "input"
 KEY_EXPECTED = "expected"
@@ -385,6 +384,39 @@ class DBInstanceTestCase(unittest.TestCase):
             mocked_db.init_app.assert_called_once_with(test[KEY_INPUT])
             mocked_db.create_all.assert_called_once()
             mocked_db.session.commit.assert_called_once()
+
+class SocketUtilsTestCase(unittest.TestCase):
+    """
+    Tests the methods of socket_utils.py that need to be mocked
+    """
+    def setUp(self):
+        """
+        Initializes test cases to evaluate
+        """
+        self.init_socket_test_cases = [
+            {
+                KEY_INPUT: None,
+                KEY_EXPECTED: None,
+            },
+            {
+                KEY_INPUT: "mock app",
+                KEY_EXPECTED: "mock app",
+            },
+        ]
+
+    @mock.patch("socket_utils.SOCKET")
+    def test_init_db(self, mocked_socket):
+        """
+        Tests socket_utilos.init_socket to ensure that it correctly initializes
+        the socket
+        """
+        for test in self.init_socket_test_cases:
+            mocked_socket.reset_mock()
+            socket_utils.init_socket(test[KEY_INPUT])
+            mocked_socket.init_app.assert_called_once_with(
+                test[KEY_EXPECTED],
+                cors_allowed_origins="*",
+            )
 
 if __name__ == "__main__":
     unittest.main()
