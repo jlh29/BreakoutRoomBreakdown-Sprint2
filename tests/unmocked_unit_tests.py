@@ -1,11 +1,12 @@
 """
     This module tests all code that does not need to be mocked.
 """
+# pylint: disable=wrong-import-position
+# pylint: disable=too-many-instance-attributes
 import datetime
 from os.path import dirname, join
 import sys
 import unittest
-import unittest.mock as mock
 
 sys.path.append(join(dirname(__file__), "../"))
 import models
@@ -109,8 +110,8 @@ MOCK_UNAVAILABLE_DATE_DB_ENTRIES = {
 }
 MOCK_CHECK_IN_DB_ENTRIES = {
     1: models.CheckIn(
-       reservation_id=123,
-       validation_code="mock validation code",
+        reservation_id=123,
+        validation_code="mock validation code",
     ),
 }
 
@@ -119,6 +120,7 @@ class ModelsTestCase(unittest.TestCase):
     """
     Tests the methods of models.py that do not need to be mocked
     """
+
     def setUp(self):
         """
         Initializes test cases to evaluate
@@ -543,7 +545,6 @@ class ModelsTestCase(unittest.TestCase):
             },
         ]
 
-
     def test_auth_user_repr(self):
         """
         Tests models.AuthUser.__repr__ to ensure that it returns a string that
@@ -639,7 +640,9 @@ class ModelsTestCase(unittest.TestCase):
             result = test[KEY_INPUT].__repr__()
             self.assertTrue(isinstance(result, test[KEY_EXPECTED_TYPE]))
             self.assertTrue(
-                all([str(info).lower() in result.lower() for info in test[KEY_EXPECTED]])
+                all(
+                    [str(info).lower() in result.lower() for info in test[KEY_EXPECTED]]
+                )
             )
 
     def test_room_init(self):
@@ -664,7 +667,9 @@ class ModelsTestCase(unittest.TestCase):
             result = test[KEY_INPUT].__repr__()
             self.assertTrue(isinstance(result, test[KEY_EXPECTED_TYPE]))
             self.assertTrue(
-                all([str(info).lower() in result.lower() for info in test[KEY_EXPECTED]])
+                all(
+                    [str(info).lower() in result.lower() for info in test[KEY_EXPECTED]]
+                )
             )
 
     def test_unavailable_date_init(self):
@@ -689,7 +694,9 @@ class ModelsTestCase(unittest.TestCase):
             result = test[KEY_INPUT].__repr__()
             self.assertTrue(isinstance(result, test[KEY_EXPECTED_TYPE]))
             self.assertTrue(
-                all([str(info).lower() in result.lower() for info in test[KEY_EXPECTED]])
+                all(
+                    [str(info).lower() in result.lower() for info in test[KEY_EXPECTED]]
+                )
             )
 
     def test_check_in_init(self):
@@ -713,7 +720,9 @@ class ModelsTestCase(unittest.TestCase):
             result = test[KEY_INPUT].__repr__()
             self.assertTrue(isinstance(result, test[KEY_EXPECTED_TYPE]))
             self.assertTrue(
-                all([str(info).lower() in result.lower() for info in test[KEY_EXPECTED]])
+                all(
+                    [str(info).lower() in result.lower() for info in test[KEY_EXPECTED]]
+                )
             )
 
 
