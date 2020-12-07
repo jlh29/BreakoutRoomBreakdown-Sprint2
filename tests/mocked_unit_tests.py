@@ -672,6 +672,25 @@ class ModelsTestCase(unittest.TestCase):
             },
         ]
 
+        self.attendee_init_test_cases = [
+            {
+                KEY_INPUT: {'ucid': None},
+                KEY_EXPECTED_TYPE: AssertionError,
+            },
+            {
+                KEY_INPUT: {'ucid': 123},
+                KEY_EXPECTED_TYPE: AssertionError,
+            },
+            {
+                KEY_INPUT: {'ucid': ''},
+                KEY_EXPECTED_TYPE: AssertionError,
+            },
+            {
+                KEY_INPUT: {'ucid': 'mock ucid'},
+                KEY_EXPECTED_TYPE: models.Attendee,
+            },
+        ]
+
     def test_auth_user_repr(self):
         """
         Tests models.AuthUser.__repr__ to ensure that it returns a string that
@@ -708,6 +727,18 @@ class ModelsTestCase(unittest.TestCase):
                 result.lower().startswith(test[KEY_INPUT].ucid.lower())
                 and result.lower().endswith("@njit.edu")
             )
+
+    def test_attendee_init(self):
+        """
+        Tests models.Attendee.__init__ to ensure that it correctly checks input
+        """
+        for test in self.attendee_init_test_cases:
+            if issubclass(test[KEY_EXPECTED_TYPE], Exception):
+                with self.assertRaises(test[KEY_EXPECTED_TYPE]):
+                    result = models.Attendee(**test[KEY_INPUT])
+            else:
+                result = models.Attendee(**test[KEY_INPUT])
+                self.assertTrue(isinstance(result, test[KEY_EXPECTED_TYPE]))
 
 
 if __name__ == "__main__":

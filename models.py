@@ -71,6 +71,7 @@ class Attendee(DB.Model):
     ucid = DB.Column(DB.String(120), nullable=False)
 
     def __init__(self, ucid):
+        assert isinstance(ucid, str) and len(ucid) > 0
         self.ucid = ucid
 
     def __repr__(self):
