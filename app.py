@@ -95,12 +95,33 @@ def _current_user_role():
         return None
     return CONNECTED_USERS[flask.request.sid].role
 
+def emit_all_dates():
+    """
+    Send all disable dates to the client 
+    """
+    all_start_dates, all_end_dates, all_notes = db_utils.get_disable_date()
+    
+    all_start_dates = [str(x.date()) for x in all_start_dates]
+    all_end_dates = [str(x.date()) for x in all_end_dates]
+    
+    print(all_start_dates)
+    SOCKET.emit(
+        DISABLE_CHANNEL,
+        {
+            START_DATE: all_start_dates,
+            END_DATE: all_end_dates,
+            NOTE: all_notes,
+        }
+    )
+    print("Data sent to client")
+    
 
 @SOCKET.on(CONNECT_CHANNEL)
 def on_connect():
     """
     Called whenever a user connects
     """
+    emit_all_dates()
     print("Someone connected!")
 
 
@@ -297,6 +318,9 @@ def index():
     """
     Provides the client with the main webpage
     """
+    emit_all_dates()
+    print("Dates sent to client")
+    
     return flask.render_template("index.html")
 
 
@@ -385,21 +409,13 @@ def on_disable_date(data):
     """
     print("Got an event for new date input with data:", data)
     
-    start_date = data['startDate']
-    end_date = data['endDate']
+    start_date = datetime.datetime.strptime(data['startDate'], "%Y-%m-%d")
+    end_date = datetime.datetime.strptime(data['endDate'], "%Y-%m-%d")
     note = data['note']
     
     db_utils.add_disable_date(start_date, end_date, note)
-    SOCKET.emit(
-        DISABLE_CHANNEL,
-        {
-            START_DATE: start_date,
-            END_DATE: end_date,
-            NOTE: note,
-        }
-    )
+    emit_all_dates()
     
-
 if __name__ == "__main__":
     db_instance.init_db(APP)
     socket_utils.init_socket(APP)
