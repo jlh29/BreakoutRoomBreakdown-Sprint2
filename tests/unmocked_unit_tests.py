@@ -97,6 +97,16 @@ MOCK_ROOM_DB_ENTRIES = {
         size=models.RoomSize.MEDIUM,
     ),
 }
+MOCK_UNAVAILABLE_DATE_DB_ENTRIES = {
+    1: models.UnavailableDate(
+        date=datetime.date(2020, 1, 1),
+        reason=None,
+    ),
+    2: models.UnavailableDate(
+        date=datetime.date(2020, 1, 2),
+        reason="Snow Day",
+    ),
+}
 
 
 class ModelsTestCase(unittest.TestCase):
@@ -433,6 +443,25 @@ class ModelsTestCase(unittest.TestCase):
             },
         ]
 
+        self.unavailable_date_repr_test_cases = [
+            {
+                KEY_INPUT: MOCK_UNAVAILABLE_DATE_DB_ENTRIES[1],
+                KEY_EXPECTED_TYPE: str,
+                KEY_EXPECTED: [
+                    MOCK_UNAVAILABLE_DATE_DB_ENTRIES[1].date,
+                    MOCK_UNAVAILABLE_DATE_DB_ENTRIES[1].reason,
+                ],
+            },
+            {
+                KEY_INPUT: MOCK_UNAVAILABLE_DATE_DB_ENTRIES[2],
+                KEY_EXPECTED_TYPE: str,
+                KEY_EXPECTED: [
+                    MOCK_UNAVAILABLE_DATE_DB_ENTRIES[2].date,
+                    MOCK_UNAVAILABLE_DATE_DB_ENTRIES[2].reason,
+                ],
+            },
+        ]
+
 
     def test_auth_user_repr(self):
         """
@@ -568,6 +597,18 @@ class ModelsTestCase(unittest.TestCase):
             else:
                 result = models.UnavailableDate(**test[KEY_INPUT])
                 self.assertTrue(isinstance(result, test[KEY_EXPECTED_TYPE]))
+
+    def test_unavailable_date_repr(self):
+        """
+        Tests models.UnavailableDate.__repr__ to ensure that it returns a string
+        that contains important properties
+        """
+        for test in self.unavailable_date_repr_test_cases:
+            result = test[KEY_INPUT].__repr__()
+            self.assertTrue(isinstance(result, test[KEY_EXPECTED_TYPE]))
+            self.assertTrue(
+                all([str(info).lower() in result.lower() for info in test[KEY_EXPECTED]])
+            )
 
 
 if __name__ == "__main__":
