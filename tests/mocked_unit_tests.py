@@ -9,6 +9,13 @@ import unittest.mock as mock
 
 sys.path.append(join(dirname(__file__), "../"))
 import app
+from app import (
+    FAILED_LOGIN_CHANNEL,
+    SUCCESSFUL_LOGIN_CHANNEL,
+    USER_LOGIN_NAME_KEY,
+    USER_LOGIN_ROLE_KEY,
+    USER_LOGIN_TOKEN_KEY,
+)
 import models
 import db_utils
 import db_instance
@@ -697,6 +704,89 @@ class AppTestCase(unittest.TestCase):
             },
         ]
 
+        self.on_new_user_login_test_cases = [
+            {
+                KEY_INPUT: None,
+                KEY_SID: None,
+                KEY_RESPONSE: None,
+                KEY_CONNECTED_USERS: {},
+                KEY_EXPECTED_TYPE: AssertionError,
+                KEY_EXPECTED: {},
+                KEY_ARGS: [],
+                KEY_KWARGS: {},
+            },
+            {
+                KEY_INPUT: {},
+                KEY_SID: None,
+                KEY_RESPONSE: None,
+                KEY_CONNECTED_USERS: {},
+                KEY_EXPECTED_TYPE: AssertionError,
+                KEY_EXPECTED: {},
+                KEY_ARGS: [],
+                KEY_KWARGS: {},
+            },
+            {
+                KEY_INPUT: {USER_LOGIN_TOKEN_KEY: "mock token"},
+                KEY_SID: None,
+                KEY_RESPONSE: None,
+                KEY_CONNECTED_USERS: {},
+                KEY_EXPECTED_TYPE: AssertionError,
+                KEY_EXPECTED: {},
+                KEY_ARGS: [],
+                KEY_KWARGS: {},
+            },
+            {
+                KEY_INPUT: {USER_LOGIN_TOKEN_KEY: "mock token"},
+                KEY_SID: "mock sid",
+                KEY_RESPONSE: None,
+                KEY_CONNECTED_USERS: {},
+                KEY_EXPECTED_TYPE: models.UserInfo,
+                KEY_EXPECTED: {},
+                KEY_ARGS: [
+                    FAILED_LOGIN_CHANNEL,
+                ],
+                KEY_KWARGS: {
+                    "room": "mock sid",
+                },
+            },
+            {
+                KEY_INPUT: {USER_LOGIN_TOKEN_KEY: "mock token"},
+                KEY_SID: "mock sid",
+                KEY_RESPONSE: MOCK_USER_INFOS[1],
+                KEY_CONNECTED_USERS: {},
+                KEY_EXPECTED_TYPE: models.UserInfo,
+                KEY_EXPECTED: {"mock sid": MOCK_USER_INFOS[1]},
+                KEY_ARGS: [
+                    SUCCESSFUL_LOGIN_CHANNEL,
+                    {
+                        USER_LOGIN_NAME_KEY: MOCK_USER_INFOS[1].name,
+                        USER_LOGIN_ROLE_KEY: MOCK_USER_INFOS[1].role.value,
+                    },
+                ],
+                KEY_KWARGS: {
+                    "room": "mock sid",
+                },
+            },
+            {
+                KEY_INPUT: {USER_LOGIN_TOKEN_KEY: "mock token"},
+                KEY_SID: "mock sid",
+                KEY_RESPONSE: MOCK_USER_INFOS[1],
+                KEY_CONNECTED_USERS: {"mock sid": MOCK_USER_INFOS[2]},
+                KEY_EXPECTED_TYPE: models.UserInfo,
+                KEY_EXPECTED: {"mock sid": MOCK_USER_INFOS[1]},
+                KEY_ARGS: [
+                    SUCCESSFUL_LOGIN_CHANNEL,
+                    {
+                        USER_LOGIN_NAME_KEY: MOCK_USER_INFOS[1].name,
+                        USER_LOGIN_ROLE_KEY: MOCK_USER_INFOS[1].role.value,
+                    },
+                ],
+                KEY_KWARGS: {
+                    "room": "mock sid",
+                },
+            },
+        ]
+
     @mock.patch("app.flask")
     def test_current_user_role(self, mocked_flask):
         """
@@ -721,12 +811,44 @@ class AppTestCase(unittest.TestCase):
 
     @mock.patch("app.flask")
     def test_on_disconnect(self, mocked_flask):
+        """
+        Tests app.on_disconnect
+        """
         for test in self.on_disconnect_test_cases:
             mocked_flask.reset_mock()
             mocked_flask.request.sid = test[KEY_SID]
             result_connected_users = test[KEY_CONNECTED_USERS]
             with mock.patch("app.CONNECTED_USERS", result_connected_users):
                 app.on_disconnect()
+                self.assertDictEqual(result_connected_users, test[KEY_EXPECTED])
+
+    @mock.patch("app.login_utils")
+    @mock.patch("app.SOCKET")
+    @mock.patch("app.flask")
+    def test_on_new_user_login(self, mocked_flask, mocked_socket, mocked_login_utils):
+        """
+        Tests app.on_new_user_login
+        """
+        for test in self.on_new_user_login_test_cases:
+            mocked_flask.reset_mock()
+            mocked_socket.reset_mock()
+            mocked_login_utils.reset_mock()
+            mocked_flask.request.sid = test[KEY_SID]
+            mocked_login_utils.get_user_from_google_token.return_value = test[KEY_RESPONSE]
+            result_connected_users = test[KEY_CONNECTED_USERS]
+            with mock.patch("app.CONNECTED_USERS", result_connected_users):
+                if issubclass(test[KEY_EXPECTED_TYPE], Exception):
+                    with self.assertRaises(test[KEY_EXPECTED_TYPE]):
+                        app.on_new_user_login(test[KEY_INPUT])
+                    mocked_socket.emit.assert_not_called()
+                    mocked_login_utils.get_user_from_google_token.assert_not_called()
+                else:
+                    app.on_new_user_login(test[KEY_INPUT])
+                    mocked_socket.emit.assert_called_once_with(
+                        *test[KEY_ARGS],
+                        **test[KEY_KWARGS]
+                    )
+                    mocked_login_utils.get_user_from_google_token.assert_called_once()
                 self.assertDictEqual(result_connected_users, test[KEY_EXPECTED])
 
 

@@ -147,6 +147,12 @@ def on_new_user_login(data):
     is rendered correctly
     """
     print(f"Got an event for new user login")
+    assert data is not None
+    assert all([
+        isinstance(data, dict),
+        USER_LOGIN_TOKEN_KEY in data,
+    ])
+    assert flask.request.sid is not None
     auth_user = login_utils.get_user_from_google_token(data[USER_LOGIN_TOKEN_KEY])
     if auth_user is None:
         SOCKET.emit(
