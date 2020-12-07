@@ -99,7 +99,7 @@ MOCK_ROOM_DB_ENTRIES = {
 }
 MOCK_UNAVAILABLE_DATE_DB_ENTRIES = {
     1: models.UnavailableDate(
-        date=datetime.date(2020, 1, 1),
+        date=datetime.datetime(2020, 1, 1),
         reason=None,
     ),
     2: models.UnavailableDate(
@@ -357,6 +357,7 @@ class ModelsTestCase(unittest.TestCase):
                     "size": None,
                 },
                 KEY_EXPECTED_TYPE: AssertionError,
+                KEY_EXPECTED: None,
             },
             {
                 KEY_INPUT: {
@@ -365,6 +366,7 @@ class ModelsTestCase(unittest.TestCase):
                     "size": "bad size",
                 },
                 KEY_EXPECTED_TYPE: AssertionError,
+                KEY_EXPECTED: None,
             },
             {
                 KEY_INPUT: {
@@ -373,6 +375,7 @@ class ModelsTestCase(unittest.TestCase):
                     "size": models.RoomSize.SMALL,
                 },
                 KEY_EXPECTED_TYPE: AssertionError,
+                KEY_EXPECTED: None,
             },
             {
                 KEY_INPUT: {
@@ -381,6 +384,34 @@ class ModelsTestCase(unittest.TestCase):
                     "size": "bad size",
                 },
                 KEY_EXPECTED_TYPE: AssertionError,
+                KEY_EXPECTED: None,
+            },
+            {
+                KEY_INPUT: {
+                    "room_number": 100,
+                    "capacity": 2,
+                    "size": None,
+                },
+                KEY_EXPECTED_TYPE: models.Room,
+                KEY_EXPECTED: models.RoomSize.SMALL,
+            },
+            {
+                KEY_INPUT: {
+                    "room_number": 100,
+                    "capacity": 4,
+                    "size": None,
+                },
+                KEY_EXPECTED_TYPE: models.Room,
+                KEY_EXPECTED: models.RoomSize.MEDIUM,
+            },
+            {
+                KEY_INPUT: {
+                    "room_number": 100,
+                    "capacity": 8,
+                    "size": None,
+                },
+                KEY_EXPECTED_TYPE: models.Room,
+                KEY_EXPECTED: models.RoomSize.LARGE,
             },
             {
                 KEY_INPUT: {
@@ -389,6 +420,7 @@ class ModelsTestCase(unittest.TestCase):
                     "size": None,
                 },
                 KEY_EXPECTED_TYPE: models.Room,
+                KEY_EXPECTED: models.RoomSize.XLARGE,
             },
             {
                 KEY_INPUT: {
@@ -397,6 +429,7 @@ class ModelsTestCase(unittest.TestCase):
                     "size": models.RoomSize.LARGE,
                 },
                 KEY_EXPECTED_TYPE: models.Room,
+                KEY_EXPECTED: models.RoomSize.LARGE,
             },
         ]
 
@@ -572,6 +605,7 @@ class ModelsTestCase(unittest.TestCase):
             else:
                 result = models.Room(**test[KEY_INPUT])
                 self.assertTrue(isinstance(result, test[KEY_EXPECTED_TYPE]))
+                self.assertEqual(result.size, test[KEY_EXPECTED].value)
 
     def test_room_repr(self):
         """
