@@ -75,6 +75,12 @@ TIME_AVAILABILITY_KEY = "isAvailable"
 AVAILABLE_ROOMS_KEY = "availableRooms"
 DATE_FORMAT = "%m/%d/%Y"
 
+DISABLE_DATE = "disable date"
+DISABLE_CHANNEL = "disable channel"
+START_DATE = "start date"
+END_DATE = "end date"
+NOTE = "note"
+
 STUDENT_DATE_AVAILABILITY_RANGE = 3
 PROFESSOR_DATE_AVAILABILITY_RANGE = 7
 
@@ -371,7 +377,28 @@ def on_check_in(data):
         {CHECK_IN_SUCCESS_KEY: result},
         room=flask.request.sid,
     )
-
+    
+@SOCKET.on(DISABLE_DATE)
+def on_disable_date(data):
+    """
+    Called whenever the librarian set a date to disable in the calendar
+    """
+    print("Got an event for new date input with data:", data)
+    
+    start_date = data['startDate']
+    end_date = data['endDate']
+    note = data['note']
+    
+    db_utils.add_disable_date(start_date, end_date, note)
+    SOCKET.emit(
+        DISABLE_CHANNEL,
+        {
+            START_DATE: start_date,
+            END_DATE: end_date,
+            NOTE: note,
+        }
+    )
+    
 
 if __name__ == "__main__":
     db_instance.init_db(APP)
