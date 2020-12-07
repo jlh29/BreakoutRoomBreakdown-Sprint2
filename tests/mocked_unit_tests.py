@@ -651,6 +651,34 @@ class AppTestCase(unittest.TestCase):
             },
         ]
 
+        self.on_disconnect_test_cases = [
+            {
+                KEY_SID: "mock sid",
+                KEY_CONNECTED_USERS: {
+                    "mock sid": MOCK_USER_INFOS[1],
+                },
+                KEY_EXPECTED: {},
+            },
+            {
+                KEY_SID: "mock sid",
+                KEY_CONNECTED_USERS: {
+                    "mock sid 2": MOCK_USER_INFOS[1],
+                },
+                KEY_EXPECTED: {
+                    "mock sid 2": MOCK_USER_INFOS[1],
+                },
+            },
+            {
+                KEY_SID: None,
+                KEY_CONNECTED_USERS: {
+                    "mock sid": MOCK_USER_INFOS[1],
+                },
+                KEY_EXPECTED: {
+                    "mock sid": MOCK_USER_INFOS[1],
+                },
+            },
+        ]
+
     @mock.patch("app.flask")
     def test_current_user_role(self, mocked_flask):
         """
@@ -672,6 +700,16 @@ class AppTestCase(unittest.TestCase):
             app.on_connect()
         except Exception as err:
             self.fail(f"app.on_connect failed with exception:\n\t{err}")
+
+    @mock.patch("app.flask")
+    def test_on_disconnect(self, mocked_flask):
+        for test in self.on_disconnect_test_cases:
+            mocked_flask.reset_mock()
+            mocked_flask.request.sid = test[KEY_SID]
+            result_connected_users = test[KEY_CONNECTED_USERS]
+            with mock.patch("app.CONNECTED_USERS", result_connected_users):
+                app.on_disconnect()
+                self.assertDictEqual(result_connected_users, test[KEY_EXPECTED])
 
 
 if __name__ == "__main__":
