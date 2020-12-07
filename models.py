@@ -201,6 +201,8 @@ class CheckIn(DB.Model):
     validation_code = DB.Column(DB.String(32), nullable=False)
 
     def __init__(self, reservation_id, validation_code):
+        assert isinstance(reservation_id, int)
+        assert isinstance(validation_code, str)
         self.reservation_id = reservation_id
         self.validation_code = validation_code
 

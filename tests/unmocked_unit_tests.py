@@ -495,6 +495,37 @@ class ModelsTestCase(unittest.TestCase):
             },
         ]
 
+        self.check_in_init_test_cases = [
+            {
+                KEY_INPUT: {
+                    "reservation_id": None,
+                    "validation_code": None,
+                },
+                KEY_EXPECTED_TYPE: AssertionError,
+            },
+            {
+                KEY_INPUT: {
+                    "reservation_id": "bad reservation id",
+                    "validation_code": 123,
+                },
+                KEY_EXPECTED_TYPE: AssertionError,
+            },
+            {
+                KEY_INPUT: {
+                    "reservation_id": 123,
+                    "validation_code": 123,
+                },
+                KEY_EXPECTED_TYPE: AssertionError,
+            },
+            {
+                KEY_INPUT: {
+                    "reservation_id": 123,
+                    "validation_code": "mock validation code",
+                },
+                KEY_EXPECTED_TYPE: models.CheckIn,
+            },
+        ]
+
 
     def test_auth_user_repr(self):
         """
@@ -643,6 +674,18 @@ class ModelsTestCase(unittest.TestCase):
             self.assertTrue(
                 all([str(info).lower() in result.lower() for info in test[KEY_EXPECTED]])
             )
+
+    def test_check_in_init(self):
+        """
+        Tests models.CheckIn.__init__ to ensure that it correctly checks input
+        """
+        for test in self.check_in_init_test_cases:
+            if issubclass(test[KEY_EXPECTED_TYPE], Exception):
+                with self.assertRaises(test[KEY_EXPECTED_TYPE]):
+                    result = models.CheckIn(**test[KEY_INPUT])
+            else:
+                result = models.CheckIn(**test[KEY_INPUT])
+                self.assertTrue(isinstance(result, test[KEY_EXPECTED_TYPE]))
 
 
 if __name__ == "__main__":
