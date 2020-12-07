@@ -437,3 +437,13 @@ def add_disable_date(start_date, end_date, note):
     """
     DB.session.add(models.CalendarMarkings(start_date, end_date, note))
     DB.session.commit()
+    
+def get_disable_date():
+    """
+    Get the start and end dates from CalendarMarkings table
+    """
+    all_start_dates = [date.start_date for date in DB.session.query(models.CalendarMarkings).all()]
+    all_end_dates = [date.end_date for date in DB.session.query(models.CalendarMarkings).all()]
+    all_notes = [date.calendar_note for date in DB.session.query(models.CalendarMarkings).all()]
+    
+    return all_start_dates, all_end_dates, all_notes
