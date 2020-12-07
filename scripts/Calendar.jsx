@@ -11,25 +11,33 @@ export default function MyCalendar(props) {
   const {
     date, setDate, time, setTime, allTimes, availableDates,
   } = props;
+  const [disabledDates, setDisabledDates] = useState([]);
+  const [markDates, setMarkDates] = useState([]);
   
-  let x = new Date("2020-12-18");
-  let y = new Date("2020-12-2");
-  let z = new Date("2020-12-3");
+  const [startDates, setStartDates] = useState([]);
+  const [endDates, setEndDates] = useState([]);
+  const [notes, setNotes] = useState([]);
+
+  for (let i=0; i<startDates.length; i++)
+    setMarkDates([startDates[i], endDates[i]]);
   
-  let a = new Date("2020-12-18");
-  let b = new Date("2020-12-2");
-  let c = new Date("2020-12-5");
-  let d = new Date("2020-12-29");
-  
-  const disabledDates = [x];
-  const disabledRanges = [
-    [y,z],
-  ];
-  
-  const markDates = [a,d];
-  const markRanges = [
-    [b,c], 
-  ];
+  // console.log(markDates)
+
+  function getNewDates() {
+    console.log("GET NEW DATES")
+    React.useEffect(() => {
+      Socket.on('disable channel', (data) => {
+          console.log("Received addresses from server: " + data['start date']);
+          console.log("Received addresses from server: " + data['end date']);
+          console.log("Received addresses from server: " + data['note']);
+          setStartDates(data['start date']);
+          setEndDates(data['end date']);
+          setNotes(data['note']);
+      });
+    });
+  }
+
+  getNewDates();
 
   function handleClickDay(event) {
     setDate(event);
@@ -68,32 +76,23 @@ export default function MyCalendar(props) {
       disableDate = true;
     }
     
-  if (date.getUTCDate() - today.getUTCDate() > 2) {
+    if (date.getUTCDate() - today.getUTCDate() > 2) {
       disableDate = true;
     }
     
-    if (view === 'month' && isWithinRanges(date, disabledRanges)){
-      disableDate = true;
-    }
-    
-    if (view === 'month' && disabledDates.find(dDate => isSameDay(dDate, date))) {
+    if (view === 'month' && isWithinRanges(date, disabledDates)){
       disableDate = true;
     }
     
     return disableDate;
-    
   }
   
-  function handleContent({ activeStartDate, date, view }){
-    
-    if (isWithinRanges(date, markRanges)) {
-      return <p>Long weekend</p>;
+  function handleContent({ date, view }){
+    for (let i=0; i<startDates.length; i++){
+      if (isWithinRange(date, markDates[i])) {
+        return <p>{notes[i]}</p>;
+      }
     }
-    
-    if (markDates.find(dDate => isSameDay(dDate, date))){
-      return <p>X</p>;
-    }
-    
   }
 
   return (
