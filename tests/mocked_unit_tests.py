@@ -1,4 +1,5 @@
 """ Use mock to test socket, db, oauth """
+import datetime
 from os.path import dirname, join
 import sys
 import unittest
@@ -87,7 +88,38 @@ MOCK_ATTENDEE_DB_ENTRIES = {
     2: models.Attendee(ucid="johnny.appleseed"),
     3: models.Attendee(ucid="lr123"),
 }
-
+MOCK_APPOINTMENT_DB_ENTRIES = {
+    1: models.Appointment(
+        room_id=1,
+        start_time=datetime.datetime(2020, 1, 1, 12, 0, 0),
+        end_time=datetime.datetime(2020, 1, 1, 13, 0, 0),
+        organizer_id=1,
+        attendee_ids=[1, 2, 3],
+    ),
+}
+MOCK_ROOM_DB_ENTRIES = {
+    1: models.Room(
+        room_number=100,
+        capacity=10,
+        size=models.RoomSize.MEDIUM,
+    ),
+}
+MOCK_UNAVAILABLE_DATE_DB_ENTRIES = {
+    1: models.UnavailableDate(
+        date=datetime.datetime(2020, 1, 1),
+        reason=None,
+    ),
+    2: models.UnavailableDate(
+        date=datetime.date(2020, 1, 2),
+        reason="Snow Day",
+    ),
+}
+MOCK_CHECK_IN_DB_ENTRIES = {
+    1: models.CheckIn(
+        reservation_id=123,
+        validation_code="mock validation code",
+    ),
+}
 
 class MockedJson:
     """ Mock json file format """
