@@ -430,3 +430,10 @@ def check_in_with_code(check_in_code):
     DB.session.delete(reservation)
     DB.session.commit()
     return True
+    
+def add_disable_date(start_date, end_date, note):
+    """
+    Stores the calendar dates that needs to be disabled
+    """
+    DB.session.add(models.CalendarMarkings(start_date, end_date, note))
+    DB.session.commit()
