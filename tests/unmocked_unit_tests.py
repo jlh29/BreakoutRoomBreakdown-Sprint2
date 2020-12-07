@@ -402,6 +402,38 @@ class ModelsTestCase(unittest.TestCase):
             },
         ]
 
+        self.unavailable_date_init_test_cases = [
+            {
+                KEY_INPUT: {
+                    "date": None,
+                    "reason": None,
+                },
+                KEY_EXPECTED_TYPE: AssertionError,
+            },
+            {
+                KEY_INPUT: {
+                    "date": "bad date",
+                    "reason": 123,
+                },
+                KEY_EXPECTED_TYPE: AssertionError,
+            },
+            {
+                KEY_INPUT: {
+                    "date": datetime.datetime(2020, 1, 1),
+                    "reason": None,
+                },
+                KEY_EXPECTED_TYPE: models.UnavailableDate,
+            },
+            {
+                KEY_INPUT: {
+                    "date": datetime.datetime(2020, 1, 1),
+                    "reason": None,
+                },
+                KEY_EXPECTED_TYPE: models.UnavailableDate,
+            },
+        ]
+
+
     def test_auth_user_repr(self):
         """
         Tests models.AuthUser.__repr__ to ensure that it returns a string that
@@ -523,6 +555,20 @@ class ModelsTestCase(unittest.TestCase):
             self.assertTrue(
                 all([str(info).lower() in result.lower() for info in test[KEY_EXPECTED]])
             )
+
+    def test_unavailable_date_init(self):
+        """
+        Tests models.UnavailableDate.__init__ to ensure that it correctly checks
+        input
+        """
+        for test in self.unavailable_date_init_test_cases:
+            if issubclass(test[KEY_EXPECTED_TYPE], Exception):
+                with self.assertRaises(test[KEY_EXPECTED_TYPE]):
+                    result = models.UnavailableDate(**test[KEY_INPUT])
+            else:
+                result = models.UnavailableDate(**test[KEY_INPUT])
+                self.assertTrue(isinstance(result, test[KEY_EXPECTED_TYPE]))
+
 
 if __name__ == "__main__":
     unittest.main()

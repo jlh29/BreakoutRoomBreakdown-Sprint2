@@ -181,6 +181,7 @@ class UnavailableDate(DB.Model):
 
     def __init__(self, date, reason=None):
         assert isinstance(date, datetime.datetime)
+        assert reason is None or isinstance(reason, str)
         self.date = date
         self.reason = reason
 
