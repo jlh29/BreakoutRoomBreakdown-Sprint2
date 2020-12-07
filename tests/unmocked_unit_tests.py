@@ -107,6 +107,12 @@ MOCK_UNAVAILABLE_DATE_DB_ENTRIES = {
         reason="Snow Day",
     ),
 }
+MOCK_CHECK_IN_DB_ENTRIES = {
+    1: models.CheckIn(
+       reservation_id=123,
+       validation_code="mock validation code",
+    ),
+}
 
 
 class ModelsTestCase(unittest.TestCase):
@@ -526,6 +532,17 @@ class ModelsTestCase(unittest.TestCase):
             },
         ]
 
+        self.check_in_repr_test_cases = [
+            {
+                KEY_INPUT: MOCK_CHECK_IN_DB_ENTRIES[1],
+                KEY_EXPECTED_TYPE: str,
+                KEY_EXPECTED: [
+                    MOCK_CHECK_IN_DB_ENTRIES[1].reservation_id,
+                    MOCK_CHECK_IN_DB_ENTRIES[1].validation_code,
+                ],
+            },
+        ]
+
 
     def test_auth_user_repr(self):
         """
@@ -686,6 +703,18 @@ class ModelsTestCase(unittest.TestCase):
             else:
                 result = models.CheckIn(**test[KEY_INPUT])
                 self.assertTrue(isinstance(result, test[KEY_EXPECTED_TYPE]))
+
+    def test_check_in_repr(self):
+        """
+        Tests models.CheckIn.__repr__ to ensure that it returns a string that
+        contains important properties
+        """
+        for test in self.check_in_repr_test_cases:
+            result = test[KEY_INPUT].__repr__()
+            self.assertTrue(isinstance(result, test[KEY_EXPECTED_TYPE]))
+            self.assertTrue(
+                all([str(info).lower() in result.lower() for info in test[KEY_EXPECTED]])
+            )
 
 
 if __name__ == "__main__":
