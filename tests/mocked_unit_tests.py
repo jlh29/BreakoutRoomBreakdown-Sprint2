@@ -1,4 +1,6 @@
 """ Use mock to test socket, db, oauth """
+# pylint: disable=wrong-import-position
+# pylint: disable=protected-access
 import datetime
 from os.path import dirname, join
 import sys
@@ -13,8 +15,11 @@ import db_instance
 import login_utils
 from login_utils import GOOGLE_CLIENT_ID, GOOGLE_EMAIL_KEY, GOOGLE_NAME_KEY
 import scheduled_tasks
-from scheduled_tasks import (SCHEDULE_INTERVAL_MINUTES, SCHEDULE_START_DATE,
-                             SCHEDULE_TRIGGER)
+from scheduled_tasks import (
+    SCHEDULE_INTERVAL_MINUTES,
+    SCHEDULE_START_DATE,
+    SCHEDULE_TRIGGER,
+)
 import socket_utils
 
 KEY_INPUT = "input"
@@ -123,6 +128,7 @@ MOCK_CHECK_IN_DB_ENTRIES = {
     ),
 }
 
+
 class MockedJson:
     """ Mock json file format """
 
@@ -207,6 +213,7 @@ class MockedSocket:
         """ mock socket emit method"""
         return
 
+
 def get_mock_db(filtered_query_response=None):
     """
     Mocked version of flask_sqlalchemy.SQLAlchemy that tests can be performed on
@@ -231,6 +238,7 @@ def get_mock_db(filtered_query_response=None):
 
     mock_session.add.return_value = None
     return mock_db
+
 
 class DbUtilTestCase(unittest.TestCase):
     """ Test functions that uses socket """
@@ -441,10 +449,12 @@ class DbUtilTestCase(unittest.TestCase):
 
             self.assertEqual(response, expected)
 
+
 class DBInstanceTestCase(unittest.TestCase):
     """
     Tests the methods of db_instance.py that need to be mocked
     """
+
     def setUp(self):
         """
         Initializes test cases to evaluate
@@ -459,7 +469,7 @@ class DBInstanceTestCase(unittest.TestCase):
                 KEY_EXPECTED: "mock app",
             },
         ]
-    
+
     @mock.patch("db_instance.DB")
     def test_init_db(self, mocked_db):
         """
@@ -474,10 +484,12 @@ class DBInstanceTestCase(unittest.TestCase):
             mocked_db.create_all.assert_called_once()
             mocked_db.session.commit.assert_called_once()
 
+
 class SocketUtilsTestCase(unittest.TestCase):
     """
     Tests the methods of socket_utils.py that need to be mocked
     """
+
     def setUp(self):
         """
         Initializes test cases to evaluate
@@ -507,10 +519,12 @@ class SocketUtilsTestCase(unittest.TestCase):
                 cors_allowed_origins="*",
             )
 
+
 class LoginUtilsTestCase(unittest.TestCase):
     """
     Tests the methods of login_utils.py that need to be mocked
     """
+
     def setUp(self):
         """
         Initializes test cases to evaluate
@@ -579,10 +593,12 @@ class LoginUtilsTestCase(unittest.TestCase):
             result = login_utils.get_user_from_google_token(test[KEY_INPUT])
             self.assertEqual(result, test[KEY_EXPECTED])
 
+
 class ScheduledTasksTestCase(unittest.TestCase):
     """
     Tests the methods of scheduled_tasks.py that need to be mocked
     """
+
     def setUp(self):
         """
         Initializes test cases to evaluate
@@ -596,7 +612,7 @@ class ScheduledTasksTestCase(unittest.TestCase):
                     "trigger": SCHEDULE_TRIGGER,
                     "minutes": SCHEDULE_INTERVAL_MINUTES,
                     "start_date": SCHEDULE_START_DATE,
-                }
+                },
             },
         ]
 
@@ -619,10 +635,12 @@ class ScheduledTasksTestCase(unittest.TestCase):
                 mocked_background_scheduler.return_value.shutdown
             )
 
+
 class AppTestCase(unittest.TestCase):
     """
     Tests the methods of app.py that need to be mocked
     """
+
     def setUp(self):
         """
         Initializes test cases to evaluate
