@@ -18,6 +18,8 @@ from scheduled_tasks import (SCHEDULE_INTERVAL_MINUTES, SCHEDULE_START_DATE,
 import socket_utils
 
 KEY_INPUT = "input"
+KEY_SID = "sid"
+KEY_CONNECTED_USERS = "connected users"
 KEY_EXPECTED = "expected"
 KEY_EXPECTED_TYPE = "expected type"
 KEY_RESPONSE = "response"
@@ -616,6 +618,51 @@ class ScheduledTasksTestCase(unittest.TestCase):
             mocked_atexit.register.assert_called_once_with(
                 mocked_background_scheduler.return_value.shutdown
             )
+
+class AppTestCase(unittest.TestCase):
+    """
+    Tests the methods of app.py that need to be mocked
+    """
+    def setUp(self):
+        """
+        Initializes test cases to evaluate
+        """
+        self._current_user_role_test_cases = [
+            {
+                KEY_SID: "mock sid",
+                KEY_CONNECTED_USERS: {
+                    "mock sid": MOCK_USER_INFOS[1],
+                },
+                KEY_EXPECTED: MOCK_USER_INFOS[1].role,
+            },
+            {
+                KEY_SID: "mock sid",
+                KEY_CONNECTED_USERS: {
+                    "mock sid 2": MOCK_USER_INFOS[1],
+                },
+                KEY_EXPECTED: None,
+            },
+            {
+                KEY_SID: None,
+                KEY_CONNECTED_USERS: {
+                    "mock sid": MOCK_USER_INFOS[1],
+                },
+                KEY_EXPECTED: None,
+            },
+        ]
+
+    @mock.patch("app.flask")
+    def test_current_user_role(self, mocked_flask):
+        """
+        Tests app._current_user_role to ensure that it correctly returns the
+        current user's role
+        """
+        for test in self._current_user_role_test_cases:
+            mocked_flask.reset_mock()
+            mocked_flask.request.sid = test[KEY_SID]
+            with mock.patch("app.CONNECTED_USERS", test[KEY_CONNECTED_USERS]):
+                result = app._current_user_role()
+                self.assertEqual(result, test[KEY_EXPECTED])
 
 
 if __name__ == "__main__":
