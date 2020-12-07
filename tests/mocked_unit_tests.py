@@ -714,6 +714,21 @@ class ModelsTestCase(unittest.TestCase):
             },
         ]
 
+        self.attendee_get_email_test_cases = [
+            {
+                KEY_INPUT: MOCK_ATTENDEE_DB_ENTRIES[1],
+                KEY_EXPECTED_TYPE: str,
+            },
+            {
+                KEY_INPUT: MOCK_ATTENDEE_DB_ENTRIES[2],
+                KEY_EXPECTED_TYPE: str,
+            },
+            {
+                KEY_INPUT: MOCK_ATTENDEE_DB_ENTRIES[3],
+                KEY_EXPECTED_TYPE: str,
+            },
+        ]
+
     def test_auth_user_repr(self):
         """
         Tests models.AuthUser.__repr__ to ensure that it returns a string that
@@ -773,6 +788,19 @@ class ModelsTestCase(unittest.TestCase):
             self.assertTrue(isinstance(result, test[KEY_EXPECTED_TYPE]))
             self.assertTrue(
                 all([info.lower() in result.lower() for info in test[KEY_EXPECTED]])
+            )
+
+    def test_attendee_get_email(self):
+        """
+        Tests models.Attendee.get_email to ensure that it returns a string that
+        contains the NJIT email of the user
+        """
+        for test in self.attendee_get_email_test_cases:
+            result = test[KEY_INPUT].get_email()
+            self.assertTrue(isinstance(result, test[KEY_EXPECTED_TYPE]))
+            self.assertTrue(
+                result.lower().startswith(test[KEY_INPUT].ucid.lower())
+                and result.lower().endswith("@njit.edu")
             )
 
 
