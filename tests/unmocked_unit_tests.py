@@ -1,6 +1,7 @@
 """
     This module tests all code that does not need to be mocked.
 """
+import datetime
 from os.path import dirname, join
 import sys
 import unittest
@@ -226,6 +227,89 @@ class ModelsTestCase(unittest.TestCase):
             },
         ]
 
+        self.appointment_init_test_cases = [
+            {
+                KEY_INPUT: {
+                    'room_id': None,
+                    'start_time': None,
+                    'end_time': None,
+                    'organizer_id': None,
+                    'attendee_ids': None,
+                },
+                KEY_EXPECTED_TYPE: AssertionError,
+            },
+            {
+                KEY_INPUT: {
+                    'room_id': 'bad room',
+                    'start_time': 'bad time',
+                    'end_time': 'bad time',
+                    'organizer_id': 'bad organizer id',
+                    'attendee_ids': 'bad attendee ids',
+                },
+                KEY_EXPECTED_TYPE: AssertionError,
+            },
+            {
+                KEY_INPUT: {
+                    'room_id': 1,
+                    'start_time': 'bad time',
+                    'end_time': 'bad time',
+                    'organizer_id': 'bad organizer id',
+                    'attendee_ids': 'bad attendee ids',
+                },
+                KEY_EXPECTED_TYPE: AssertionError,
+            },
+            {
+                KEY_INPUT: {
+                    'room_id': 1,
+                    'start_time': datetime.datetime(2020, 1, 1),
+                    'end_time': datetime.datetime(2020, 1, 1),
+                    'organizer_id': 'bad organizer id',
+                    'attendee_ids': 'bad attendee ids',
+                },
+                KEY_EXPECTED_TYPE: AssertionError,
+            },
+            {
+                KEY_INPUT: {
+                    'room_id': 1,
+                    'start_time': datetime.datetime(2020, 1, 1),
+                    'end_time': datetime.datetime(2020, 1, 1),
+                    'organizer_id': 1,
+                    'attendee_ids': 'bad attendee ids',
+                },
+                KEY_EXPECTED_TYPE: AssertionError,
+            },
+            {
+                KEY_INPUT: {
+                    'room_id': 1,
+                    'start_time': datetime.datetime(2020, 1, 1),
+                    'end_time': datetime.datetime(2020, 1, 1),
+                    'organizer_id': 1,
+                    'attendee_ids': ['bad', 1, 2],
+                },
+                KEY_EXPECTED_TYPE: AssertionError,
+            },
+            {
+                KEY_INPUT: {
+                    'room_id': 1,
+                    'start_time': datetime.datetime(2020, 1, 1),
+                    'end_time': datetime.datetime(2020, 1, 1),
+                    'organizer_id': 1,
+                    'attendee_ids': None,
+                },
+                KEY_EXPECTED_TYPE: models.Appointment,
+            },
+            {
+                KEY_INPUT: {
+                    'room_id': 1,
+                    'start_time': datetime.datetime(2020, 1, 1),
+                    'end_time': datetime.datetime(2020, 1, 1),
+                    'organizer_id': 1,
+                    'attendee_ids': [1, 2, 3],
+                },
+                KEY_EXPECTED_TYPE: models.Appointment,
+            },
+        ]
+
     def test_auth_user_repr(self):
         """
         Tests models.AuthUser.__repr__ to ensure that it returns a string that
@@ -299,6 +383,18 @@ class ModelsTestCase(unittest.TestCase):
                 result.lower().startswith(test[KEY_INPUT].ucid.lower())
                 and result.lower().endswith("@njit.edu")
             )
+
+    def test_appointment_init(self):
+        """
+        Tests models.Appointment.__init__ to ensure that it correctly checks input
+        """
+        for test in self.appointment_init_test_cases:
+            if issubclass(test[KEY_EXPECTED_TYPE], Exception):
+                with self.assertRaises(test[KEY_EXPECTED_TYPE]):
+                    result = models.Appointment(**test[KEY_INPUT])
+            else:
+                result = models.Appointment(**test[KEY_INPUT])
+                self.assertTrue(isinstance(result, test[KEY_EXPECTED_TYPE]))
 
 
 if __name__ == "__main__":
