@@ -7,7 +7,6 @@ import unittest.mock as mock
 sys.path.append(join(dirname(__file__), "../"))
 import app
 import models
-from models import AuthUser, Room
 import db_utils
 import db_instance
 import login_utils
@@ -19,6 +18,7 @@ import socket_utils
 
 KEY_INPUT = "input"
 KEY_EXPECTED = "expected"
+KEY_EXPECTED_TYPE = "expected type"
 KEY_RESPONSE = "response"
 KEY_QUERY_RESPONSE = "query response"
 KEY_ARGS = "args"
@@ -578,6 +578,56 @@ class ScheduledTasksTestCase(unittest.TestCase):
             mocked_background_scheduler.return_value.start.assert_called_once()
             mocked_atexit.register.assert_called_once_with(
                 mocked_background_scheduler.return_value.shutdown
+            )
+
+class ModelsTestCase(unittest.TestCase):
+    """
+    Tests the methods of models.py that need to be mocked
+    """
+    def setUp(self):
+        """
+        Initializes test cases to evaluate
+        """
+        self.auth_user_repr_test_cases = [
+            {
+                KEY_INPUT: MOCK_AUTH_USER_DB_ENTRIES[1],
+                KEY_EXPECTED_TYPE: str,
+                KEY_EXPECTED: [
+                    MOCK_AUTH_USER_DB_ENTRIES[1].name,
+                    MOCK_AUTH_USER_DB_ENTRIES[1].ucid,
+                    MOCK_AUTH_USER_DB_ENTRIES[1].role,
+                ],
+            },
+            {
+                KEY_INPUT: MOCK_AUTH_USER_DB_ENTRIES[2],
+                KEY_EXPECTED_TYPE: str,
+                KEY_EXPECTED: [
+                    MOCK_AUTH_USER_DB_ENTRIES[2].name,
+                    MOCK_AUTH_USER_DB_ENTRIES[2].ucid,
+                    MOCK_AUTH_USER_DB_ENTRIES[2].role,
+                ],
+            },
+            {
+                KEY_INPUT: MOCK_AUTH_USER_DB_ENTRIES[3],
+                KEY_EXPECTED_TYPE: str,
+                KEY_EXPECTED: [
+                    MOCK_AUTH_USER_DB_ENTRIES[3].name,
+                    MOCK_AUTH_USER_DB_ENTRIES[3].ucid,
+                    MOCK_AUTH_USER_DB_ENTRIES[3].role,
+                ],
+            },
+        ]
+
+    def test_auth_user_repr(self):
+        """
+        Tests models.AuthUser.__repr__ to ensure that it returns a string that
+        contains important properties
+        """
+        for test in self.auth_user_repr_test_cases:
+            result = test[KEY_INPUT].__repr__()
+            self.assertTrue(isinstance(result, test[KEY_EXPECTED_TYPE]))
+            self.assertTrue(
+                all([info.lower() in result.lower() for info in test[KEY_EXPECTED]])
             )
 
 
