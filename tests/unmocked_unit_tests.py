@@ -390,6 +390,18 @@ class ModelsTestCase(unittest.TestCase):
             },
         ]
 
+        self.room_repr_test_cases = [
+            {
+                KEY_INPUT: MOCK_ROOM_DB_ENTRIES[1],
+                KEY_EXPECTED_TYPE: str,
+                KEY_EXPECTED: [
+                    MOCK_ROOM_DB_ENTRIES[1].room_number,
+                    MOCK_ROOM_DB_ENTRIES[1].capacity,
+                    MOCK_ROOM_DB_ENTRIES[1].size,
+                ],
+            },
+        ]
+
     def test_auth_user_repr(self):
         """
         Tests models.AuthUser.__repr__ to ensure that it returns a string that
@@ -500,6 +512,17 @@ class ModelsTestCase(unittest.TestCase):
                 result = models.Room(**test[KEY_INPUT])
                 self.assertTrue(isinstance(result, test[KEY_EXPECTED_TYPE]))
 
+    def test_room_repr(self):
+        """
+        Tests models.Room.__repr__ to ensure that it returns a string that
+        contains important properties
+        """
+        for test in self.room_repr_test_cases:
+            result = test[KEY_INPUT].__repr__()
+            self.assertTrue(isinstance(result, test[KEY_EXPECTED_TYPE]))
+            self.assertTrue(
+                all([str(info).lower() in result.lower() for info in test[KEY_EXPECTED]])
+            )
 
 if __name__ == "__main__":
     unittest.main()
