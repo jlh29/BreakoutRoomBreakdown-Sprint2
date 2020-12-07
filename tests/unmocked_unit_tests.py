@@ -81,6 +81,15 @@ MOCK_ATTENDEE_DB_ENTRIES = {
     2: models.Attendee(ucid="johnny.appleseed"),
     3: models.Attendee(ucid="lr123"),
 }
+MOCK_APPOINTMENT_DB_ENTRIES = {
+    1: models.Appointment(
+        room_id=1,
+        start_time=datetime.datetime(2020, 1, 1, 12, 0, 0),
+        end_time=datetime.datetime(2020, 1, 1, 13, 0, 0),
+        organizer_id=1,
+        attendee_ids=[1, 2, 3],
+    ),
+}
 
 
 class ModelsTestCase(unittest.TestCase):
@@ -310,6 +319,19 @@ class ModelsTestCase(unittest.TestCase):
             },
         ]
 
+        self.appointment_repr_test_cases = [
+            {
+                KEY_INPUT: MOCK_APPOINTMENT_DB_ENTRIES[1],
+                KEY_EXPECTED_TYPE: str,
+                KEY_EXPECTED: [
+                    MOCK_APPOINTMENT_DB_ENTRIES[1].room_id,
+                    MOCK_APPOINTMENT_DB_ENTRIES[1].organizer_id,
+                    MOCK_APPOINTMENT_DB_ENTRIES[1].status,
+                    MOCK_APPOINTMENT_DB_ENTRIES[1].start_time,
+                ],
+            },
+        ]
+
     def test_auth_user_repr(self):
         """
         Tests models.AuthUser.__repr__ to ensure that it returns a string that
@@ -396,6 +418,17 @@ class ModelsTestCase(unittest.TestCase):
                 result = models.Appointment(**test[KEY_INPUT])
                 self.assertTrue(isinstance(result, test[KEY_EXPECTED_TYPE]))
 
+    def test_appointment_repr(self):
+        """
+        Tests models.Appointment.__repr__ to ensure that it returns a string that
+        contains important properties
+        """
+        for test in self.appointment_repr_test_cases:
+            result = test[KEY_INPUT].__repr__()
+            self.assertTrue(isinstance(result, test[KEY_EXPECTED_TYPE]))
+            self.assertTrue(
+                all([str(info).lower() in result.lower() for info in test[KEY_EXPECTED]])
+            )
 
 if __name__ == "__main__":
     unittest.main()
