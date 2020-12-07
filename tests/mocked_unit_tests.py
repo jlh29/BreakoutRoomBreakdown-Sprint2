@@ -7,7 +7,6 @@ import unittest.mock as mock
 sys.path.append(join(dirname(__file__), "../"))
 import app
 import models
-from models import AuthUser, Room
 import db_utils
 import db_instance
 import login_utils
@@ -19,6 +18,7 @@ import socket_utils
 
 KEY_INPUT = "input"
 KEY_EXPECTED = "expected"
+KEY_EXPECTED_TYPE = "expected type"
 KEY_RESPONSE = "response"
 KEY_QUERY_RESPONSE = "query response"
 KEY_ARGS = "args"
@@ -81,6 +81,11 @@ MOCK_USER_INFOS = {
         role=models.UserRole.LIBRARIAN,
         name="Libra Rian",
     ),
+}
+MOCK_ATTENDEE_DB_ENTRIES = {
+    1: models.Attendee(ucid="jd123"),
+    2: models.Attendee(ucid="johnny.appleseed"),
+    3: models.Attendee(ucid="lr123"),
 }
 
 
