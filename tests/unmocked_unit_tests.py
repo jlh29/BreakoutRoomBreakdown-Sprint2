@@ -90,6 +90,13 @@ MOCK_APPOINTMENT_DB_ENTRIES = {
         attendee_ids=[1, 2, 3],
     ),
 }
+MOCK_ROOM_DB_ENTRIES = {
+    1: models.Room(
+        room_number=100,
+        capacity=10,
+        size=models.RoomSize.MEDIUM,
+    ),
+}
 
 
 class ModelsTestCase(unittest.TestCase):
@@ -133,37 +140,37 @@ class ModelsTestCase(unittest.TestCase):
         self.auth_user_init_test_cases = [
             {
                 KEY_INPUT: {
-                    'ucid': None,
-                    'name': None,
-                    'role': None,
-                    'auth_type': None,
+                    "ucid": None,
+                    "name": None,
+                    "role": None,
+                    "auth_type": None,
                 },
                 KEY_EXPECTED_TYPE: AssertionError,
             },
             {
                 KEY_INPUT: {
-                    'ucid': 'mock ucid',
-                    'name': 'mock name',
-                    'role': 'bad role',
-                    'auth_type': 'bad auth_type',
+                    "ucid": "mock ucid",
+                    "name": "mock name",
+                    "role": "bad role",
+                    "auth_type": "bad auth_type",
                 },
                 KEY_EXPECTED_TYPE: AssertionError,
             },
             {
                 KEY_INPUT: {
-                    'ucid': 'mock ucid',
-                    'name': 'mock name',
-                    'role': models.UserRole.STUDENT,
-                    'auth_type': 'bad auth_type',
+                    "ucid": "mock ucid",
+                    "name": "mock name",
+                    "role": models.UserRole.STUDENT,
+                    "auth_type": "bad auth_type",
                 },
                 KEY_EXPECTED_TYPE: AssertionError,
             },
             {
                 KEY_INPUT: {
-                    'ucid': 'mock ucid',
-                    'name': 'mock name',
-                    'role': models.UserRole.STUDENT,
-                    'auth_type': models.AuthUserType.GOOGLE,
+                    "ucid": "mock ucid",
+                    "name": "mock name",
+                    "role": models.UserRole.STUDENT,
+                    "auth_type": models.AuthUserType.GOOGLE,
                 },
                 KEY_EXPECTED_TYPE: models.AuthUser,
             },
@@ -186,19 +193,19 @@ class ModelsTestCase(unittest.TestCase):
 
         self.attendee_init_test_cases = [
             {
-                KEY_INPUT: {'ucid': None},
+                KEY_INPUT: {"ucid": None},
                 KEY_EXPECTED_TYPE: AssertionError,
             },
             {
-                KEY_INPUT: {'ucid': 123},
+                KEY_INPUT: {"ucid": 123},
                 KEY_EXPECTED_TYPE: AssertionError,
             },
             {
-                KEY_INPUT: {'ucid': ''},
+                KEY_INPUT: {"ucid": ""},
                 KEY_EXPECTED_TYPE: AssertionError,
             },
             {
-                KEY_INPUT: {'ucid': 'mock ucid'},
+                KEY_INPUT: {"ucid": "mock ucid"},
                 KEY_EXPECTED_TYPE: models.Attendee,
             },
         ]
@@ -239,81 +246,81 @@ class ModelsTestCase(unittest.TestCase):
         self.appointment_init_test_cases = [
             {
                 KEY_INPUT: {
-                    'room_id': None,
-                    'start_time': None,
-                    'end_time': None,
-                    'organizer_id': None,
-                    'attendee_ids': None,
+                    "room_id": None,
+                    "start_time": None,
+                    "end_time": None,
+                    "organizer_id": None,
+                    "attendee_ids": None,
                 },
                 KEY_EXPECTED_TYPE: AssertionError,
             },
             {
                 KEY_INPUT: {
-                    'room_id': 'bad room',
-                    'start_time': 'bad time',
-                    'end_time': 'bad time',
-                    'organizer_id': 'bad organizer id',
-                    'attendee_ids': 'bad attendee ids',
+                    "room_id": "bad room",
+                    "start_time": "bad time",
+                    "end_time": "bad time",
+                    "organizer_id": "bad organizer id",
+                    "attendee_ids": "bad attendee ids",
                 },
                 KEY_EXPECTED_TYPE: AssertionError,
             },
             {
                 KEY_INPUT: {
-                    'room_id': 1,
-                    'start_time': 'bad time',
-                    'end_time': 'bad time',
-                    'organizer_id': 'bad organizer id',
-                    'attendee_ids': 'bad attendee ids',
+                    "room_id": 1,
+                    "start_time": "bad time",
+                    "end_time": "bad time",
+                    "organizer_id": "bad organizer id",
+                    "attendee_ids": "bad attendee ids",
                 },
                 KEY_EXPECTED_TYPE: AssertionError,
             },
             {
                 KEY_INPUT: {
-                    'room_id': 1,
-                    'start_time': datetime.datetime(2020, 1, 1),
-                    'end_time': datetime.datetime(2020, 1, 1),
-                    'organizer_id': 'bad organizer id',
-                    'attendee_ids': 'bad attendee ids',
+                    "room_id": 1,
+                    "start_time": datetime.datetime(2020, 1, 1),
+                    "end_time": datetime.datetime(2020, 1, 1),
+                    "organizer_id": "bad organizer id",
+                    "attendee_ids": "bad attendee ids",
                 },
                 KEY_EXPECTED_TYPE: AssertionError,
             },
             {
                 KEY_INPUT: {
-                    'room_id': 1,
-                    'start_time': datetime.datetime(2020, 1, 1),
-                    'end_time': datetime.datetime(2020, 1, 1),
-                    'organizer_id': 1,
-                    'attendee_ids': 'bad attendee ids',
+                    "room_id": 1,
+                    "start_time": datetime.datetime(2020, 1, 1),
+                    "end_time": datetime.datetime(2020, 1, 1),
+                    "organizer_id": 1,
+                    "attendee_ids": "bad attendee ids",
                 },
                 KEY_EXPECTED_TYPE: AssertionError,
             },
             {
                 KEY_INPUT: {
-                    'room_id': 1,
-                    'start_time': datetime.datetime(2020, 1, 1),
-                    'end_time': datetime.datetime(2020, 1, 1),
-                    'organizer_id': 1,
-                    'attendee_ids': ['bad', 1, 2],
+                    "room_id": 1,
+                    "start_time": datetime.datetime(2020, 1, 1),
+                    "end_time": datetime.datetime(2020, 1, 1),
+                    "organizer_id": 1,
+                    "attendee_ids": ["bad", 1, 2],
                 },
                 KEY_EXPECTED_TYPE: AssertionError,
             },
             {
                 KEY_INPUT: {
-                    'room_id': 1,
-                    'start_time': datetime.datetime(2020, 1, 1),
-                    'end_time': datetime.datetime(2020, 1, 1),
-                    'organizer_id': 1,
-                    'attendee_ids': None,
+                    "room_id": 1,
+                    "start_time": datetime.datetime(2020, 1, 1),
+                    "end_time": datetime.datetime(2020, 1, 1),
+                    "organizer_id": 1,
+                    "attendee_ids": None,
                 },
                 KEY_EXPECTED_TYPE: models.Appointment,
             },
             {
                 KEY_INPUT: {
-                    'room_id': 1,
-                    'start_time': datetime.datetime(2020, 1, 1),
-                    'end_time': datetime.datetime(2020, 1, 1),
-                    'organizer_id': 1,
-                    'attendee_ids': [1, 2, 3],
+                    "room_id": 1,
+                    "start_time": datetime.datetime(2020, 1, 1),
+                    "end_time": datetime.datetime(2020, 1, 1),
+                    "organizer_id": 1,
+                    "attendee_ids": [1, 2, 3],
                 },
                 KEY_EXPECTED_TYPE: models.Appointment,
             },
@@ -329,6 +336,57 @@ class ModelsTestCase(unittest.TestCase):
                     MOCK_APPOINTMENT_DB_ENTRIES[1].status,
                     MOCK_APPOINTMENT_DB_ENTRIES[1].start_time,
                 ],
+            },
+        ]
+
+        self.room_init_test_cases = [
+            {
+                KEY_INPUT: {
+                    "room_number": None,
+                    "capacity": None,
+                    "size": None,
+                },
+                KEY_EXPECTED_TYPE: AssertionError,
+            },
+            {
+                KEY_INPUT: {
+                    "room_number": 100,
+                    "capacity": "bad capacity",
+                    "size": "bad size",
+                },
+                KEY_EXPECTED_TYPE: AssertionError,
+            },
+            {
+                KEY_INPUT: {
+                    "room_number": 100,
+                    "capacity": -1,
+                    "size": models.RoomSize.SMALL,
+                },
+                KEY_EXPECTED_TYPE: AssertionError,
+            },
+            {
+                KEY_INPUT: {
+                    "room_number": 100,
+                    "capacity": 10,
+                    "size": "bad size",
+                },
+                KEY_EXPECTED_TYPE: AssertionError,
+            },
+            {
+                KEY_INPUT: {
+                    "room_number": 100,
+                    "capacity": 10,
+                    "size": None,
+                },
+                KEY_EXPECTED_TYPE: models.Room,
+            },
+            {
+                KEY_INPUT: {
+                    "room_number": 100,
+                    "capacity": 10,
+                    "size": models.RoomSize.LARGE,
+                },
+                KEY_EXPECTED_TYPE: models.Room,
             },
         ]
 
@@ -429,6 +487,19 @@ class ModelsTestCase(unittest.TestCase):
             self.assertTrue(
                 all([str(info).lower() in result.lower() for info in test[KEY_EXPECTED]])
             )
+
+    def test_room_init(self):
+        """
+        Tests models.Room.__init__ to ensure that it correctly checks input
+        """
+        for test in self.room_init_test_cases:
+            if issubclass(test[KEY_EXPECTED_TYPE], Exception):
+                with self.assertRaises(test[KEY_EXPECTED_TYPE]):
+                    result = models.Room(**test[KEY_INPUT])
+            else:
+                result = models.Room(**test[KEY_INPUT])
+                self.assertTrue(isinstance(result, test[KEY_EXPECTED_TYPE]))
+
 
 if __name__ == "__main__":
     unittest.main()

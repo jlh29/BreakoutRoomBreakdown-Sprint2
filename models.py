@@ -147,7 +147,8 @@ class Room(DB.Model):
     )
 
     def __init__(self, room_number, capacity, size=None):
-        assert capacity > 0
+        assert isinstance(room_number, (int, str))
+        assert isinstance(capacity, int) and capacity > 0
         if size is not None:
             assert isinstance(size, RoomSize)
         elif capacity < 3:
