@@ -664,6 +664,15 @@ class AppTestCase(unittest.TestCase):
                 result = app._current_user_role()
                 self.assertEqual(result, test[KEY_EXPECTED])
 
+    def test_on_connect(self):
+        """
+        Tests app.on_connect just to make sure it doesn't throw any exceptions
+        """
+        try:
+            app.on_connect()
+        except Exception as err:
+            self.fail(f"app.on_connect failed with exception:\n\t{err}")
+
 
 if __name__ == "__main__":
     unittest.main()
