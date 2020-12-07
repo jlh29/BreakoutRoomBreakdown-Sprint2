@@ -10,7 +10,13 @@ import unittest.mock as mock
 sys.path.append(join(dirname(__file__), "../"))
 import app
 from app import (
+    ALL_DATES_KEY,
+    DATE_AVAILABILITY_RESPONSE_CHANNEL,
+    DATE_FORMAT,
+    DATE_KEY,
     FAILED_LOGIN_CHANNEL,
+    PROFESSOR_DATE_AVAILABILITY_RANGE,
+    STUDENT_DATE_AVAILABILITY_RANGE,
     SUCCESSFUL_LOGIN_CHANNEL,
     USER_LOGIN_NAME_KEY,
     USER_LOGIN_ROLE_KEY,
@@ -786,6 +792,83 @@ class AppTestCase(unittest.TestCase):
                 },
             },
         ]
+        
+        self.on_date_availability_request_test_cases = [
+            {
+                KEY_INPUT: None,
+                KEY_SID: None,
+                KEY_RESPONSE: None,
+                KEY_ROLE: None,
+                KEY_EXPECTED_TYPE: AssertionError,
+                KEY_EXPECTED: {},
+                KEY_ARGS: [],
+                KEY_KWARGS: {},
+            },
+            {
+                KEY_INPUT: {},
+                KEY_SID: None,
+                KEY_RESPONSE: None,
+                KEY_ROLE: None,
+                KEY_EXPECTED_TYPE: AssertionError,
+                KEY_EXPECTED: {},
+                KEY_ARGS: [],
+                KEY_KWARGS: {},
+            },
+            {
+                KEY_INPUT: {DATE_KEY: "01/01/2020"},
+                KEY_SID: "mock sid",
+                KEY_RESPONSE: [
+                    datetime.datetime(2020, 1, 1),
+                    datetime.datetime(2020, 1, 30),
+                ],
+                KEY_ROLE: models.UserRole.LIBRARIAN,
+                KEY_EXPECTED_TYPE: list,
+                KEY_EXPECTED: {"date": datetime.datetime(2020, 1, 1)},
+                KEY_ARGS: [
+                    DATE_AVAILABILITY_RESPONSE_CHANNEL,
+                    {ALL_DATES_KEY: [1577836800000.0, 1580342400000.0]},
+                ],
+                KEY_KWARGS: {"room": "mock sid"},
+            },
+            {
+                KEY_INPUT: {DATE_KEY: "01/01/2020"},
+                KEY_SID: "mock sid",
+                KEY_RESPONSE: [
+                    datetime.datetime(2020, 1, 1),
+                    datetime.datetime(2020, 1, 2),
+                ],
+                KEY_ROLE: models.UserRole.STUDENT,
+                KEY_EXPECTED_TYPE: list,
+                KEY_EXPECTED: {
+                    "date": datetime.datetime(2020, 1, 1),
+                    "date_range": STUDENT_DATE_AVAILABILITY_RANGE,
+                },
+                KEY_ARGS: [
+                    DATE_AVAILABILITY_RESPONSE_CHANNEL,
+                    {ALL_DATES_KEY: [1577836800000.0, 1577923200000.0]},
+                ],
+                KEY_KWARGS: {"room": "mock sid"},
+            },
+            {
+                KEY_INPUT: {DATE_KEY: "01/01/2020"},
+                KEY_SID: "mock sid",
+                KEY_RESPONSE: [
+                    datetime.datetime(2020, 1, 1),
+                    datetime.datetime(2020, 1, 2),
+                ],
+                KEY_ROLE: models.UserRole.PROFESSOR,
+                KEY_EXPECTED_TYPE: list,
+                KEY_EXPECTED: {
+                    "date": datetime.datetime(2020, 1, 1),
+                    "date_range": PROFESSOR_DATE_AVAILABILITY_RANGE,
+                },
+                KEY_ARGS: [
+                    DATE_AVAILABILITY_RESPONSE_CHANNEL,
+                    {ALL_DATES_KEY: [1577836800000.0, 1577923200000.0]},
+                ],
+                KEY_KWARGS: {"room": "mock sid"},
+            },
+        ]
 
     @mock.patch("app.flask")
     def test_current_user_role(self, mocked_flask):
@@ -850,6 +933,50 @@ class AppTestCase(unittest.TestCase):
                     )
                     mocked_login_utils.get_user_from_google_token.assert_called_once()
                 self.assertDictEqual(result_connected_users, test[KEY_EXPECTED])
+
+    @mock.patch("app.db_utils")
+    @mock.patch("app.SOCKET")
+    @mock.patch("app.flask")
+    def test_on_date_availability_request(
+            self,
+            mocked_flask,
+            mocked_socket,
+            mocked_db_utils,
+    ):
+        """
+        Tests app.on_date_availability_request
+        """
+        for test in self.on_date_availability_request_test_cases:
+            mocked_flask.reset_mock()
+            mocked_socket.reset_mock()
+            mocked_db_utils.reset_mock()
+
+            mocked_flask.request.sid = test[KEY_SID]
+            mocked_db_utils.get_available_dates_for_month.return_value = test[KEY_RESPONSE]
+            mocked_db_utils.get_available_dates_after_date.return_value = test[KEY_RESPONSE]
+
+            with mock.patch("app._current_user_role") as mocked_current_user_role:
+                mocked_current_user_role.return_value = test[KEY_ROLE]
+                if issubclass(test[KEY_EXPECTED_TYPE], Exception):
+                    with self.assertRaises(test[KEY_EXPECTED_TYPE]):
+                        app.on_date_availability_request(test[KEY_INPUT])
+                    mocked_socket.emit.assert_not_called()
+                    mocked_db_utils.get_available_dates_for_month.assert_not_called()
+                    mocked_db_utils.get_available_dates_after_date.assert_not_called()
+                else:
+                    app.on_date_availability_request(test[KEY_INPUT])
+                    mocked_socket.emit.assert_called_once_with(
+                        *test[KEY_ARGS],
+                        **test[KEY_KWARGS]
+                    )
+                    if test[KEY_ROLE] == models.UserRole.LIBRARIAN:
+                        mocked_db_utils.get_available_dates_for_month.assert_called_once_with(
+                            **test[KEY_EXPECTED],
+                        )
+                    else:
+                        mocked_db_utils.get_available_dates_after_date.assert_called_once_with(
+                            **test[KEY_EXPECTED],
+                        )
 
 
 if __name__ == "__main__":

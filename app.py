@@ -179,11 +179,17 @@ def on_date_availability_request(data):
     Called whenever the reservation form is first loaded
     Returns a list of dates that are not fully booked or otherwise unavailable
     """
+    assert data is not None
+    assert all([
+        isinstance(data, dict),
+        DATE_KEY in data,
+    ])
+    assert isinstance(data[DATE_KEY], str)
     print("Got an event for date input with data:", data)
     date = datetime.datetime.strptime(data[DATE_KEY], DATE_FORMAT)
     user_role = _current_user_role()
     if user_role == models.UserRole.LIBRARIAN:
-        available_dates = db_utils.get_available_dates_for_month(date)
+        available_dates = db_utils.get_available_dates_for_month(date=date)
     elif user_role == models.UserRole.PROFESSOR:
         available_dates = db_utils.get_available_dates_after_date(
             date=date,
