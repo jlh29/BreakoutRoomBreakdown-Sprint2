@@ -1,0 +1,305 @@
+"""
+    This module tests all code that does not need to be mocked.
+"""
+from os.path import dirname, join
+import sys
+import unittest
+import unittest.mock as mock
+
+sys.path.append(join(dirname(__file__), "../"))
+import models
+
+KEY_INPUT = "input"
+KEY_EXPECTED = "expected"
+KEY_EXPECTED_TYPE = "expected type"
+KEY_RESPONSE = "response"
+KEY_QUERY_RESPONSE = "query response"
+KEY_ARGS = "args"
+KEY_KWARGS = "kwargs"
+KEY_COUNT = "count"
+
+KEY_NAME = "name"
+KEY_UCID = "ucid"
+KEY_ID = "id"
+KEY_ROLE = "role"
+
+KEY_DATE = "date"
+KEY_TIME = "available time"
+
+KEY_ROOM_NUM = "room number"
+KEY_SIZE = "room size"
+KEY_CAPACITY = "room capacity"
+
+KEY_DATA = "data sent"
+AUTH_TYPE = "auth_type"
+NAME = "name"
+EMAIL = "email"
+
+MOCK_AUTH_USER_DB_ENTRIES = {
+    1: models.AuthUser(
+        ucid="jd123",
+        auth_type=models.AuthUserType.GOOGLE,
+        role=models.UserRole.STUDENT,
+        name="John Doe",
+    ),
+    2: models.AuthUser(
+        ucid="johnny.appleseed",
+        auth_type=models.AuthUserType.GOOGLE,
+        role=models.UserRole.PROFESSOR,
+        name="Johnny Appleseed",
+    ),
+    3: models.AuthUser(
+        ucid="lr123",
+        auth_type=models.AuthUserType.GOOGLE,
+        role=models.UserRole.LIBRARIAN,
+        name="Libra Rian",
+    ),
+}
+MOCK_USER_INFOS = {
+    1: models.UserInfo(
+        id=1,
+        ucid="jd123",
+        role=models.UserRole.STUDENT,
+        name="John Doe",
+    ),
+    2: models.UserInfo(
+        id=2,
+        ucid="johnny.appleseed",
+        role=models.UserRole.LIBRARIAN,
+        name="Johnny Appleseed",
+    ),
+    3: models.UserInfo(
+        id=3,
+        ucid="lr123",
+        role=models.UserRole.LIBRARIAN,
+        name="Libra Rian",
+    ),
+}
+MOCK_ATTENDEE_DB_ENTRIES = {
+    1: models.Attendee(ucid="jd123"),
+    2: models.Attendee(ucid="johnny.appleseed"),
+    3: models.Attendee(ucid="lr123"),
+}
+
+
+class ModelsTestCase(unittest.TestCase):
+    """
+    Tests the methods of models.py that do not need to be mocked
+    """
+    def setUp(self):
+        """
+        Initializes test cases to evaluate
+        """
+        self.auth_user_repr_test_cases = [
+            {
+                KEY_INPUT: MOCK_AUTH_USER_DB_ENTRIES[1],
+                KEY_EXPECTED_TYPE: str,
+                KEY_EXPECTED: [
+                    MOCK_AUTH_USER_DB_ENTRIES[1].name,
+                    MOCK_AUTH_USER_DB_ENTRIES[1].ucid,
+                    MOCK_AUTH_USER_DB_ENTRIES[1].role,
+                ],
+            },
+            {
+                KEY_INPUT: MOCK_AUTH_USER_DB_ENTRIES[2],
+                KEY_EXPECTED_TYPE: str,
+                KEY_EXPECTED: [
+                    MOCK_AUTH_USER_DB_ENTRIES[2].name,
+                    MOCK_AUTH_USER_DB_ENTRIES[2].ucid,
+                    MOCK_AUTH_USER_DB_ENTRIES[2].role,
+                ],
+            },
+            {
+                KEY_INPUT: MOCK_AUTH_USER_DB_ENTRIES[3],
+                KEY_EXPECTED_TYPE: str,
+                KEY_EXPECTED: [
+                    MOCK_AUTH_USER_DB_ENTRIES[3].name,
+                    MOCK_AUTH_USER_DB_ENTRIES[3].ucid,
+                    MOCK_AUTH_USER_DB_ENTRIES[3].role,
+                ],
+            },
+        ]
+
+        self.auth_user_init_test_cases = [
+            {
+                KEY_INPUT: {
+                    'ucid': None,
+                    'name': None,
+                    'role': None,
+                    'auth_type': None,
+                },
+                KEY_EXPECTED_TYPE: AssertionError,
+            },
+            {
+                KEY_INPUT: {
+                    'ucid': 'mock ucid',
+                    'name': 'mock name',
+                    'role': 'bad role',
+                    'auth_type': 'bad auth_type',
+                },
+                KEY_EXPECTED_TYPE: AssertionError,
+            },
+            {
+                KEY_INPUT: {
+                    'ucid': 'mock ucid',
+                    'name': 'mock name',
+                    'role': models.UserRole.STUDENT,
+                    'auth_type': 'bad auth_type',
+                },
+                KEY_EXPECTED_TYPE: AssertionError,
+            },
+            {
+                KEY_INPUT: {
+                    'ucid': 'mock ucid',
+                    'name': 'mock name',
+                    'role': models.UserRole.STUDENT,
+                    'auth_type': models.AuthUserType.GOOGLE,
+                },
+                KEY_EXPECTED_TYPE: models.AuthUser,
+            },
+        ]
+
+        self.auth_user_get_email_test_cases = [
+            {
+                KEY_INPUT: MOCK_AUTH_USER_DB_ENTRIES[1],
+                KEY_EXPECTED_TYPE: str,
+            },
+            {
+                KEY_INPUT: MOCK_AUTH_USER_DB_ENTRIES[2],
+                KEY_EXPECTED_TYPE: str,
+            },
+            {
+                KEY_INPUT: MOCK_AUTH_USER_DB_ENTRIES[3],
+                KEY_EXPECTED_TYPE: str,
+            },
+        ]
+
+        self.attendee_init_test_cases = [
+            {
+                KEY_INPUT: {'ucid': None},
+                KEY_EXPECTED_TYPE: AssertionError,
+            },
+            {
+                KEY_INPUT: {'ucid': 123},
+                KEY_EXPECTED_TYPE: AssertionError,
+            },
+            {
+                KEY_INPUT: {'ucid': ''},
+                KEY_EXPECTED_TYPE: AssertionError,
+            },
+            {
+                KEY_INPUT: {'ucid': 'mock ucid'},
+                KEY_EXPECTED_TYPE: models.Attendee,
+            },
+        ]
+
+        self.attendee_repr_test_cases = [
+            {
+                KEY_INPUT: MOCK_ATTENDEE_DB_ENTRIES[1],
+                KEY_EXPECTED_TYPE: str,
+                KEY_EXPECTED: [MOCK_ATTENDEE_DB_ENTRIES[1].ucid],
+            },
+            {
+                KEY_INPUT: MOCK_ATTENDEE_DB_ENTRIES[2],
+                KEY_EXPECTED_TYPE: str,
+                KEY_EXPECTED: [MOCK_ATTENDEE_DB_ENTRIES[2].ucid],
+            },
+            {
+                KEY_INPUT: MOCK_ATTENDEE_DB_ENTRIES[3],
+                KEY_EXPECTED_TYPE: str,
+                KEY_EXPECTED: [MOCK_ATTENDEE_DB_ENTRIES[3].ucid],
+            },
+        ]
+
+        self.attendee_get_email_test_cases = [
+            {
+                KEY_INPUT: MOCK_ATTENDEE_DB_ENTRIES[1],
+                KEY_EXPECTED_TYPE: str,
+            },
+            {
+                KEY_INPUT: MOCK_ATTENDEE_DB_ENTRIES[2],
+                KEY_EXPECTED_TYPE: str,
+            },
+            {
+                KEY_INPUT: MOCK_ATTENDEE_DB_ENTRIES[3],
+                KEY_EXPECTED_TYPE: str,
+            },
+        ]
+
+    def test_auth_user_repr(self):
+        """
+        Tests models.AuthUser.__repr__ to ensure that it returns a string that
+        contains important properties
+        """
+        for test in self.auth_user_repr_test_cases:
+            result = test[KEY_INPUT].__repr__()
+            self.assertTrue(isinstance(result, test[KEY_EXPECTED_TYPE]))
+            self.assertTrue(
+                all([info.lower() in result.lower() for info in test[KEY_EXPECTED]])
+            )
+
+    def test_auth_user_init(self):
+        """
+        Tests models.AuthUser.__init__ to ensure that it correctly checks input
+        """
+        for test in self.auth_user_init_test_cases:
+            if issubclass(test[KEY_EXPECTED_TYPE], Exception):
+                with self.assertRaises(test[KEY_EXPECTED_TYPE]):
+                    result = models.AuthUser(**test[KEY_INPUT])
+            else:
+                result = models.AuthUser(**test[KEY_INPUT])
+                self.assertTrue(isinstance(result, test[KEY_EXPECTED_TYPE]))
+
+    def test_auth_user_get_email(self):
+        """
+        Tests models.AuthUser.get_email to ensure that it returns a string that
+        contains the NJIT email of the user
+        """
+        for test in self.auth_user_get_email_test_cases:
+            result = test[KEY_INPUT].get_email()
+            self.assertTrue(isinstance(result, test[KEY_EXPECTED_TYPE]))
+            self.assertTrue(
+                result.lower().startswith(test[KEY_INPUT].ucid.lower())
+                and result.lower().endswith("@njit.edu")
+            )
+
+    def test_attendee_init(self):
+        """
+        Tests models.Attendee.__init__ to ensure that it correctly checks input
+        """
+        for test in self.attendee_init_test_cases:
+            if issubclass(test[KEY_EXPECTED_TYPE], Exception):
+                with self.assertRaises(test[KEY_EXPECTED_TYPE]):
+                    result = models.Attendee(**test[KEY_INPUT])
+            else:
+                result = models.Attendee(**test[KEY_INPUT])
+                self.assertTrue(isinstance(result, test[KEY_EXPECTED_TYPE]))
+
+    def test_attendee_repr(self):
+        """
+        Tests models.Attendee.__repr__ to ensure that it returns a string that
+        contains important properties
+        """
+        for test in self.attendee_repr_test_cases:
+            result = test[KEY_INPUT].__repr__()
+            self.assertTrue(isinstance(result, test[KEY_EXPECTED_TYPE]))
+            self.assertTrue(
+                all([info.lower() in result.lower() for info in test[KEY_EXPECTED]])
+            )
+
+    def test_attendee_get_email(self):
+        """
+        Tests models.Attendee.get_email to ensure that it returns a string that
+        contains the NJIT email of the user
+        """
+        for test in self.attendee_get_email_test_cases:
+            result = test[KEY_INPUT].get_email()
+            self.assertTrue(isinstance(result, test[KEY_EXPECTED_TYPE]))
+            self.assertTrue(
+                result.lower().startswith(test[KEY_INPUT].ucid.lower())
+                and result.lower().endswith("@njit.edu")
+            )
+
+
+if __name__ == "__main__":
+    unittest.main()
