@@ -31,6 +31,7 @@ class AuthUser(DB.Model):
     """
     This model defines a user that has signed in with OAuth
     """
+
     id = DB.Column(DB.Integer, primary_key=True)
     ucid = DB.Column(DB.String(120), nullable=False)
     auth_type = DB.Column(DB.String(120), nullable=False)
@@ -67,6 +68,7 @@ class Attendee(DB.Model):
     """
     This model defines each of the participants in an appointment
     """
+
     id = DB.Column(DB.Integer, primary_key=True)
     ucid = DB.Column(DB.String(120), nullable=False)
 
@@ -88,6 +90,7 @@ class Appointment(DB.Model):
     """
     This model defines a breakout room reservation
     """
+
     id = DB.Column(DB.Integer, primary_key=True)
     room_id = DB.Column(DB.Integer, DB.ForeignKey("room.id"), nullable=False)
     start_time = DB.Column(DB.DateTime, nullable=False)
@@ -104,8 +107,14 @@ class Appointment(DB.Model):
     )
 
     def __init__(self, room_id, start_time, end_time, organizer_id, attendee_ids=None):
+        assert isinstance(room_id, int)
         assert isinstance(start_time, datetime.datetime)
         assert isinstance(end_time, datetime.datetime)
+        assert isinstance(organizer_id, int)
+        assert attendee_ids is None or (
+            isinstance(attendee_ids, list)
+            and all([isinstance(attendee, int) for attendee in attendee_ids])
+        )
         self.room_id = room_id
         self.start_time = start_time
         self.end_time = end_time
@@ -125,6 +134,7 @@ class Room(DB.Model):
     """
     This model defines a breakout room's information
     """
+
     id = DB.Column(DB.Integer, primary_key=True)
     room_number = DB.Column(DB.String(40), nullable=False, unique=True)
     size = DB.Column(DB.String(4), nullable=False)
@@ -164,6 +174,7 @@ class UnavailableDate(DB.Model):
     """
     This model defines a date that the librarian has made unavailable
     """
+
     date = DB.Column(DB.DateTime, primary_key=True)
     reason = DB.Column(DB.String(150), nullable=True)
 
@@ -180,6 +191,7 @@ class CheckIn(DB.Model):
     """
     This model defines the check-in code for each appointment
     """
+
     id = DB.Column(DB.Integer, primary_key=True)
     reservation_id = DB.Column(
         DB.Integer, DB.ForeignKey("appointment.id"), nullable=False
@@ -201,6 +213,7 @@ class AuthUserType(Enum):
     """
     Defines the possible login types
     """
+
     GOOGLE = "google"
     PASSWORD = "password"
 
@@ -209,6 +222,7 @@ class UserRole(Enum):
     """
     Defines the possible set of permissions that a user can have
     """
+
     LIBRARIAN = "librarian"
     PROFESSOR = "professor"
     STUDENT = "student"
@@ -218,6 +232,7 @@ class RoomSize(Enum):
     """
     Defines the qualitative size of a breakout room
     """
+
     SMALL = "s"
     MEDIUM = "m"
     LARGE = "l"
@@ -228,6 +243,7 @@ class AppointmentStatus(Enum):
     """
     Defines the possible check-in statuses of an appointment
     """
+
     CHECKED_IN = "checked-in"
     WAITING = "waiting"
     FREE = "free"
