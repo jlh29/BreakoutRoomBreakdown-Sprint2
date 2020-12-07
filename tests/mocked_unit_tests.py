@@ -14,6 +14,7 @@ from app import (
     DATE_AVAILABILITY_RESPONSE_CHANNEL,
     DATE_FORMAT,
     DATE_KEY,
+    DISABLE_CHANNEL,
     FAILED_LOGIN_CHANNEL,
     PROFESSOR_DATE_AVAILABILITY_RANGE,
     STUDENT_DATE_AVAILABILITY_RANGE,
@@ -746,7 +747,7 @@ class AppTestCase(unittest.TestCase):
                 KEY_SID: "mock sid",
                 KEY_RESPONSE: None,
                 KEY_CONNECTED_USERS: {},
-                KEY_EXPECTED_TYPE: models.UserInfo,
+                KEY_EXPECTED_TYPE: None,
                 KEY_EXPECTED: {},
                 KEY_ARGS: [
                     FAILED_LOGIN_CHANNEL,
@@ -811,6 +812,19 @@ class AppTestCase(unittest.TestCase):
                 KEY_ROLE: None,
                 KEY_EXPECTED_TYPE: AssertionError,
                 KEY_EXPECTED: {},
+                KEY_ARGS: [],
+                KEY_KWARGS: {},
+            },
+            {
+                KEY_INPUT: {DATE_KEY: "01/01/2020"},
+                KEY_SID: "mock sid",
+                KEY_RESPONSE: [
+                    datetime.datetime(2020, 1, 1),
+                    datetime.datetime(2020, 1, 30),
+                ],
+                KEY_ROLE: None,
+                KEY_EXPECTED_TYPE: None,
+                KEY_EXPECTED: None,
                 KEY_ARGS: [],
                 KEY_KWARGS: {},
             },
@@ -919,12 +933,25 @@ class AppTestCase(unittest.TestCase):
             mocked_flask.request.sid = test[KEY_SID]
             mocked_login_utils.get_user_from_google_token.return_value = test[KEY_RESPONSE]
             result_connected_users = test[KEY_CONNECTED_USERS]
-            with mock.patch("app.CONNECTED_USERS", result_connected_users):
-                if issubclass(test[KEY_EXPECTED_TYPE], Exception):
+            with mock.patch.multiple(
+                    "app",
+                    CONNECTED_USERS=result_connected_users,
+                    emit_all_dates=mock.DEFAULT
+            ) as mocked_methods:
+                if test[KEY_EXPECTED_TYPE] is None:
+                    app.on_new_user_login(test[KEY_INPUT])
+                    mocked_socket.emit.assert_called_once_with(
+                        *test[KEY_ARGS],
+                        **test[KEY_KWARGS]
+                    )
+                    mocked_login_utils.get_user_from_google_token.assert_called_once()
+                    mocked_methods["emit_all_dates"].assert_not_called()
+                elif issubclass(test[KEY_EXPECTED_TYPE], Exception):
                     with self.assertRaises(test[KEY_EXPECTED_TYPE]):
                         app.on_new_user_login(test[KEY_INPUT])
                     mocked_socket.emit.assert_not_called()
                     mocked_login_utils.get_user_from_google_token.assert_not_called()
+                    mocked_methods["emit_all_dates"].assert_not_called()
                 else:
                     app.on_new_user_login(test[KEY_INPUT])
                     mocked_socket.emit.assert_called_once_with(
@@ -932,6 +959,7 @@ class AppTestCase(unittest.TestCase):
                         **test[KEY_KWARGS]
                     )
                     mocked_login_utils.get_user_from_google_token.assert_called_once()
+                    mocked_methods["emit_all_dates"].assert_called_once()
                 self.assertDictEqual(result_connected_users, test[KEY_EXPECTED])
 
     @mock.patch("app.db_utils")
@@ -957,7 +985,12 @@ class AppTestCase(unittest.TestCase):
 
             with mock.patch("app._current_user_role") as mocked_current_user_role:
                 mocked_current_user_role.return_value = test[KEY_ROLE]
-                if issubclass(test[KEY_EXPECTED_TYPE], Exception):
+                if test[KEY_EXPECTED_TYPE] is None:
+                    app.on_date_availability_request(test[KEY_INPUT])
+                    mocked_socket.emit.assert_not_called()
+                    mocked_db_utils.get_available_dates_for_month.assert_not_called()
+                    mocked_db_utils.get_available_dates_after_date.assert_not_called()
+                elif issubclass(test[KEY_EXPECTED_TYPE], Exception):
                     with self.assertRaises(test[KEY_EXPECTED_TYPE]):
                         app.on_date_availability_request(test[KEY_INPUT])
                     mocked_socket.emit.assert_not_called()

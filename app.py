@@ -170,8 +170,7 @@ def on_new_user_login(data):
         room=flask.request.sid,
     )
     emit_all_dates(DISABLE_CHANNEL)
-    
-    
+
 
 @SOCKET.on(DATE_AVAILABILITY_REQUEST_CHANNEL)
 def on_date_availability_request(data):
