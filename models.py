@@ -46,6 +46,8 @@ class AuthUser(DB.Model):
     def __init__(self, ucid, auth_type, role, name):
         assert isinstance(auth_type, AuthUserType)
         assert isinstance(role, UserRole)
+        assert isinstance(ucid, str) and len(ucid) > 0
+        assert isinstance(name, str) and len(name) > 0
         self.name = name
         self.auth_type = auth_type.value
         self.ucid = ucid
