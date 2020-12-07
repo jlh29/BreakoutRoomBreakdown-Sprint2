@@ -82,6 +82,11 @@ MOCK_USER_INFOS = {
         name="Libra Rian",
     ),
 }
+MOCK_ATTENDEE_DB_ENTRIES = {
+    1: models.Attendee(ucid="jd123"),
+    2: models.Attendee(ucid="johnny.appleseed"),
+    3: models.Attendee(ucid="lr123"),
+}
 
 
 class MockedJson:
@@ -691,6 +696,24 @@ class ModelsTestCase(unittest.TestCase):
             },
         ]
 
+        self.attendee_repr_test_cases = [
+            {
+                KEY_INPUT: MOCK_ATTENDEE_DB_ENTRIES[1],
+                KEY_EXPECTED_TYPE: str,
+                KEY_EXPECTED: [MOCK_ATTENDEE_DB_ENTRIES[1].ucid],
+            },
+            {
+                KEY_INPUT: MOCK_ATTENDEE_DB_ENTRIES[2],
+                KEY_EXPECTED_TYPE: str,
+                KEY_EXPECTED: [MOCK_ATTENDEE_DB_ENTRIES[2].ucid],
+            },
+            {
+                KEY_INPUT: MOCK_ATTENDEE_DB_ENTRIES[3],
+                KEY_EXPECTED_TYPE: str,
+                KEY_EXPECTED: [MOCK_ATTENDEE_DB_ENTRIES[3].ucid],
+            },
+        ]
+
     def test_auth_user_repr(self):
         """
         Tests models.AuthUser.__repr__ to ensure that it returns a string that
@@ -739,6 +762,18 @@ class ModelsTestCase(unittest.TestCase):
             else:
                 result = models.Attendee(**test[KEY_INPUT])
                 self.assertTrue(isinstance(result, test[KEY_EXPECTED_TYPE]))
+
+    def test_attendee_repr(self):
+        """
+        Tests models.Attendee.__repr__ to ensure that it returns a string that
+        contains important properties
+        """
+        for test in self.attendee_repr_test_cases:
+            result = test[KEY_INPUT].__repr__()
+            self.assertTrue(isinstance(result, test[KEY_EXPECTED_TYPE]))
+            self.assertTrue(
+                all([info.lower() in result.lower() for info in test[KEY_EXPECTED]])
+            )
 
 
 if __name__ == "__main__":
