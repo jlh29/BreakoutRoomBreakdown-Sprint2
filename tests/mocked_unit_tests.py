@@ -984,6 +984,24 @@ class AppTestCase(unittest.TestCase):
             },
         ]
 
+        self.on_librarian_data_request_test_cases = [
+            {
+                KEY_INPUT: {"mock": "data"},
+                KEY_ROLE: models.UserRole.STUDENT,
+                KEY_EXPECTED_TYPE: None,
+            },
+            {
+                KEY_INPUT: {"mock": "data"},
+                KEY_ROLE: models.UserRole.PROFESSOR,
+                KEY_EXPECTED_TYPE: None,
+            },
+            {
+                KEY_INPUT: {"mock": "data"},
+                KEY_ROLE: models.UserRole.LIBRARIAN,
+                KEY_EXPECTED_TYPE: list,
+            },
+        ]
+
     @mock.patch("app.flask")
     def test_current_user_role(self, mocked_flask):
         """
@@ -1162,6 +1180,31 @@ class AppTestCase(unittest.TestCase):
             mocked_flask.render_template.assert_called_once_with("index.html")
         except Exception as err:
             self.fail(f"Did not render the index file correctly: {err}")
+
+    def test_on_librarian_data_request(self):
+        """
+        Tests app.on_librarian_data_request
+        """
+        for test in self.on_librarian_data_request_test_cases:
+            with mock.patch.multiple(
+                    "app",
+                    _current_user_role=lambda: test[KEY_ROLE],
+                    on_request_appointments=mock.DEFAULT,
+                    on_request_rooms=mock.DEFAULT,
+                    on_request_users=mock.DEFAULT,
+            ) as mocked_methods:
+                app.on_librarian_data_request(test[KEY_INPUT])
+                if test[KEY_EXPECTED_TYPE] is None:
+                    mocked_methods["on_request_appointments"].assert_not_called()
+                    mocked_methods["on_request_rooms"].assert_not_called()
+                    mocked_methods["on_request_users"].assert_not_called()
+                else:
+                    mocked_methods["on_request_appointments"].assert_called_once_with(
+                        test[KEY_INPUT],
+                    )
+                    mocked_methods["on_request_rooms"].assert_called_once()
+                    mocked_methods["on_request_users"].assert_called_once()
+
 
 if __name__ == "__main__":
     unittest.main()
