@@ -17,7 +17,7 @@ class SendGrid:
         body="Good day!<br> You made a reservation at NJIT Library \
                 on <strong>{}</strong> at <strong>{}</strong> with {}.<br> \
                 Your confirmation number is <strong>{}</strong>" \
-                .format(date, time, attendees, confirmation)
+                .format(date, time, ', '.join(attendees), confirmation)
                 
         message = Mail(
             from_email = 'bcs32@njit.edu',

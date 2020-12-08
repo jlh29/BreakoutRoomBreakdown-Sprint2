@@ -24,7 +24,7 @@ class Twilio:
             body=" \
             Good day! You made a reservation at NJIT Library" \
             "on {} at {} with {}. Your confirmation number is {}" \
-            .format(date, time, attendees, confirmation),
+            .format(date, time, ', '.join(attendees), confirmation),
             
             from_=self.twilio_phone, #twilio phone number
             to=self.to_number  #receiver's number
