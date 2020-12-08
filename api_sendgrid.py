@@ -5,6 +5,9 @@ from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 
 class SendGrid:
+    """
+    Send an email to user, if text message was not sent when reserving an appointment
+    """
     dotenv_path = join(dirname(__file__), "sendgrid.env")
     load_dotenv(dotenv_path)
     
