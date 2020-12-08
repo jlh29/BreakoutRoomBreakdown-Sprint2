@@ -1152,6 +1152,16 @@ class AppTestCase(unittest.TestCase):
                         **test[KEY_EXPECTED],
                     )
 
+    @mock.patch("app.flask")
+    def test_index(self, mocked_flask):
+        """
+        Tests app.index
+        """
+        try:
+            app.index()
+            mocked_flask.render_template.assert_called_once_with("index.html")
+        except Exception as err:
+            self.fail(f"Did not render the index file correctly: {err}")
 
 if __name__ == "__main__":
     unittest.main()
