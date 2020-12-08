@@ -394,7 +394,7 @@ def on_request_users():
     """
     if not _current_user_role() == models.UserRole.LIBRARIAN:
         return
-    users = db_utils.get_all_user_objs(True)
+    users = db_utils.get_all_user_objs(as_dicts=True)
     SOCKET.emit(
         USERS_RESPONSE_CHANNEL,
         {USERS_KEY: users},
