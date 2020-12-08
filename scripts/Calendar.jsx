@@ -4,7 +4,6 @@ import Socket from './Socket';
 import 'react-calendar/dist/Calendar.css';
 import Slot from './Slot';
 
-import { differenceInCalendarDays } from 'date-fns';
 import { isWithinInterval } from "date-fns";
 
 export default function MyCalendar(props) {
@@ -12,32 +11,23 @@ export default function MyCalendar(props) {
     date, setDate, time, setTime, allTimes, availableDates,
   } = props;
   const [disabledDates, setDisabledDates] = useState([]);
-  const [markDates, setMarkDates] = useState([]);
-  
-  const [startDates, setStartDates] = useState([]);
-  const [endDates, setEndDates] = useState([]);
   const [notes, setNotes] = useState([]);
-  
   let newDateRange = [];
   
   function getNewDates() {
     React.useEffect(() => {
       Socket.on('disable channel', (data) => {
-          console.log("Received addresses from server: " + data['start date']);
-          console.log("Received addresses from server: " + data['end date']);
-          console.log("Received addresses from server: " + data['note']);
-          console.log("Received addresses from server: " + data['date range']);
+          console.log("Received dates from server: " + data['date range']);
+          console.log("Received notes from server: " + data['note']);
+  
           setDisabledDates(data['date range']);
-          setStartDates(data['start date']);
-          setEndDates(data['end date']);
           setNotes(data['note']);
-          
       });
     });
   }
   
   function getDateRange(){
-    for (let i=0; i<startDates.length; i++){
+    for (let i=0; i<disabledDates.length; i++){
       newDateRange.push([new Date(disabledDates[i][0]), new Date(disabledDates[i][1])]);
     }
   }
@@ -50,10 +40,6 @@ export default function MyCalendar(props) {
 
   function handleClickDay(event) {
     setDate(event);
-  }
-  
-  function isSameDay(a, b) {
-    return differenceInCalendarDays(a, b) === 0;
   }
   
   function isWithinRange(date, range) {
@@ -77,17 +63,17 @@ export default function MyCalendar(props) {
       }
     }
    
-    // if (date.getDay() === 0 || date.getDay() === 6) {
-    //   disableDate = true;
-    // }
+    if (date.getDay() === 0 || date.getDay() === 6) {
+      disableDate = true;
+    }
 
-    // if (date.getUTCDate() < today.getUTCDate()) {
-    //   disableDate = true;
-    // }
+    if (date.getUTCDate() < today.getUTCDate()) {
+      disableDate = true;
+    }
     
-    // if (date.getUTCDate() - today.getUTCDate() > 2) {
-    //   disableDate = true;
-    // }
+    if (date.getUTCDate() - today.getUTCDate() > 2) {
+      disableDate = true;
+    }
     
     if (view === 'month' && isWithinRanges(date, newDateRange)){
       disableDate = true;
@@ -97,7 +83,7 @@ export default function MyCalendar(props) {
   }
 
   function handleContent({ date, view }){
-    for (let i=0; i<startDates.length; i++){
+    for (let i=0; i<disabledDates.length; i++){
       if (isWithinRange(date, newDateRange[i])) {
         return <p>{notes[i]}</p>;
       }
