@@ -410,7 +410,7 @@ def on_request_rooms():
     """
     if not _current_user_role() == models.UserRole.LIBRARIAN:
         return
-    rooms = db_utils.get_all_room_objs(True)
+    rooms = db_utils.get_all_room_objs(as_dicts=True)
     SOCKET.emit(
         ROOMS_RESPONSE_CHANNEL,
         {ROOMS_KEY: rooms},

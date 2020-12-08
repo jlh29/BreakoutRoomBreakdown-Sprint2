@@ -23,6 +23,8 @@ from app import (
     PROFESSOR_DATE_AVAILABILITY_RANGE,
     STUDENT_DATE_AVAILABILITY_RANGE,
     SUCCESSFUL_LOGIN_CHANNEL,
+    ROOMS_KEY,
+    ROOMS_RESPONSE_CHANNEL,
     TIME_AVAILABILITY_KEY,
     TIME_AVAILABILITY_RESPONSE_CHANNEL,
     TIMESLOT_KEY,
@@ -1116,6 +1118,51 @@ class AppTestCase(unittest.TestCase):
             },
         ]
 
+        self.on_request_rooms_test_cases = [
+            {
+                KEY_SID: None,
+                KEY_RESPONSE: None,
+                KEY_ROLE: None,
+                KEY_EXPECTED_TYPE: None,
+                KEY_EXPECTED: {},
+                KEY_ARGS: [],
+                KEY_KWARGS: {},
+            },
+            {
+                KEY_SID: "mock sid",
+                KEY_RESPONSE: ["mock room 1", "mock room 2"],
+                KEY_ROLE: models.UserRole.STUDENT,
+                KEY_EXPECTED_TYPE: None,
+                KEY_EXPECTED: None,
+                KEY_ARGS: [],
+                KEY_KWARGS: {},
+            },
+            {
+                KEY_SID: "mock sid",
+                KEY_RESPONSE: ["mock room 1", "mock room 2"],
+                KEY_ROLE: models.UserRole.LIBRARIAN,
+                KEY_EXPECTED_TYPE: list,
+                KEY_EXPECTED: {"as_dicts": True},
+                KEY_ARGS: [
+                    ROOMS_RESPONSE_CHANNEL,
+                    {ROOMS_KEY: ["mock room 1", "mock room 2"]},
+                ],
+                KEY_KWARGS: {"room": "mock sid"},
+            },
+            {
+                KEY_SID: "mock sid",
+                KEY_RESPONSE: [],
+                KEY_ROLE: models.UserRole.LIBRARIAN,
+                KEY_EXPECTED_TYPE: list,
+                KEY_EXPECTED: {"as_dicts": True},
+                KEY_ARGS: [
+                    ROOMS_RESPONSE_CHANNEL,
+                    {ROOMS_KEY: []},
+                ],
+                KEY_KWARGS: {"room": "mock sid"},
+            },
+        ]
+
     @mock.patch("app.flask")
     def test_current_user_role(self, mocked_flask):
         """
@@ -1378,17 +1425,49 @@ class AppTestCase(unittest.TestCase):
             mocked_db_utils.get_all_user_objs.return_value = test[KEY_RESPONSE]
             with mock.patch("app._current_user_role") as mocked_current_user_role:
                 mocked_current_user_role.return_value = test[KEY_ROLE]
+                app.on_request_users()
                 if test[KEY_EXPECTED_TYPE] is None:
-                    app.on_request_users()
                     mocked_socket.emit.assert_not_called()
                     mocked_db_utils.get_all_user_objs.assert_not_called()
                 else:
-                    app.on_request_users()
                     mocked_socket.emit.assert_called_once_with(
                         *test[KEY_ARGS],
                         **test[KEY_KWARGS]
                     )
                     mocked_db_utils.get_all_user_objs.assert_called_once_with(
+                        **test[KEY_EXPECTED],
+                    )
+
+    @mock.patch("app.db_utils")
+    @mock.patch("app.SOCKET")
+    @mock.patch("app.flask")
+    def test_on_request_rooms(
+            self,
+            mocked_flask,
+            mocked_socket,
+            mocked_db_utils,
+    ):
+        """
+        Tests app.on_request_rooms
+        """
+        for test in self.on_request_rooms_test_cases:
+            mocked_flask.reset_mock()
+            mocked_socket.reset_mock()
+            mocked_db_utils.reset_mock()
+            mocked_flask.request.sid = test[KEY_SID]
+            mocked_db_utils.get_all_room_objs.return_value = test[KEY_RESPONSE]
+            with mock.patch("app._current_user_role") as mocked_current_user_role:
+                mocked_current_user_role.return_value = test[KEY_ROLE]
+                app.on_request_rooms()
+                if test[KEY_EXPECTED_TYPE] is None:
+                    mocked_socket.emit.assert_not_called()
+                    mocked_db_utils.get_all_room_objs.assert_not_called()
+                else:
+                    mocked_socket.emit.assert_called_once_with(
+                        *test[KEY_ARGS],
+                        **test[KEY_KWARGS]
+                    )
+                    mocked_db_utils.get_all_room_objs.assert_called_once_with(
                         **test[KEY_EXPECTED],
                     )
 
