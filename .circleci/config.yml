@@ -13,7 +13,7 @@ jobs:
       - python/install-deps
       - python/save-cache
       - run:
-          command: python -m unittest tests.mocked_unit_tests
+          command: python -m unittest discover -s tests/ -p '*_tests.py'
           name: Mocked Tests
       - heroku/deploy-via-git
 

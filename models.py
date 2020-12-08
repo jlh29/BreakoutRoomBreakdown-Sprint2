@@ -31,6 +31,7 @@ class AuthUser(DB.Model):
     """
     This model defines a user that has signed in with OAuth
     """
+
     id = DB.Column(DB.Integer, primary_key=True)
     ucid = DB.Column(DB.String(120), nullable=False)
     auth_type = DB.Column(DB.String(120), nullable=False)
@@ -46,6 +47,8 @@ class AuthUser(DB.Model):
     def __init__(self, ucid, auth_type, role, name):
         assert isinstance(auth_type, AuthUserType)
         assert isinstance(role, UserRole)
+        assert isinstance(ucid, str) and len(ucid) > 0
+        assert isinstance(name, str) and len(name) > 0
         self.name = name
         self.auth_type = auth_type.value
         self.ucid = ucid
@@ -65,10 +68,12 @@ class Attendee(DB.Model):
     """
     This model defines each of the participants in an appointment
     """
+
     id = DB.Column(DB.Integer, primary_key=True)
     ucid = DB.Column(DB.String(120), nullable=False)
 
     def __init__(self, ucid):
+        assert isinstance(ucid, str) and len(ucid) > 0
         self.ucid = ucid
 
     def __repr__(self):
@@ -85,6 +90,7 @@ class Appointment(DB.Model):
     """
     This model defines a breakout room reservation
     """
+
     id = DB.Column(DB.Integer, primary_key=True)
     room_id = DB.Column(DB.Integer, DB.ForeignKey("room.id"), nullable=False)
     start_time = DB.Column(DB.DateTime, nullable=False)
@@ -101,8 +107,14 @@ class Appointment(DB.Model):
     )
 
     def __init__(self, room_id, start_time, end_time, organizer_id, attendee_ids=None):
+        assert isinstance(room_id, int)
         assert isinstance(start_time, datetime.datetime)
         assert isinstance(end_time, datetime.datetime)
+        assert isinstance(organizer_id, int)
+        assert attendee_ids is None or (
+            isinstance(attendee_ids, list)
+            and all([isinstance(attendee, int) for attendee in attendee_ids])
+        )
         self.room_id = room_id
         self.start_time = start_time
         self.end_time = end_time
@@ -122,6 +134,7 @@ class Room(DB.Model):
     """
     This model defines a breakout room's information
     """
+
     id = DB.Column(DB.Integer, primary_key=True)
     room_number = DB.Column(DB.String(40), nullable=False, unique=True)
     size = DB.Column(DB.String(4), nullable=False)
@@ -134,7 +147,8 @@ class Room(DB.Model):
     )
 
     def __init__(self, room_number, capacity, size=None):
-        assert capacity > 0
+        assert isinstance(room_number, (int, str))
+        assert isinstance(capacity, int) and capacity > 0
         if size is not None:
             assert isinstance(size, RoomSize)
         elif capacity < 3:
@@ -161,11 +175,13 @@ class UnavailableDate(DB.Model):
     """
     This model defines a date that the librarian has made unavailable
     """
+
     date = DB.Column(DB.DateTime, primary_key=True)
     reason = DB.Column(DB.String(150), nullable=True)
 
     def __init__(self, date, reason=None):
-        assert isinstance(date, datetime.datetime)
+        assert isinstance(date, datetime.date)
+        assert reason is None or isinstance(reason, str)
         self.date = date
         self.reason = reason
 
@@ -177,6 +193,7 @@ class CheckIn(DB.Model):
     """
     This model defines the check-in code for each appointment
     """
+
     id = DB.Column(DB.Integer, primary_key=True)
     reservation_id = DB.Column(
         DB.Integer, DB.ForeignKey("appointment.id"), nullable=False
@@ -184,6 +201,8 @@ class CheckIn(DB.Model):
     validation_code = DB.Column(DB.String(32), nullable=False)
 
     def __init__(self, reservation_id, validation_code):
+        assert isinstance(reservation_id, int)
+        assert isinstance(validation_code, str)
         self.reservation_id = reservation_id
         self.validation_code = validation_code
 
@@ -214,6 +233,7 @@ class AuthUserType(Enum):
     """
     Defines the possible login types
     """
+
     GOOGLE = "google"
     PASSWORD = "password"
 
@@ -222,6 +242,7 @@ class UserRole(Enum):
     """
     Defines the possible set of permissions that a user can have
     """
+
     LIBRARIAN = "librarian"
     PROFESSOR = "professor"
     STUDENT = "student"
@@ -231,6 +252,7 @@ class RoomSize(Enum):
     """
     Defines the qualitative size of a breakout room
     """
+
     SMALL = "s"
     MEDIUM = "m"
     LARGE = "l"
@@ -241,6 +263,7 @@ class AppointmentStatus(Enum):
     """
     Defines the possible check-in statuses of an appointment
     """
+
     CHECKED_IN = "checked-in"
     WAITING = "waiting"
     FREE = "free"

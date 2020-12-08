@@ -77,6 +77,7 @@ h1 {
 .menuContents {
     margin:10px 15px;
     align-self:center;
+    width:100%;
 }
 
 .menuSelectorButton {
@@ -123,9 +124,23 @@ h1 {
 }
 
 
-
 /*Calendar style*/
 
 .react-calendar{
     width: 70%;
+}
+
+.librarianEditFieldContainer {
+    display:flex;
+    width:100%;
+    align-items:center;
+}
+
+.librarianEditFieldLabel {
+    align-self:flex-start;
+    width:50%;
+}
+
+.librarianEditField {
+    height:max-content;
 }
