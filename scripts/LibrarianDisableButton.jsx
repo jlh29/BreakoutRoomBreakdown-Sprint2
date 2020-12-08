@@ -7,15 +7,15 @@ export default function LibrarianDisableButton(props) {
     const {note} = props;
   
   function handleSubmit(){
-    console.log(`User added a ${startDate} and ${endDate}, ${note}`)
+    console.log(`User added a ${startDate} and ${endDate}, ${note}`);
     
-    // Socket.emit('new date input', { 
-    //     'startDate': startDate,
-    //     'endDate': endDate,
-    //     'note': note,
-    // });
+    Socket.emit('disable date', { 
+        'startDate': startDate,
+        'endDate': endDate,
+        'note': note,
+    });
     
-    console.log(`Sent ${startDate} and ${endDate}, ${note} to the server`)
+    console.log(`Sent ${startDate} and ${endDate}, ${note} to the server`);
   }
   
   return (
