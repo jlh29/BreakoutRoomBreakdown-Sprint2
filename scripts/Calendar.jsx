@@ -17,12 +17,35 @@ export default function MyCalendar(props) {
   const [startDates, setStartDates] = useState([]);
   const [endDates, setEndDates] = useState([]);
   const [notes, setNotes] = useState([]);
-
+  
+  // let x = new Date("2020-12-18");
+  // let y = new Date("2020-12-2");
+  // let z = new Date("2020-12-3");
+  
+  // let a = new Date("2020-12-2");
+  // let b = new Date("2020-12-3");
+  // let c = new Date("2020-12-5");
+  // let d = new Date("2020-12-7");
+  
+  // let lst1 = ['a', 'b', 'c'];
+  // let lst2 = ['x', 'y', 'z'];
+  
+  // let arr = [];
   for (let i=0; i<startDates.length; i++)
     setMarkDates([startDates[i], endDates[i]]);
   
-  // console.log(markDates)
+  console.log(markDates)
+  
+  // const disabledDates = [x];
+  // const disabledRanges = [[z,z]];
+  
+  // const markDates = [a];
+  // const markRanges = [
+  //   [a,b], [c,d]
+  // ];
+  
 
+  
   function getNewDates() {
     console.log("GET NEW DATES")
     React.useEffect(() => {
@@ -86,6 +109,16 @@ export default function MyCalendar(props) {
     
     return disableDate;
   }
+  
+  // let q = new Date("2020-12-15");
+  // let w = new Date("2020-12-17");
+  // let markings = ['TEST4', 'TEST5'];
+  // let marking = "TEST2";
+  // const mk = [
+  //   [q,w]
+  // ];
+  
+  // let t =  [q,w]
   
   function handleContent({ date, view }){
     for (let i=0; i<startDates.length; i++){
