@@ -4,7 +4,7 @@
 @import url('https://fonts.googleapis.com/css?family=Oswald');
 
 body {
-    background-image: linear-gradient(to bottom right, orange, red);
+    background-color: white;
     color: black;
     font-family:sans-serif;
     text-align: center;
@@ -12,9 +12,10 @@ body {
 
 #brb-banner {
     width: 100%;
-    height: 30%;
+    height: 25%;
     background-position: center top;
     background-size: cover;
+    margin: 5px;
 }
 
 #welcomeText {
@@ -44,6 +45,7 @@ body {
     padding:15px;
     border-radius:15px;
     font-family: 'BenchNine';
+    font-size: 26px;
 }
 
 #reservationTime {
@@ -68,6 +70,7 @@ label {
 
 select {
     border-radius: 6px;
+    padding: 6px;
 }
 
 #attendeeInputContainer {
@@ -78,24 +81,27 @@ input {
     border-radius: 3px;
     border-style: solid;
     border-width: thin;
+    padding: 6px;
 }
 
 .attendeeInput {
     margin:10px;
+    font-size: 20px;
 }
 
 #reservationSubmit {
     margin:15px;
     padding: 10px;
     border-radius: 6px;
-    background-color: #D9C5C5;
+    background-color: #cc0404;
     font-family: 'Marvel';
+    font-size: 25px;
     font-weight: bold;
 }
 
 #calendar {
     margin:10px;
-    background-color: red;
+    /*background-color: red;*/
 }
 
 #timeButtonsContainer {
@@ -107,14 +113,15 @@ input {
     border-radius: 8px;
     border-style: solid;
     border-width: thin;
-    font-size: 15px;
+    font-size: 22px;
     font-family: 'Oswald';
-    background-color: #F5B8B8;
+    color: white;
+    background-color: black;
     margin: 16px;
 }
 
-.timeslot-btn:hover {background: #FF8F8F}
-.timeslot-btn:active {background: #FF8F8F}
+.timeslot-btn:hover {background: #C13838}
+.timeslot-btn:focus {background: #C13838}
 
 .menuContainer {
     background:#E4E4E4;
@@ -188,7 +195,8 @@ input {
 /*Calendar style*/
 
 .react-calendar{
-    width: 70%;
+    width: 100%;
+    height: 60%;
 }
 
 .librarianEditFieldContainer {

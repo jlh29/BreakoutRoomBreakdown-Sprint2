@@ -131,9 +131,9 @@ export default function ReservationOverview(props) {
 
   return (
     <div id="contentContainer" className="flexColumn">
-      <img id="brb-banner" src="./static/BRB-banner-wide.png"/>
+      <img id="brb-banner" src="./static/banner-red.png"/>
       <p id="welcomeText">
-        Welcome {name}
+        Welcome <strong>{name}</strong>
       </p>
       <form id="logoutForm" onClick={logout}>
         <button>Logout</button>
