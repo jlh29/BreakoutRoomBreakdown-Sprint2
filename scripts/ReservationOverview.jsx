@@ -69,11 +69,6 @@ export default function ReservationOverview(props) {
       setTimeChanged(true);
     }
   }
-  
-  // TODO: Send number to DB
-  function updateNumber(){
-    
-  }
 
   function handleReservationSubmit() {
     // TODO: Make sure that the rooms can accommodate the number of users
@@ -83,10 +78,13 @@ export default function ReservationOverview(props) {
     if (attendees.length == 0) {
       return;
     }
+    let phoneNumber = document.getElementById('mobileNumber').value;
+    console.log(phoneNumber)
+    
     const selectedDateTimestamp = date.getTime();
     Socket.emit(
       'reservation submit',
-      { date: selectedDateTimestamp, time, attendees },
+      { date: selectedDateTimestamp, time, attendees, phoneNumber },
     );
   }
 
