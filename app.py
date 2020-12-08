@@ -16,6 +16,7 @@ import socket_utils
 from socket_utils import SOCKET
 from api_twilio import Twilio
 from api_sendgrid import SendGrid
+import numpy as np
 
 load_dotenv(join(dirname(__file__), "sql.env"))
 
@@ -80,6 +81,7 @@ DATE_FORMAT = "%m/%d/%Y"
 
 DISABLE_DATE = "disable date"
 DISABLE_CHANNEL = "disable channel"
+DATE_RANGE = "date range"
 START_DATE = "start date"
 END_DATE = "end date"
 NOTE = "note"
@@ -98,7 +100,7 @@ def _current_user_role():
         return None
     return CONNECTED_USERS[flask.request.sid].role
 
-def emit_all_dates():
+def emit_all_dates(channel):
     """
     Send all disable dates to the client 
     """
@@ -106,11 +108,19 @@ def emit_all_dates():
     
     all_start_dates = [str(x.date()) for x in all_start_dates]
     all_end_dates = [str(x.date()) for x in all_end_dates]
+    print()
+    
+    # date_range = (np.array(list(zip(all_start_dates, all_end_dates))))
+    date_range = list(list(x) for x in zip(all_start_dates, all_end_dates))
+    print(date_range)
     
     print(all_start_dates)
+    
+    print()
     SOCKET.emit(
-        DISABLE_CHANNEL,
-        {
+        channel,
+        {   
+            DATE_RANGE: date_range,
             START_DATE: all_start_dates,
             END_DATE: all_end_dates,
             NOTE: all_notes,
@@ -124,7 +134,7 @@ def on_connect():
     """
     Called whenever a user connects
     """
-    emit_all_dates()
+    # emit_all_dates(DISABLE_CHANNEL)
     print("Someone connected!")
 
 
@@ -161,8 +171,9 @@ def on_new_user_login(data):
         },
         room=flask.request.sid,
     )
-    # emit_all_dates()
-
+    emit_all_dates(DISABLE_CHANNEL)
+    
+    
 
 @SOCKET.on(DATE_AVAILABILITY_REQUEST_CHANNEL)
 def on_date_availability_request(data):
@@ -293,7 +304,7 @@ def on_reservation_submit(data):
     print(data['attendees'])
     print(reservation_code)
     print(ucid)
-    send_confirmation(mobile_number, ucid, date.date(), data['time'], data['attendees'], reservation_code)
+    # send_confirmation(mobile_number, ucid, date.date(), data['time'], data['attendees'], reservation_code)
     
     SOCKET.emit(
         RESERVATION_RESPONSE_CHANNEL,
@@ -328,7 +339,7 @@ def index():
     """
     Provides the client with the main webpage
     """
-    emit_all_dates()
+    # emit_all_dates(DISABLE_CHANNEL)
     print("Dates sent to client")
     
     return flask.render_template("index.html")
@@ -424,7 +435,7 @@ def on_disable_date(data):
     note = data['note']
     
     db_utils.add_disable_date(start_date, end_date, note)
-    emit_all_dates()
+    emit_all_dates(DISABLE_CHANNEL)
     
 @SOCKET.on(UPDATE_ROOM_CHANNEL)
 def on_update_room(data):
