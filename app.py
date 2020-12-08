@@ -423,10 +423,16 @@ def on_check_in(data):
     """
     Called whenever the librarian checks in a group via their check-in code
     """
+    assert data is not None
+    assert all([
+        isinstance(data, dict),
+        CHECK_IN_CODE_KEY in data,
+    ])
+    assert isinstance(data[CHECK_IN_CODE_KEY], str)
     if not _current_user_role() == models.UserRole.LIBRARIAN:
         return
     check_in_code = data[CHECK_IN_CODE_KEY]
-    result = db_utils.check_in_with_code(check_in_code)
+    result = db_utils.check_in_with_code(check_in_code=check_in_code)
     SOCKET.emit(
         CHECK_IN_RESPONSE_CHANNEL,
         {CHECK_IN_SUCCESS_KEY: result},

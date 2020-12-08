@@ -15,6 +15,9 @@ from app import (
     APPOINTMENTS_KEY,
     APPOINTMENTS_RESPONSE_CHANNEL,
     AVAILABLE_ROOMS_KEY,
+    CHECK_IN_CODE_KEY,
+    CHECK_IN_RESPONSE_CHANNEL,
+    CHECK_IN_SUCCESS_KEY,
     DATE_AVAILABILITY_RESPONSE_CHANNEL,
     DATE_FORMAT,
     DATE_KEY,
@@ -1163,6 +1166,69 @@ class AppTestCase(unittest.TestCase):
             },
         ]
 
+        self.on_check_in_test_cases = [
+            {
+                KEY_INPUT: None,
+                KEY_SID: None,
+                KEY_RESPONSE: None,
+                KEY_ROLE: None,
+                KEY_EXPECTED_TYPE: AssertionError,
+                KEY_EXPECTED: {},
+                KEY_ARGS: [],
+                KEY_KWARGS: {},
+            },
+            {
+                KEY_INPUT: {},
+                KEY_SID: None,
+                KEY_RESPONSE: None,
+                KEY_ROLE: None,
+                KEY_EXPECTED_TYPE: AssertionError,
+                KEY_EXPECTED: {},
+                KEY_ARGS: [],
+                KEY_KWARGS: {},
+            },
+            {
+                KEY_INPUT: {CHECK_IN_CODE_KEY: "mock code"},
+                KEY_SID: "mock sid",
+                KEY_RESPONSE: True,
+                KEY_ROLE: None,
+                KEY_EXPECTED_TYPE: None,
+                KEY_EXPECTED: None,
+                KEY_ARGS: [],
+                KEY_KWARGS: {},
+            },
+            {
+                KEY_INPUT: {CHECK_IN_CODE_KEY: "mock code"},
+                KEY_SID: "mock sid",
+                KEY_RESPONSE: False,
+                KEY_ROLE: models.UserRole.LIBRARIAN,
+                KEY_EXPECTED_TYPE: list,
+                KEY_EXPECTED: {
+                    "check_in_code": "mock code"
+                },
+                KEY_ARGS: [
+                    CHECK_IN_RESPONSE_CHANNEL,
+                    {CHECK_IN_SUCCESS_KEY: False},
+                ],
+                KEY_KWARGS: {"room": "mock sid"},
+            },
+            {
+                KEY_INPUT: {CHECK_IN_CODE_KEY: "mock code"},
+                KEY_SID: "mock sid",
+                KEY_RESPONSE: True,
+                KEY_ROLE: models.UserRole.LIBRARIAN,
+                KEY_EXPECTED_TYPE: list,
+                KEY_EXPECTED: {
+                    "check_in_code": "mock code"
+                },
+                KEY_ARGS: [
+                    CHECK_IN_RESPONSE_CHANNEL,
+                    {CHECK_IN_SUCCESS_KEY: True},
+                ],
+                KEY_KWARGS: {"room": "mock sid"},
+            },
+        ]
+
     @mock.patch("app.flask")
     def test_current_user_role(self, mocked_flask):
         """
@@ -1471,6 +1537,44 @@ class AppTestCase(unittest.TestCase):
                         **test[KEY_EXPECTED],
                     )
 
+    @mock.patch("app.db_utils")
+    @mock.patch("app.SOCKET")
+    @mock.patch("app.flask")
+    def test_on_check_in(
+            self,
+            mocked_flask,
+            mocked_socket,
+            mocked_db_utils,
+    ):
+        """
+        Tests app.on_check_in
+        """
+        for test in self.on_check_in_test_cases:
+            mocked_flask.reset_mock()
+            mocked_socket.reset_mock()
+            mocked_db_utils.reset_mock()
+            mocked_flask.request.sid = test[KEY_SID]
+            mocked_db_utils.check_in_with_code.return_value = test[KEY_RESPONSE]
+            with mock.patch("app._current_user_role") as mocked_current_user_role:
+                mocked_current_user_role.return_value = test[KEY_ROLE]
+                if test[KEY_EXPECTED_TYPE] is None:
+                    app.on_check_in(test[KEY_INPUT])
+                    mocked_socket.emit.assert_not_called()
+                    mocked_db_utils.check_in_with_code.assert_not_called()
+                elif issubclass(test[KEY_EXPECTED_TYPE], Exception):
+                    with self.assertRaises(test[KEY_EXPECTED_TYPE]):
+                        app.on_check_in(test[KEY_INPUT])
+                    mocked_socket.emit.assert_not_called()
+                    mocked_db_utils.check_in_with_code.assert_not_called()
+                else:
+                    app.on_check_in(test[KEY_INPUT])
+                    mocked_socket.emit.assert_called_once_with(
+                        *test[KEY_ARGS],
+                        **test[KEY_KWARGS]
+                    )
+                    mocked_db_utils.check_in_with_code.assert_called_once_with(
+                        **test[KEY_EXPECTED],
+                    )
 
 if __name__ == "__main__":
     unittest.main()
