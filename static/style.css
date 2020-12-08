@@ -213,3 +213,114 @@ input {
 .librarianEditField {
     height:max-content;
 }
+
+h3 {
+     text-align: center;
+     text-decoration: underline;
+     font-size: 30px;
+}
+
+.goal {
+    font-family: "Times New Roman";
+     font-size: 20px;
+     border: 2px solid black;
+     border-radius: 20px;
+     padding: 25px;
+}
+
+.tech {
+    font-family: "Times New Roman";
+    font-size: 20px;
+    background-color: white;
+    width: 170px;
+    border: 10px solid green;
+    padding: 30px;
+    margin: 10px;
+    position: fixed;
+    left: 1020px;
+    top:220px;
+}
+
+.url {
+    font-family: "Times New Roman";
+    font-size: 20px;
+    position: fixed;
+    top: 250px;
+}
+
+.dipam {
+    font-family: "Times New Roman";
+    font-size: 18px;
+    background-color: lightgrey;
+    width: 250px;
+    border: 10px solid Red;
+    padding: 30px;
+    margin: 10px;
+    line-height: 1.6;
+    position: fixed;
+    left: 10px;
+    bottom: 20px;
+}
+
+.Binarynelle {
+    font-family: "Times New Roman";
+    font-size: 18px;
+    background-color: white;
+    width: 250px;
+    border: 10px solid Red;
+    padding: 30px;
+    margin: 10px;
+    line-height: 1.6;
+    position: fixed;
+    left: 400px;
+    bottom: 20px;
+}
+
+.Jacob {
+    font-family: "Times New Roman";
+    font-size: 18px;
+    background-color: lightgrey;
+    width: 250px;
+    border: 10px solid Red;
+    padding: 30px;
+    margin: 10px;
+    line-height: 1.6;
+    position: fixed;
+    left: 790px;
+    bottom: 20px;
+}
+
+.Timothy {
+    font-family: "Times New Roman";
+    font-size: 18px;
+    background-color: white;
+    width: 250px;
+    border: 10px solid Red;
+    padding: 30px;
+    margin: 10px;
+    line-height: 1.6;
+    position: fixed;
+    left: 1180px;
+    bottom: 20px;
+}
+
+.team {
+    font-family: "Times New Roman";
+    font-size: 18px;
+    position: fixed;
+    top: 400px;
+    text-align: center;
+}
+
+p2 {
+    position:fixed;
+    left:480px;
+    top:490px;
+}
+
+h5 {
+    position:fixed;
+    left:700px;
+    top:425px;
+    font-size:20px;
+}

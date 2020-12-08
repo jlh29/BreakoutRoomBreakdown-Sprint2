@@ -9,6 +9,7 @@ import RoomReservationAttendeeInput from './RoomReservationAttendeeInput';
 import RoomReservationSubmit from './RoomReservationSubmit';
 import RoomReservationTimeInfo from './RoomReservationTimeInfo';
 import Socket from './Socket';
+import {LandingPage} from './LandingPage';
 
 export default function ReservationOverview(props) {
   const { name } = props;
@@ -103,6 +104,10 @@ export default function ReservationOverview(props) {
   function logout(event) {
     ReactDOM.render(<LoginPage />, document.getElementById('content'));
   }
+  
+  function aboutPage() {
+     ReactDOM.render(<LandingPage />, document.getElementById('content'));
+  }
 
   function listenToServer() {
     useEffect(() => {
@@ -130,11 +135,14 @@ export default function ReservationOverview(props) {
   listenToServer();
 
   return (
-    <div id="contentContainer" className="flexColumn">
+    <div id="contentContainer" className="flexColumn"
       <img id="brb-banner" src="./static/banner-red.png"/>
       <p id="welcomeText">
         Welcome <strong>{name}</strong>
       </p>
+      <form id="DND" onClick={aboutPage}>
+        <button>About Us</button>
+      </form>
       <form id="logoutForm" onClick={logout}>
         <button>Logout</button>
       </form>

@@ -3,6 +3,7 @@ import GoogleLogin from 'react-google-login';
 import Socket from './Socket';
 
 export default function GoogleButton() {
+  var txt;
   function handleSuccess(response) {
     /*global gapi*/
     const auth = gapi.auth2.getAuthInstance();
@@ -18,9 +19,13 @@ export default function GoogleButton() {
   }
 
   function handleFailure(response) {
-    // TODO: show some sort of error message
     console.log('Encountered an error while signing in.');
     console.log(response);
+    if (!confirm("Please use your NJIT email!")) {
+    txt = "OK";
+  } else {
+      txt = "Cancel"
+    }
   }
 
   function listenToServer() {
