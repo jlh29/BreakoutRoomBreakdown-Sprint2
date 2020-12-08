@@ -16,7 +16,6 @@ import socket_utils
 from socket_utils import SOCKET
 from api_twilio import Twilio
 from api_sendgrid import SendGrid
-import numpy as np
 
 load_dotenv(join(dirname(__file__), "sql.env"))
 
@@ -108,15 +107,9 @@ def emit_all_dates(channel):
     
     all_start_dates = [str(x.date()) for x in all_start_dates]
     all_end_dates = [str(x.date()) for x in all_end_dates]
-    print()
     
-    # date_range = (np.array(list(zip(all_start_dates, all_end_dates))))
     date_range = list(list(x) for x in zip(all_start_dates, all_end_dates))
-    print(date_range)
     
-    print(all_start_dates)
-    
-    print()
     SOCKET.emit(
         channel,
         {   
@@ -134,7 +127,6 @@ def on_connect():
     """
     Called whenever a user connects
     """
-    # emit_all_dates(DISABLE_CHANNEL)
     print("Someone connected!")
 
 
@@ -298,13 +290,7 @@ def on_reservation_submit(data):
     )
     
     ucid = CONNECTED_USERS[flask.request.sid].ucid
-    print(mobile_number)
-    print(date.date())
-    print(data['time'])
-    print(data['attendees'])
-    print(reservation_code)
-    print(ucid)
-    # send_confirmation(mobile_number, ucid, date.date(), data['time'], data['attendees'], reservation_code)
+    send_confirmation(mobile_number, ucid, date.date(), data['time'], data['attendees'], reservation_code)
     
     SOCKET.emit(
         RESERVATION_RESPONSE_CHANNEL,
@@ -339,8 +325,6 @@ def index():
     """
     Provides the client with the main webpage
     """
-    # emit_all_dates(DISABLE_CHANNEL)
-    print("Dates sent to client")
     
     return flask.render_template("index.html")
 
