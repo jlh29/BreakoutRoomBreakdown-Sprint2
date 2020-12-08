@@ -458,18 +458,32 @@ def on_update_room(data):
     """
     Called whenever the librarian makes an edit to a room in the Librarian Overview
     """
-    if not _current_user_role() == models.UserRole.LIBRARIAN:
-        return
+    assert data is not None
+    assert isinstance(data, dict)
     assert set(models.BreakoutRoom._fields).issubset(data)
-
+    assert all([
+        isinstance(data["id"], int),
+        isinstance(data["room_number"], (int, str)),
+        isinstance(data["size"], str),
+        isinstance(data["capacity"], (int, str)),
+    ])
+    
     try:
         room_size = models.RoomSize(data["size"].lower())
     except ValueError:
         print("Invalid value of 'size' passed to server when updating a room")
+        room_size = None
     try:
         room_capacity = int(data["capacity"])
     except ValueError:
         print("Invalid value of 'capacity' passed to server when updating a room")
+        room_capacity = None
+
+    assert room_size is not None
+    assert room_capacity is not None
+
+    if not _current_user_role() == models.UserRole.LIBRARIAN:
+        return
 
     db_utils.update_room(
         room_id=data["id"],
