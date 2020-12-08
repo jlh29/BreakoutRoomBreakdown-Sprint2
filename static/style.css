@@ -48,6 +48,7 @@ h1 {
 
 #calendar {
     margin:10px;
+    background-color: red;
 }
 
 #timeButtonsContainer {
@@ -119,4 +120,12 @@ h1 {
     background:#E4E4E4;
     width:35%;
     border-radius:30px;
+}
+
+
+
+/*Calendar style*/
+
+.react-calendar{
+    width: 70%;
 }
