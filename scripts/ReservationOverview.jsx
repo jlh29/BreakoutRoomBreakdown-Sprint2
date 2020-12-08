@@ -129,8 +129,7 @@ export default function ReservationOverview(props) {
       <h1>Breakout Room Breakdown</h1>
       <p id="welcomeText">
         {' '}
-        Welcome
-        {name}
+        Welcome {name}
       </p>
       <form id="logoutForm" onClick={logout}>
         <button>Logout</button>
