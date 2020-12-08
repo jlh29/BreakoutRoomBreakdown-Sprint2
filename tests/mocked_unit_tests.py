@@ -11,6 +11,8 @@ sys.path.append(join(dirname(__file__), "../"))
 import app
 from app import (
     ALL_DATES_KEY,
+    ALL_TIMES_KEY,
+    AVAILABLE_ROOMS_KEY,
     DATE_AVAILABILITY_RESPONSE_CHANNEL,
     DATE_FORMAT,
     DATE_KEY,
@@ -19,6 +21,9 @@ from app import (
     PROFESSOR_DATE_AVAILABILITY_RANGE,
     STUDENT_DATE_AVAILABILITY_RANGE,
     SUCCESSFUL_LOGIN_CHANNEL,
+    TIME_AVAILABILITY_KEY,
+    TIME_AVAILABILITY_RESPONSE_CHANNEL,
+    TIMESLOT_KEY,
     USER_LOGIN_NAME_KEY,
     USER_LOGIN_ROLE_KEY,
     USER_LOGIN_TOKEN_KEY,
@@ -884,6 +889,101 @@ class AppTestCase(unittest.TestCase):
             },
         ]
 
+        self.on_time_availability_request_test_cases = [
+            {
+                KEY_INPUT: None,
+                KEY_SID: None,
+                KEY_RESPONSE: None,
+                KEY_ROLE: None,
+                KEY_EXPECTED_TYPE: AssertionError,
+                KEY_EXPECTED: {},
+                KEY_ARGS: [],
+                KEY_KWARGS: {},
+            },
+            {
+                KEY_INPUT: {},
+                KEY_SID: None,
+                KEY_RESPONSE: None,
+                KEY_ROLE: None,
+                KEY_EXPECTED_TYPE: AssertionError,
+                KEY_EXPECTED: {},
+                KEY_ARGS: [],
+                KEY_KWARGS: {},
+            },
+            {
+                KEY_INPUT: {DATE_KEY: "01/01/2020"},
+                KEY_SID: "mock sid",
+                KEY_RESPONSE: {1:1, 3:2, 5:0},
+                KEY_ROLE: None,
+                KEY_EXPECTED_TYPE: None,
+                KEY_EXPECTED: None,
+                KEY_ARGS: [],
+                KEY_KWARGS: {},
+            },
+            {
+                KEY_INPUT: {DATE_KEY: "01/01/2020"},
+                KEY_SID: "mock sid",
+                KEY_RESPONSE: {1:1, 3:2, 5:0},
+                KEY_ROLE: models.UserRole.LIBRARIAN,
+                KEY_EXPECTED_TYPE: list,
+                KEY_EXPECTED: {"date": datetime.date(2020, 1, 1)},
+                KEY_ARGS: [
+                    TIME_AVAILABILITY_RESPONSE_CHANNEL,
+                    {
+                        ALL_TIMES_KEY: [
+                            {
+                                TIMESLOT_KEY: "1:00-3:00",
+                                AVAILABLE_ROOMS_KEY: 1,
+                                TIME_AVAILABILITY_KEY: True,
+                            },
+                            {
+                                TIMESLOT_KEY: "3:00-5:00",
+                                AVAILABLE_ROOMS_KEY: 2,
+                                TIME_AVAILABILITY_KEY: True,
+                            },
+                            {
+                                TIMESLOT_KEY: "5:00-7:00",
+                                AVAILABLE_ROOMS_KEY: 0,
+                                TIME_AVAILABILITY_KEY: False,
+                            },
+                        ],
+                    },
+                ],
+                KEY_KWARGS: {"room": "mock sid"},
+            },
+            {
+                KEY_INPUT: {DATE_KEY: "01/01/2020"},
+                KEY_SID: "mock sid",
+                KEY_RESPONSE: {5:0, 3:2, 1:1},
+                KEY_ROLE: models.UserRole.LIBRARIAN,
+                KEY_EXPECTED_TYPE: list,
+                KEY_EXPECTED: {"date": datetime.date(2020, 1, 1)},
+                KEY_ARGS: [
+                    TIME_AVAILABILITY_RESPONSE_CHANNEL,
+                    {
+                        ALL_TIMES_KEY: [
+                            {
+                                TIMESLOT_KEY: "1:00-3:00",
+                                AVAILABLE_ROOMS_KEY: 1,
+                                TIME_AVAILABILITY_KEY: True,
+                            },
+                            {
+                                TIMESLOT_KEY: "3:00-5:00",
+                                AVAILABLE_ROOMS_KEY: 2,
+                                TIME_AVAILABILITY_KEY: True,
+                            },
+                            {
+                                TIMESLOT_KEY: "5:00-7:00",
+                                AVAILABLE_ROOMS_KEY: 0,
+                                TIME_AVAILABILITY_KEY: False,
+                            },
+                        ],
+                    },
+                ],
+                KEY_KWARGS: {"room": "mock sid"},
+            },
+        ]
+
     @mock.patch("app.flask")
     def test_current_user_role(self, mocked_flask):
         """
@@ -1010,6 +1110,47 @@ class AppTestCase(unittest.TestCase):
                         mocked_db_utils.get_available_dates_after_date.assert_called_once_with(
                             **test[KEY_EXPECTED],
                         )
+
+    @mock.patch("app.db_utils")
+    @mock.patch("app.SOCKET")
+    @mock.patch("app.flask")
+    def test_on_time_availability_request(
+            self,
+            mocked_flask,
+            mocked_socket,
+            mocked_db_utils,
+    ):
+        """
+        Tests app.on_time_availability_request
+        """
+        for test in self.on_time_availability_request_test_cases:
+            mocked_flask.reset_mock()
+            mocked_socket.reset_mock()
+            mocked_db_utils.reset_mock()
+
+            mocked_flask.request.sid = test[KEY_SID]
+            mocked_db_utils.get_available_times_for_date.return_value = test[KEY_RESPONSE]
+
+            with mock.patch("app._current_user_role") as mocked_current_user_role:
+                mocked_current_user_role.return_value = test[KEY_ROLE]
+                if test[KEY_EXPECTED_TYPE] is None:
+                    app.on_time_availability_request(test[KEY_INPUT])
+                    mocked_socket.emit.assert_not_called()
+                    mocked_db_utils.get_available_times_for_date.assert_not_called()
+                elif issubclass(test[KEY_EXPECTED_TYPE], Exception):
+                    with self.assertRaises(test[KEY_EXPECTED_TYPE]):
+                        app.on_time_availability_request(test[KEY_INPUT])
+                    mocked_socket.emit.assert_not_called()
+                    mocked_db_utils.get_available_times_for_date.assert_not_called()
+                else:
+                    app.on_time_availability_request(test[KEY_INPUT])
+                    mocked_socket.emit.assert_called_once_with(
+                        *test[KEY_ARGS],
+                        **test[KEY_KWARGS]
+                    )
+                    mocked_db_utils.get_available_times_for_date.assert_called_once_with(
+                        **test[KEY_EXPECTED],
+                    )
 
 
 if __name__ == "__main__":

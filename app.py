@@ -217,6 +217,12 @@ def on_time_availability_request(data):
     Called whenever a user clicks on a date in the reservation form
     Checks to see what timeslots are available and sends them to the client
     """
+    assert data is not None
+    assert all([
+        isinstance(data, dict),
+        DATE_KEY in data,
+    ])
+    assert isinstance(data[DATE_KEY], str)
     print("Got an event for time input with data:", data)
     if _current_user_role() is None:
         return
