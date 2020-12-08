@@ -41,7 +41,7 @@ body {
 }
 
 #reservationForm {
-    background-color:#FFFFFF;
+    background-color: blue;
     padding:15px;
     border-radius:15px;
     font-family: 'BenchNine';
@@ -54,6 +54,10 @@ body {
 
 #reservationDate {
     font-weight: bold;
+}
+
+#roomReservationTimeInfoContainer {
+    background-color: coral;
 }
 
 #roomReservationTimeInfo {
@@ -86,7 +90,11 @@ input {
 
 .attendeeInput {
     margin:10px;
-    font-size: 20px;
+    font-size: 18px;
+}
+
+#mobileNumber {
+    font-size: 18px;
 }
 
 #reservationSubmit {
@@ -186,7 +194,7 @@ input {
 }
 
 #reservationConfirmationContainer {
-    background:#E4E4E4;
+    background-color: coral;
     width:35%;
     border-radius:30px;
 }

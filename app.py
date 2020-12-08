@@ -290,7 +290,7 @@ def on_reservation_submit(data):
     )
     
     ucid = CONNECTED_USERS[flask.request.sid].ucid
-    send_confirmation(mobile_number, ucid, date.date(), data['time'], data['attendees'], reservation_code)
+    # send_confirmation(mobile_number, ucid, date.date(), data['time'], data['attendees'], reservation_code)
     
     SOCKET.emit(
         RESERVATION_RESPONSE_CHANNEL,
