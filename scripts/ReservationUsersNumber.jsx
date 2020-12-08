@@ -4,7 +4,7 @@ export default function ReservationUsersNumber(props) {
 
     return(
         <div>
-            <label>Mobile number: </label>
+            <label>Mobile number (optional)</label>
             <input 
             type="tel" 
             id="mobileNumber"

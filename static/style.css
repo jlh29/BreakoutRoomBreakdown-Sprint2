@@ -1,11 +1,26 @@
+@import url('https://fonts.googleapis.com/css?family=BenchNine');
+@import url('https://fonts.googleapis.com/css?family=Marvel');
+@import url('https://fonts.googleapis.com/css?family=Roboto Mono');
+@import url('https://fonts.googleapis.com/css?family=Oswald');
+
 body {
     background-image: linear-gradient(to bottom right, orange, red);
     color: black;
     font-family:sans-serif;
+    text-align: center;
 }
 
-h1 {
-     text-align: center;
+#brb-banner {
+    width: 100%;
+    height: 30%;
+    background-position: center top;
+    background-size: cover;
+}
+
+#welcomeText {
+    font-family: 'Marvel';
+    font-size: 25px;
+    text-align: left;
 }
 
 .gbutton {
@@ -28,10 +43,15 @@ h1 {
     background-color:#FFFFFF;
     padding:15px;
     border-radius:15px;
+    font-family: 'BenchNine';
 }
 
-#reservationSubmit {
-    margin:10px;
+#reservationTime {
+    font-weight: bold;
+}
+
+#reservationDate {
+    font-weight: bold;
 }
 
 #roomReservationTimeInfo {
@@ -42,8 +62,35 @@ h1 {
     margin-bottom:0px;
 }
 
+label {
+    margin: 5px;
+}
+
+select {
+    border-radius: 6px;
+}
+
+#attendeeInputContainer {
+    border-radius: 12px;
+}
+
+input {
+    border-radius: 3px;
+    border-style: solid;
+    border-width: thin;
+}
+
 .attendeeInput {
     margin:10px;
+}
+
+#reservationSubmit {
+    margin:15px;
+    padding: 10px;
+    border-radius: 6px;
+    background-color: #D9C5C5;
+    font-family: 'Marvel';
+    font-weight: bold;
 }
 
 #calendar {
@@ -54,6 +101,20 @@ h1 {
 #timeButtonsContainer {
     margin-top:10px;
 }
+
+.timeslot-btn {
+    padding: 10px;
+    border-radius: 8px;
+    border-style: solid;
+    border-width: thin;
+    font-size: 15px;
+    font-family: 'Oswald';
+    background-color: #F5B8B8;
+    margin: 16px;
+}
+
+.timeslot-btn:hover {background: #FF8F8F}
+.timeslot-btn:active {background: #FF8F8F}
 
 .menuContainer {
     background:#E4E4E4;

@@ -4,6 +4,6 @@ export default function RoomReservationSubmit(props) {
   const { handleSubmit } = props;
 
   return (
-    <button onClick={handleSubmit} id="reservationSubmit">Submit</button>
+    <button onClick={handleSubmit} id="reservationSubmit">Reserve Appointment</button>
   );
 }
