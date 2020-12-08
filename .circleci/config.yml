@@ -13,10 +13,10 @@ jobs:
       - python/install-deps
       - python/save-cache
       - run:
-          command: python -m unittest tests.mocked_unit_tests.py
+          command: python -m unittest tests.mocked_unit_tests
           name: Mocked Unit Tests
       - run:
-          command: python -m unittest tests.unmocked_unit_tests.py
+          command: python -m unittest tests.unmocked_unit_tests
           name: Unmocked Unit Tests
       - heroku/deploy-via-git
 
