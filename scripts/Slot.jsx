@@ -12,6 +12,7 @@ export default function Slot(props) {
   if (isAvailable) {
     return (
       <button
+        className="timeslot-btn"
         type="button"
         onClick={handleClick}
       >
@@ -26,6 +27,7 @@ export default function Slot(props) {
 
   return (
     <button
+      className="timeslot-btn"
       type="button"
       disabled
     >

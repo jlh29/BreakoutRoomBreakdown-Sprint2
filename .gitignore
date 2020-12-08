@@ -3,7 +3,8 @@ package-lock.json
 __pycache__
 *.env
 static/script.js
-cronofy.env
 sql.env
 */__pycache__
 oauth.env
+twilio.env
+sendgrid.env

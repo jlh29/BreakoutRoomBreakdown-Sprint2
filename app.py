@@ -14,6 +14,8 @@ import models
 import scheduled_tasks
 import socket_utils
 from socket_utils import SOCKET
+from api_twilio import Twilio
+from api_sendgrid import SendGrid
 
 load_dotenv(join(dirname(__file__), "sql.env"))
 
@@ -76,6 +78,13 @@ TIME_AVAILABILITY_KEY = "isAvailable"
 AVAILABLE_ROOMS_KEY = "availableRooms"
 DATE_FORMAT = "%m/%d/%Y"
 
+DISABLE_DATE = "disable date"
+DISABLE_CHANNEL = "disable channel"
+DATE_RANGE = "date range"
+START_DATE = "start date"
+END_DATE = "end date"
+NOTE = "note"
+
 STUDENT_DATE_AVAILABILITY_RANGE = 3
 PROFESSOR_DATE_AVAILABILITY_RANGE = 7
 
@@ -90,6 +99,28 @@ def _current_user_role():
         return None
     return CONNECTED_USERS[flask.request.sid].role
 
+def emit_all_dates(channel):
+    """
+    Send all disable dates to the client 
+    """
+    all_start_dates, all_end_dates, all_notes = db_utils.get_disable_date()
+    
+    all_start_dates = [str(x.date()) for x in all_start_dates]
+    all_end_dates = [str(x.date()) for x in all_end_dates]
+    
+    date_range = list(list(x) for x in zip(all_start_dates, all_end_dates))
+    
+    SOCKET.emit(
+        channel,
+        {   
+            DATE_RANGE: date_range,
+            START_DATE: all_start_dates,
+            END_DATE: all_end_dates,
+            NOTE: all_notes,
+        }
+    )
+    print("Data sent to client")
+    
 
 @SOCKET.on(CONNECT_CHANNEL)
 def on_connect():
@@ -132,7 +163,9 @@ def on_new_user_login(data):
         },
         room=flask.request.sid,
     )
-
+    emit_all_dates(DISABLE_CHANNEL)
+    
+    
 
 @SOCKET.on(DATE_AVAILABILITY_REQUEST_CHANNEL)
 def on_date_availability_request(data):
@@ -200,6 +233,8 @@ def on_reservation_submit(data):
     Called whenever a user submits the reservation form
     Creates a new Appointment (if possible) and returns its details
     """
+    mobile_number = data['phoneNumber']
+    print(data)
     user_role = _current_user_role()
     date = datetime.datetime.fromtimestamp(data[DATE_KEY] / 1000.0)
     date_difference = (date - datetime.datetime.utcnow()).days
@@ -253,6 +288,10 @@ def on_reservation_submit(data):
         organizer_id=organizer_id,
         attendee_ids=attendee_ids,
     )
+    
+    ucid = CONNECTED_USERS[flask.request.sid].ucid
+    send_confirmation(mobile_number, ucid, date.date(), data['time'], data['attendees'], reservation_code)
+    
     SOCKET.emit(
         RESERVATION_RESPONSE_CHANNEL,
         {
@@ -264,11 +303,29 @@ def on_reservation_submit(data):
     )
 
 
+def send_confirmation(number, ucid, date, time, attendees, confirmation):
+    """
+    Sends the confirmation through text, if number is invalid send via email
+    """
+    email = '{}@njit.edu'.format(ucid)
+    try:
+        to_number = "+1{}".format(number)
+        twilio = Twilio(to_number)
+        twilio.send_text(date, time, attendees, confirmation)
+        print("Text message sent!")
+    
+    except:
+        sendgrid = SendGrid(email)
+        sendgrid.send_email(date, time, attendees, confirmation)
+        print("Email sent!")
+
+
 @APP.route("/")
 def index():
     """
     Provides the client with the main webpage
     """
+    
     return flask.render_template("index.html")
 
 
@@ -350,7 +407,20 @@ def on_check_in(data):
         room=flask.request.sid,
     )
 
-
+@SOCKET.on(DISABLE_DATE)
+def on_disable_date(data):
+    """
+    Called whenever the librarian set a date to disable in the calendar
+    """
+    print("Got an event for new date input with data:", data)
+    
+    start_date = datetime.datetime.strptime(data['startDate'], "%Y-%m-%d")
+    end_date = datetime.datetime.strptime(data['endDate'], "%Y-%m-%d")
+    note = data['note']
+    
+    db_utils.add_disable_date(start_date, end_date, note)
+    emit_all_dates(DISABLE_CHANNEL)
+    
 @SOCKET.on(UPDATE_ROOM_CHANNEL)
 def on_update_room(data):
     """
@@ -378,7 +448,6 @@ def on_update_room(data):
 
     on_request_rooms()
 
-
 @SOCKET.on(UPDATE_USER_CHANNEL)
 def on_update_user(data):
     """
@@ -399,7 +468,6 @@ def on_update_user(data):
     )
 
     on_request_users()
-
 
 if __name__ == "__main__":
     db_instance.init_db(APP)

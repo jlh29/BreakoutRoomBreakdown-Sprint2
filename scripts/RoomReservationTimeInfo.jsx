@@ -6,16 +6,15 @@ export default function RoomReservationTimeInfo(props) {
   return (
     <div id="roomReservationTimeInfoContainer" className="flexColumn">
       <p id="roomReservationDateInfo">
-        Reservation
-        on
+        Reservation on
         {' '}
-        {selectedDate ? selectedDate.toLocaleDateString('en-US') : '...'}
+        <span id="reservationTime">{selectedDate ? selectedDate.toLocaleDateString('en-US') : '...'}</span>
       </p>
       <br />
       <p id="roomReservationTimeInfo">
         at
         {' '}
-        {selectedTime || '...'}
+        <span id="reservationDate">{selectedTime || '...'}</span>
       </p>
     </div>
   );

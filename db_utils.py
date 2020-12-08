@@ -499,6 +499,22 @@ def check_in_with_code(check_in_code):
     DB.session.commit()
     return True
 
+def add_disable_date(start_date, end_date, note):
+    """
+    Stores the calendar dates that needs to be disabled
+    """
+    DB.session.add(models.CalendarMarkings(start_date, end_date, note))
+    DB.session.commit()
+    
+def get_disable_date():
+    """
+    Get the start and end dates from CalendarMarkings table
+    """
+    all_start_dates = [date.start_date for date in DB.session.query(models.CalendarMarkings).all()]
+    all_end_dates = [date.end_date for date in DB.session.query(models.CalendarMarkings).all()]
+    all_notes = [date.calendar_note for date in DB.session.query(models.CalendarMarkings).all()]
+    
+    return all_start_dates, all_end_dates, all_notes
 
 def update_walk_ins():
     """
