@@ -366,10 +366,19 @@ def on_request_appointments(data):
     UI
     Returns a list of all Appointments for a given date
     """
+    assert data is not None
+    assert all([
+        isinstance(data, dict),
+        DATE_KEY in data,
+    ])
+    assert isinstance(data[DATE_KEY], str)
     if not _current_user_role() == models.UserRole.LIBRARIAN:
         return
     date = datetime.datetime.strptime(data[DATE_KEY], DATE_FORMAT)
-    appointments = db_utils.get_all_appointments_for_date(date, True)
+    appointments = db_utils.get_all_appointments_for_date(
+        date=date,
+        as_dicts=True,
+    )
     SOCKET.emit(
         APPOINTMENTS_RESPONSE_CHANNEL,
         {APPOINTMENTS_KEY: appointments},
