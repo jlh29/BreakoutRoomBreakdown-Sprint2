@@ -18,49 +18,35 @@ export default function MyCalendar(props) {
   const [endDates, setEndDates] = useState([]);
   const [notes, setNotes] = useState([]);
   
-  // let x = new Date("2020-12-18");
-  // let y = new Date("2020-12-2");
-  // let z = new Date("2020-12-3");
-  
-  // let a = new Date("2020-12-2");
-  // let b = new Date("2020-12-3");
-  // let c = new Date("2020-12-5");
-  // let d = new Date("2020-12-7");
-  
-  // let lst1 = ['a', 'b', 'c'];
-  // let lst2 = ['x', 'y', 'z'];
-  
-  // let arr = [];
-  for (let i=0; i<startDates.length; i++)
-    setMarkDates([startDates[i], endDates[i]]);
-  
-  console.log(markDates)
-  
-  // const disabledDates = [x];
-  // const disabledRanges = [[z,z]];
-  
-  // const markDates = [a];
-  // const markRanges = [
-  //   [a,b], [c,d]
-  // ];
-  
-
+  let newDateRange = [];
   
   function getNewDates() {
-    console.log("GET NEW DATES")
     React.useEffect(() => {
       Socket.on('disable channel', (data) => {
           console.log("Received addresses from server: " + data['start date']);
           console.log("Received addresses from server: " + data['end date']);
           console.log("Received addresses from server: " + data['note']);
+          console.log("Received addresses from server: " + data['date range']);
+          setDisabledDates(data['date range']);
           setStartDates(data['start date']);
           setEndDates(data['end date']);
           setNotes(data['note']);
+          
       });
     });
   }
+  
+  function getDateRange(){
+    for (let i=0; i<startDates.length; i++){
+      newDateRange.push([new Date(disabledDates[i][0]), new Date(disabledDates[i][1])]);
+    }
+  }
 
   getNewDates();
+  
+  if (disabledDates.length !== 0){
+    getDateRange();
+  }
 
   function handleClickDay(event) {
     setDate(event);
@@ -91,38 +77,28 @@ export default function MyCalendar(props) {
       }
     }
    
-    if (date.getDay() === 0 || date.getDay() === 6) {
-      disableDate = true;
-    }
+    // if (date.getDay() === 0 || date.getDay() === 6) {
+    //   disableDate = true;
+    // }
 
-    if (date.getUTCDate() < today.getUTCDate()) {
-      disableDate = true;
-    }
+    // if (date.getUTCDate() < today.getUTCDate()) {
+    //   disableDate = true;
+    // }
     
-    if (date.getUTCDate() - today.getUTCDate() > 2) {
-      disableDate = true;
-    }
+    // if (date.getUTCDate() - today.getUTCDate() > 2) {
+    //   disableDate = true;
+    // }
     
-    if (view === 'month' && isWithinRanges(date, disabledDates)){
+    if (view === 'month' && isWithinRanges(date, newDateRange)){
       disableDate = true;
     }
     
     return disableDate;
   }
-  
-  // let q = new Date("2020-12-15");
-  // let w = new Date("2020-12-17");
-  // let markings = ['TEST4', 'TEST5'];
-  // let marking = "TEST2";
-  // const mk = [
-  //   [q,w]
-  // ];
-  
-  // let t =  [q,w]
-  
+
   function handleContent({ date, view }){
     for (let i=0; i<startDates.length; i++){
-      if (isWithinRange(date, markDates[i])) {
+      if (isWithinRange(date, newDateRange[i])) {
         return <p>{notes[i]}</p>;
       }
     }
