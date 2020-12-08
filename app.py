@@ -158,6 +158,7 @@ def on_new_user_login(data):
         },
         room=flask.request.sid,
     )
+    # emit_all_dates()
 
 
 @SOCKET.on(DATE_AVAILABILITY_REQUEST_CHANNEL)
@@ -226,6 +227,8 @@ def on_reservation_submit(data):
     Called whenever a user submits the reservation form
     Creates a new Appointment (if possible) and returns its details
     """
+    mobile_number = data['phoneNumber']
+    print(data)
     user_role = _current_user_role()
     date = datetime.datetime.fromtimestamp(data[DATE_KEY] / 1000.0)
     date_difference = (date - datetime.datetime.utcnow()).days
@@ -279,6 +282,10 @@ def on_reservation_submit(data):
         organizer_id=organizer_id,
         attendee_ids=attendee_ids,
     )
+    
+    ucid = CONNECTED_USERS[flask.request.sid].ucid
+    send_confirmation(mobile_number, ucid, date.date(), data['time'], data['attendees'], reservation_code)
+    
     SOCKET.emit(
         RESERVATION_RESPONSE_CHANNEL,
         {
@@ -289,18 +296,12 @@ def on_reservation_submit(data):
         room=flask.request.sid,
     )
 
-# TODO: get the number, email, date, attendees, confirmation from user
-def send_confirmation():
-    # add student's number and email here
-    number = '2018884444'
-    email = 'ucid@njit.edu'
-    
-    # add the appointment details here
-    date = 'Nov 27'
-    time = '11:00am'
-    attendees = 'Jane Doe'
-    confirmation = 'ABC123'
-    
+
+def send_confirmation(number, ucid, date, time, attendees, confirmation):
+    """
+    Sends the confirmation through text, if number is invalid send via email
+    """
+    email = '{}@njit.edu'.format(ucid)
     try:
         to_number = "+1{}".format(number)
         twilio = Twilio(to_number)
