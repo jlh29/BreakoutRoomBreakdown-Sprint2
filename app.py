@@ -499,14 +499,27 @@ def on_update_user(data):
     """
     Called whenever the librarian makes an edit to a room in the Librarian Overview
     """
-    if not _current_user_role() == models.UserRole.LIBRARIAN:
-        return
-    assert isinstance(data.get("id", None), int) and isinstance(data.get("role", None), str)
+    assert data is not None
+    assert all([
+        isinstance(data, dict),
+        "id" in data,
+        "role" in data,
+    ])
+    assert all([
+        isinstance(data["id"], int),
+        isinstance(data["role"], str),
+    ])
 
     try:
         role = models.UserRole(data["role"].lower())
     except ValueError:
         print("Invalid value of 'role' passed to server when updating a user")
+        role = None
+
+    assert role is not None
+
+    if not _current_user_role() == models.UserRole.LIBRARIAN:
+        return
 
     db_utils.update_user_role(
         user_id=data["id"],
