@@ -1232,14 +1232,12 @@ class AppTestCase(unittest.TestCase):
         self.on_update_room_test_cases = [
             {
                 KEY_INPUT: None,
-                KEY_SID: None,
                 KEY_ROLE: None,
                 KEY_EXPECTED_TYPE: AssertionError,
                 KEY_EXPECTED: {},
             },
             {
                 KEY_INPUT: {},
-                KEY_SID: None,
                 KEY_ROLE: None,
                 KEY_EXPECTED_TYPE: AssertionError,
                 KEY_EXPECTED: {},
@@ -1251,7 +1249,6 @@ class AppTestCase(unittest.TestCase):
                     "capacity": "bad capacity",
                     "room_number": ["bad room number"],
                 },
-                KEY_SID: "mock sid",
                 KEY_ROLE: None,
                 KEY_EXPECTED_TYPE: AssertionError,
                 KEY_EXPECTED: None,
@@ -1263,7 +1260,6 @@ class AppTestCase(unittest.TestCase):
                     "capacity": "bad capacity",
                     "room_number": ["bad room number"],
                 },
-                KEY_SID: "mock sid",
                 KEY_ROLE: None,
                 KEY_EXPECTED_TYPE: AssertionError,
                 KEY_EXPECTED: None,
@@ -1275,7 +1271,6 @@ class AppTestCase(unittest.TestCase):
                     "capacity": "bad capacity",
                     "room_number": ["bad room number"],
                 },
-                KEY_SID: "mock sid",
                 KEY_ROLE: None,
                 KEY_EXPECTED_TYPE: AssertionError,
                 KEY_EXPECTED: None,
@@ -1287,7 +1282,6 @@ class AppTestCase(unittest.TestCase):
                     "capacity": 10,
                     "room_number": ["bad room number"],
                 },
-                KEY_SID: "mock sid",
                 KEY_ROLE: None,
                 KEY_EXPECTED_TYPE: AssertionError,
                 KEY_EXPECTED: None,
@@ -1299,7 +1293,6 @@ class AppTestCase(unittest.TestCase):
                     "capacity": 10,
                     "room_number": 123,
                 },
-                KEY_SID: "mock sid",
                 KEY_ROLE: models.UserRole.STUDENT,
                 KEY_EXPECTED_TYPE: None,
                 KEY_EXPECTED: None,
@@ -1311,7 +1304,6 @@ class AppTestCase(unittest.TestCase):
                     "capacity": 10,
                     "room_number": 123,
                 },
-                KEY_SID: "mock sid",
                 KEY_ROLE: models.UserRole.LIBRARIAN,
                 KEY_EXPECTED_TYPE: list,
                 KEY_EXPECTED: {
@@ -1320,6 +1312,45 @@ class AppTestCase(unittest.TestCase):
                     "size": models.RoomSize.LARGE,
                     "capacity": 10,
                 },
+            },
+        ]
+
+        self.on_update_user_test_cases = [
+            {
+                KEY_INPUT: None,
+                KEY_ROLE: None,
+                KEY_EXPECTED_TYPE: AssertionError,
+                KEY_EXPECTED: {},
+            },
+            {
+                KEY_INPUT: {},
+                KEY_ROLE: None,
+                KEY_EXPECTED_TYPE: AssertionError,
+                KEY_EXPECTED: {},
+            },
+            {
+                KEY_INPUT: {"id": "bad id", "role": "bad role"},
+                KEY_ROLE: None,
+                KEY_EXPECTED_TYPE: AssertionError,
+                KEY_EXPECTED: None,
+            },
+            {
+                KEY_INPUT: {"id": 1, "role": "bad role"},
+                KEY_ROLE: None,
+                KEY_EXPECTED_TYPE: AssertionError,
+                KEY_EXPECTED: None,
+            },
+            {
+                KEY_INPUT: {"id": 1, "role": "student"},
+                KEY_ROLE: models.UserRole.STUDENT,
+                KEY_EXPECTED_TYPE: None,
+                KEY_EXPECTED: None,
+            },
+            {
+                KEY_INPUT: {"id": 1, "role": "student"},
+                KEY_ROLE: models.UserRole.LIBRARIAN,
+                KEY_EXPECTED_TYPE: list,
+                KEY_EXPECTED: {"user_id": 1, "role": models.UserRole.STUDENT},
             },
         ]
 
@@ -1671,15 +1702,12 @@ class AppTestCase(unittest.TestCase):
                     )
 
     @mock.patch("app.db_utils")
-    @mock.patch("app.flask")
-    def test_on_update_room(self, mocked_flask, mocked_db_utils):
+    def test_on_update_room(self, mocked_db_utils):
         """
         Tests app.on_update_room
         """
         for test in self.on_update_room_test_cases:
-            mocked_flask.reset_mock()
             mocked_db_utils.reset_mock()
-            mocked_flask.request.sid = test[KEY_SID]
             with mock.patch.multiple(
                     "app",
                     _current_user_role=lambda: test[KEY_ROLE],
@@ -1701,6 +1729,33 @@ class AppTestCase(unittest.TestCase):
                         **test[KEY_EXPECTED],
                     )
 
+    @mock.patch("app.db_utils")
+    def test_on_update_user(self, mocked_db_utils):
+        """
+        Tests app.on_update_user
+        """
+        for test in self.on_update_user_test_cases:
+            mocked_db_utils.reset_mock()
+            with mock.patch.multiple(
+                    "app",
+                    _current_user_role=lambda: test[KEY_ROLE],
+                    on_request_users=mock.DEFAULT,
+            ) as mocked_methods:
+                if test[KEY_EXPECTED_TYPE] is None:
+                    app.on_update_user(test[KEY_INPUT])
+                    mocked_methods["on_request_users"].assert_not_called()
+                    mocked_db_utils.update_user_role.assert_not_called()
+                elif issubclass(test[KEY_EXPECTED_TYPE], Exception):
+                    with self.assertRaises(test[KEY_EXPECTED_TYPE]):
+                        app.on_update_user(test[KEY_INPUT])
+                    mocked_methods["on_request_users"].assert_not_called()
+                    mocked_db_utils.update_user_role.assert_not_called()
+                else:
+                    app.on_update_user(test[KEY_INPUT])
+                    mocked_methods["on_request_users"].assert_called_once()
+                    mocked_db_utils.update_user_role.assert_called_once_with(
+                        **test[KEY_EXPECTED],
+                    )
 
 if __name__ == "__main__":
     unittest.main()
