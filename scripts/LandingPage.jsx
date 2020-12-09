@@ -51,19 +51,19 @@ export function LandingPage() {
       <div className="Binarynelle">
       <h4>Binarynelle Sune</h4>
       <p1>Worked on Front-End/Back-End</p1> <br />
-      <a href="https://www.linkedin.com/in/dipam-patel-b0b278201/">LinkedIn!</a>
+      <a href="https://www.linkedin.com/in/sunebelle/">LinkedIn!</a>
       </div>
       
       <div className="Jacob Haynie">
       <h4>Jacob Haynie</h4>
       <p1>Worked on Back-End/Front End</p1> <br />
-      <a href="https://www.linkedin.com/in/dipam-patel-b0b278201/">LinkedIn!</a>
+      <a href="https://www.linkedin.com/in/jacob-haynie/">LinkedIn!</a>
       </div>
       
       <div className="Timothy">
       <h4>Timothy Schutte</h4>
       <p1>Worked on Back-End</p1> <br />
-      <a href="https://www.linkedin.com/in/dipam-patel-b0b278201/">LinkedIn!</a>
+      <a href="https://www.linkedin.com/in/timothy-schutte-7b88a8132/">LinkedIn!</a>
       </div>
       
       </div>);
