@@ -79,6 +79,8 @@ PHONE_NUMBER_KEY = "phoneNumber"
 TIMESLOT_KEY = "timeslot"
 TIME_AVAILABILITY_KEY = "isAvailable"
 AVAILABLE_ROOMS_KEY = "availableRooms"
+USER_ID_KEY = "id"
+USER_ROLE_KEY = "role"
 DATE_FORMAT = "%m/%d/%Y"
 
 DISABLE_DATE = "disable date"
@@ -87,6 +89,8 @@ DATE_RANGE = "date range"
 START_DATE = "start date"
 END_DATE = "end date"
 NOTE = "note"
+
+REFRESH_CHANNEL = "refresh channel"
 
 STUDENT_DATE_AVAILABILITY_RANGE = 3
 PROFESSOR_DATE_AVAILABILITY_RANGE = 7
@@ -555,6 +559,12 @@ def on_update_room(data):
     on_request_rooms()
 
 
+def send_refresh_to_client(sid):
+    assert isinstance(sid, str)
+    assert sid in CONNECTED_USERS
+    SOCKET.emit(REFRESH_CHANNEL, room=sid)
+
+
 @SOCKET.on(UPDATE_USER_CHANNEL)
 def on_update_user(data):
     """
@@ -564,19 +574,19 @@ def on_update_user(data):
     assert all(
         [
             isinstance(data, dict),
-            "id" in data,
-            "role" in data,
+            USER_ID_KEY in data,
+            USER_ROLE_KEY in data,
         ]
     )
     assert all(
         [
-            isinstance(data["id"], int),
-            isinstance(data["role"], str),
+            isinstance(data[USER_ID_KEY], int),
+            isinstance(data[USER_ROLE_KEY], str),
         ]
     )
 
     try:
-        role = models.UserRole(data["role"].lower())
+        role = models.UserRole(data[USER_ROLE_KEY].lower())
     except ValueError:
         print("Invalid value of 'role' passed to server when updating a user")
         role = None
@@ -587,11 +597,17 @@ def on_update_user(data):
         return
 
     db_utils.update_user_role(
-        user_id=data["id"],
+        user_id=data[USER_ID_KEY],
         role=role,
     )
 
     on_request_users()
+
+    for sid, connected_user in CONNECTED_USERS.items():
+        if connected_user.id == data[USER_ID_KEY]:
+            CONNECTED_USERS[sid].role = role
+            send_refresh_to_client(sid)
+            break
 
 
 if __name__ == "__main__":
