@@ -73,6 +73,7 @@ CHECK_IN_SUCCESS_KEY = "successful"
 DATE_KEY = "date"
 TIME_KEY = "time"
 ATTENDEES_KEY = "attendees"
+PHONE_NUMBER_KEY = "phoneNumber"
 TIMESLOT_KEY = "timeslot"
 TIME_AVAILABILITY_KEY = "isAvailable"
 AVAILABLE_ROOMS_KEY = "availableRooms"
@@ -250,8 +251,27 @@ def on_reservation_submit(data):
     Called whenever a user submits the reservation form
     Creates a new Appointment (if possible) and returns its details
     """
-    mobile_number = data['phoneNumber']
-    print(data)
+    print("running")
+    assert data is not None
+    assert all([
+        isinstance(data, dict),
+        DATE_KEY in data,
+        TIME_KEY in data,
+        PHONE_NUMBER_KEY in data,
+        ATTENDEES_KEY in data,
+    ])
+    assert all([
+        isinstance(data[DATE_KEY], (float, int)),
+        isinstance(data[TIME_KEY], str),
+        isinstance(data[PHONE_NUMBER_KEY], (str, int)),
+        data[ATTENDEES_KEY] is None or (
+            isinstance(data[ATTENDEES_KEY], list) and
+            all([
+                isinstance(attendee, str)
+                for attendee in data[ATTENDEES_KEY]
+            ])
+        ),
+    ])
     user_role = _current_user_role()
     date = datetime.datetime.fromtimestamp(data[DATE_KEY] / 1000.0)
     date_difference = (date - datetime.datetime.utcnow()).days
@@ -307,7 +327,15 @@ def on_reservation_submit(data):
     )
     
     ucid = CONNECTED_USERS[flask.request.sid].ucid
-    send_confirmation(mobile_number, ucid, date.date(), data['time'], data['attendees'], reservation_code)
+    if reservation_success:
+        send_confirmation(
+            number=data[PHONE_NUMBER_KEY],
+            ucid=ucid,
+            date=date.date(),
+            time=data[TIME_KEY],
+            attendees=data[ATTENDEES_KEY],
+            confirmation=reservation_code,
+        )
     
     SOCKET.emit(
         RESERVATION_RESPONSE_CHANNEL,
