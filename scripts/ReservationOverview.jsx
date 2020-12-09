@@ -50,8 +50,10 @@ export default function ReservationOverview(props) {
 
   function updateAvailableDates(data) {
     const constructedDates = [];
-    Object.keys(data.dates).forEach(
-      (dateTimestamp) => constructedDates.push(new Date(dateTimestamp)),
+    Object.values(data.dates).forEach(
+      (dateTimestamp) => {
+        constructedDates.push(new Date(dateTimestamp));
+      },
     );
     setAvailableDates(constructedDates);
   }
