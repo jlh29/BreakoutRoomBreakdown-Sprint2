@@ -23,6 +23,7 @@ from app import (
     DATE_FORMAT,
     DATE_KEY,
     DISABLE_CHANNEL,
+    EST_TZ_OFFSET,
     FAILED_LOGIN_CHANNEL,
     PHONE_NUMBER_KEY,
     PROFESSOR_DATE_AVAILABILITY_RANGE,
@@ -1679,6 +1680,7 @@ class AppTestCase(unittest.TestCase):
                             13,
                             0,
                             0,
+                            tzinfo=EST_TZ_OFFSET,
                         ),
                         "end_time": datetime.datetime(
                             self.current_date.year,
@@ -1687,6 +1689,7 @@ class AppTestCase(unittest.TestCase):
                             15,
                             0,
                             0,
+                            tzinfo=EST_TZ_OFFSET,
                         ),
                         "organizer_id": MOCK_USER_INFOS[1].id,
                         "attendee_ids": [123],

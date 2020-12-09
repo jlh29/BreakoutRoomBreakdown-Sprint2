@@ -89,6 +89,8 @@ NOTE = "note"
 STUDENT_DATE_AVAILABILITY_RANGE = 3
 PROFESSOR_DATE_AVAILABILITY_RANGE = 7
 
+EST_TZ_OFFSET = datetime.timezone(datetime.timedelta(hours=-5))
+
 CONNECTED_USERS = {}
 
 
@@ -304,6 +306,7 @@ def on_reservation_submit(data):
         int(start_time_string.split(":")[0]),
         0,
         0,
+        tzinfo=EST_TZ_OFFSET,
     )
     end_time = datetime.datetime(
         date.year,
@@ -312,6 +315,7 @@ def on_reservation_submit(data):
         int(end_time_string.split(":")[0]),
         0,
         0,
+        tzinfo=EST_TZ_OFFSET,
     )
     organizer_id = CONNECTED_USERS[flask.request.sid].id
     (
