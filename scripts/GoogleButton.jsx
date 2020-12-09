@@ -43,7 +43,7 @@ export default function GoogleButton() {
     <GoogleLogin
       className="gbutton"
       clientId="836600659281-eeutvpmf60kb2f2jfhcju5kfnebbsuu2.apps.googleusercontent.com"
-      buttonText="Login"
+      buttonText="Login with Google"
       onSuccess={handleSuccess}
       onFailure={handleFailure}
       cookiePolicy="single_host_origin"
