@@ -14,6 +14,7 @@ from app import (
     ALL_TIMES_KEY,
     APPOINTMENTS_KEY,
     APPOINTMENTS_RESPONSE_CHANNEL,
+    ATTENDEES_KEY,
     AVAILABLE_ROOMS_KEY,
     CHECK_IN_CODE_KEY,
     CHECK_IN_RESPONSE_CHANNEL,
@@ -23,13 +24,18 @@ from app import (
     DATE_KEY,
     DISABLE_CHANNEL,
     FAILED_LOGIN_CHANNEL,
+    PHONE_NUMBER_KEY,
     PROFESSOR_DATE_AVAILABILITY_RANGE,
-    STUDENT_DATE_AVAILABILITY_RANGE,
-    SUCCESSFUL_LOGIN_CHANNEL,
+    RESERVATION_KEY,
+    RESERVATION_RESPONSE_CHANNEL,
+    RESERVATION_SUCCESS_KEY,
     ROOMS_KEY,
     ROOMS_RESPONSE_CHANNEL,
+    STUDENT_DATE_AVAILABILITY_RANGE,
+    SUCCESSFUL_LOGIN_CHANNEL,
     TIME_AVAILABILITY_KEY,
     TIME_AVAILABILITY_RESPONSE_CHANNEL,
+    TIME_KEY,
     TIMESLOT_KEY,
     USER_LOGIN_NAME_KEY,
     USER_LOGIN_ROLE_KEY,
@@ -56,9 +62,12 @@ KEY_CONNECTED_USERS = "connected users"
 KEY_EXPECTED = "expected"
 KEY_EXPECTED_TYPE = "expected type"
 KEY_RESPONSE = "response"
+KEY_MULTIPLE_RESPONSES = "multiple responses"
 KEY_QUERY_RESPONSE = "query response"
 KEY_ARGS = "args"
+KEY_MULTIPLE_ARGS = "multiple args"
 KEY_KWARGS = "kwargs"
+KEY_MULTIPLE_KWARGS = "multiple kwargs"
 KEY_COUNT = "count"
 
 KEY_NAME = "name"
@@ -1354,6 +1363,347 @@ class AppTestCase(unittest.TestCase):
             },
         ]
 
+        self.current_datetime = datetime.datetime.utcnow()
+        self.current_date = self.current_datetime.date()
+
+        self.on_reservation_submit_test_cases = [
+            {
+                KEY_INPUT: None,
+                KEY_SID: "mock sid",
+                KEY_CONNECTED_USERS: {
+                    "mock sid": MOCK_USER_INFOS[1],
+                },
+                KEY_MULTIPLE_RESPONSES: {
+                    "get_attendee_ids_from_ucids": [],
+                    "get_available_room_ids_for_date": {},
+                    "create_reservation": (None, None, None),
+                },
+                KEY_ROLE: None,
+                KEY_EXPECTED_TYPE: AssertionError,
+                KEY_MULTIPLE_ARGS: {},
+                KEY_MULTIPLE_KWARGS: {},
+            },
+            {
+                KEY_INPUT: {},
+                KEY_SID: "mock sid",
+                KEY_CONNECTED_USERS: {
+                    "mock sid": MOCK_USER_INFOS[1],
+                },
+                KEY_MULTIPLE_RESPONSES: {
+                    "get_attendee_ids_from_ucids": [],
+                    "get_available_room_ids_for_date": {},
+                    "create_reservation": (None, None, None),
+                },
+                KEY_ROLE: None,
+                KEY_EXPECTED_TYPE: AssertionError,
+                KEY_MULTIPLE_ARGS: {},
+                KEY_MULTIPLE_KWARGS: {},
+            },
+            {
+                KEY_INPUT: {
+                    DATE_KEY: ["invalid date"],
+                    TIME_KEY: ["invalid time"],
+                    PHONE_NUMBER_KEY: ["invalid phone"],
+                    ATTENDEES_KEY: "invalid attendees",
+                },
+                KEY_SID: "mock sid",
+                KEY_CONNECTED_USERS: {
+                    "mock sid": MOCK_USER_INFOS[1],
+                },
+                KEY_MULTIPLE_RESPONSES: {
+                    "get_attendee_ids_from_ucids": [],
+                    "get_available_room_ids_for_date": {},
+                    "create_reservation": (None, None, None),
+                },
+                KEY_ROLE: None,
+                KEY_EXPECTED_TYPE: AssertionError,
+                KEY_MULTIPLE_ARGS: {},
+                KEY_MULTIPLE_KWARGS: {},
+            },
+            {
+                KEY_INPUT: {
+                    DATE_KEY: (
+                        (self.current_datetime + datetime.timedelta(days=1))
+                        .timestamp() * 1000
+                    ),
+                    TIME_KEY: ["invalid time"],
+                    PHONE_NUMBER_KEY: ["invalid phone"],
+                    ATTENDEES_KEY: "invalid attendees",
+                },
+                KEY_SID: "mock sid",
+                KEY_CONNECTED_USERS: {
+                    "mock sid": MOCK_USER_INFOS[1],
+                },
+                KEY_MULTIPLE_RESPONSES: {
+                    "get_attendee_ids_from_ucids": [],
+                    "get_available_room_ids_for_date": {},
+                    "create_reservation": (None, None, None),
+                },
+                KEY_ROLE: None,
+                KEY_EXPECTED_TYPE: AssertionError,
+                KEY_MULTIPLE_ARGS: {},
+                KEY_MULTIPLE_KWARGS: {},
+            },
+            {
+                KEY_INPUT: {
+                    DATE_KEY: (
+                        (self.current_datetime + datetime.timedelta(days=1))
+                        .timestamp() * 1000
+                    ),
+                    TIME_KEY: "13:00-15:00",
+                    PHONE_NUMBER_KEY: ["invalid phone"],
+                    ATTENDEES_KEY: "invalid attendees",
+                },
+                KEY_SID: "mock sid",
+                KEY_CONNECTED_USERS: {
+                    "mock sid": MOCK_USER_INFOS[1],
+                },
+                KEY_MULTIPLE_RESPONSES: {
+                    "get_attendee_ids_from_ucids": [],
+                    "get_available_room_ids_for_date": {},
+                    "create_reservation": (None, None, None),
+                },
+                KEY_ROLE: None,
+                KEY_EXPECTED_TYPE: AssertionError,
+                KEY_MULTIPLE_ARGS: {},
+                KEY_MULTIPLE_KWARGS: {},
+            },
+            {
+                KEY_INPUT: {
+                    DATE_KEY: (
+                        (self.current_datetime + datetime.timedelta(days=1))
+                        .timestamp() * 1000
+                    ),
+                    TIME_KEY: "13:00-15:00",
+                    PHONE_NUMBER_KEY: "mock phone",
+                    ATTENDEES_KEY: "invalid attendees",
+                },
+                KEY_SID: "mock sid",
+                KEY_CONNECTED_USERS: {
+                    "mock sid": MOCK_USER_INFOS[1],
+                },
+                KEY_MULTIPLE_RESPONSES: {
+                    "get_attendee_ids_from_ucids": [],
+                    "get_available_room_ids_for_date": {},
+                    "create_reservation": (None, None, None),
+                },
+                KEY_ROLE: None,
+                KEY_EXPECTED_TYPE: AssertionError,
+                KEY_MULTIPLE_ARGS: {},
+                KEY_MULTIPLE_KWARGS: {},
+            },
+            {
+                KEY_INPUT: {
+                    DATE_KEY: (
+                        (self.current_datetime + datetime.timedelta(days=1))
+                        .timestamp() * 1000
+                    ),
+                    TIME_KEY: "13:00-15:00",
+                    PHONE_NUMBER_KEY: "mock phone",
+                    ATTENDEES_KEY: [123],
+                },
+                KEY_SID: "mock sid",
+                KEY_CONNECTED_USERS: {
+                    "mock sid": MOCK_USER_INFOS[1],
+                },
+                KEY_MULTIPLE_RESPONSES: {
+                    "get_attendee_ids_from_ucids": [],
+                    "get_available_room_ids_for_date": {},
+                    "create_reservation": (None, None, None),
+                },
+                KEY_ROLE: None,
+                KEY_EXPECTED_TYPE: AssertionError,
+                KEY_MULTIPLE_ARGS: {},
+                KEY_MULTIPLE_KWARGS: {},
+            },
+            {
+                KEY_INPUT: {
+                    DATE_KEY: (
+                        (self.current_datetime + datetime.timedelta(days=1))
+                        .timestamp() * 1000
+                    ),
+                    TIME_KEY: "13:00-15:00",
+                    PHONE_NUMBER_KEY: "mock phone",
+                    ATTENDEES_KEY: ["mock attendee"],
+                },
+                KEY_SID: "mock sid",
+                KEY_CONNECTED_USERS: {
+                    "mock sid": MOCK_USER_INFOS[1],
+                },
+                KEY_MULTIPLE_RESPONSES: {
+                    "get_attendee_ids_from_ucids": [],
+                    "get_available_room_ids_for_date": {},
+                    "create_reservation": (None, None, None),
+                },
+                KEY_ROLE: None,
+                KEY_EXPECTED_TYPE: None,
+                KEY_MULTIPLE_ARGS: {},
+                KEY_MULTIPLE_KWARGS: {},
+            },
+            {
+                KEY_INPUT: {
+                    DATE_KEY: (
+                        (
+                            self.current_datetime
+                            + datetime.timedelta(days=STUDENT_DATE_AVAILABILITY_RANGE+5)
+                        ).timestamp() * 1000
+                    ),
+                    TIME_KEY: "13:00-15:00",
+                    PHONE_NUMBER_KEY: "mock phone",
+                    ATTENDEES_KEY: ["mock attendee"],
+                },
+                KEY_SID: "mock sid",
+                KEY_CONNECTED_USERS: {
+                    "mock sid": MOCK_USER_INFOS[1],
+                },
+                KEY_MULTIPLE_RESPONSES: {
+                    "get_attendee_ids_from_ucids": [],
+                    "get_available_room_ids_for_date": {},
+                    "create_reservation": (None, None, None),
+                },
+                KEY_ROLE: models.UserRole.STUDENT,
+                KEY_EXPECTED_TYPE: None,
+                KEY_MULTIPLE_ARGS: {},
+                KEY_MULTIPLE_KWARGS: {},
+            },
+            {
+                KEY_INPUT: {
+                    DATE_KEY: (
+                        (
+                            self.current_datetime
+                            + datetime.timedelta(days=PROFESSOR_DATE_AVAILABILITY_RANGE+5)
+                        ).timestamp() * 1000
+                    ),
+                    TIME_KEY: "13:00-15:00",
+                    PHONE_NUMBER_KEY: "mock phone",
+                    ATTENDEES_KEY: ["mock attendee"],
+                },
+                KEY_SID: "mock sid",
+                KEY_CONNECTED_USERS: {
+                    "mock sid": MOCK_USER_INFOS[1],
+                },
+                KEY_MULTIPLE_RESPONSES: {
+                    "get_attendee_ids_from_ucids": [],
+                    "get_available_room_ids_for_date": {},
+                    "create_reservation": (None, None, None),
+                },
+                KEY_ROLE: models.UserRole.PROFESSOR,
+                KEY_EXPECTED_TYPE: None,
+                KEY_MULTIPLE_ARGS: {},
+                KEY_MULTIPLE_KWARGS: {},
+            },
+            {
+                KEY_INPUT: {
+                    DATE_KEY: (
+                        self.current_datetime.timestamp() * 1000
+                    ),
+                    TIME_KEY: "13:00-15:00",
+                    PHONE_NUMBER_KEY: "mock phone",
+                    ATTENDEES_KEY: ["mock attendee"],
+                },
+                KEY_SID: "mock sid",
+                KEY_CONNECTED_USERS: {
+                    "mock sid": MOCK_USER_INFOS[1],
+                },
+                KEY_MULTIPLE_RESPONSES: {
+                    "get_attendee_ids_from_ucids": [123],
+                    "get_available_room_ids_for_date": {
+                        13: [],
+                        15: [1],
+                    },
+                    "create_reservation": (None, None, None),
+                },
+                KEY_ROLE: models.UserRole.STUDENT,
+                KEY_EXPECTED_TYPE: None,
+                KEY_MULTIPLE_ARGS: {
+                    "get_attendee_ids_from_ucids": [["mock attendee"]],
+                    "get_available_room_ids_for_date": [self.current_date],
+                    "create_reservation": [],
+                    "send_confirmation": [],
+                    "emit": [],
+                },
+                KEY_MULTIPLE_KWARGS: {
+                    "get_attendee_ids_from_ucids": {},
+                    "get_available_room_ids_for_date": {},
+                    "create_reservation": {},
+                    "send_confirmation": {},
+                    "emit": {},
+                },
+            },
+            {
+                KEY_INPUT: {
+                    DATE_KEY: (
+                        self.current_datetime.timestamp() * 1000
+                    ),
+                    TIME_KEY: "13:00-15:00",
+                    PHONE_NUMBER_KEY: "mock phone",
+                    ATTENDEES_KEY: ["mock attendee"],
+                },
+                KEY_SID: "mock sid",
+                KEY_CONNECTED_USERS: {
+                    "mock sid": MOCK_USER_INFOS[1],
+                },
+                KEY_MULTIPLE_RESPONSES: {
+                    "get_attendee_ids_from_ucids": [123],
+                    "get_available_room_ids_for_date": {
+                        13: [1, 2, 3],
+                        15: [1],
+                    },
+                    "create_reservation": (True, "mock code", "mock reservation"),
+                },
+                KEY_ROLE: models.UserRole.STUDENT,
+                KEY_EXPECTED_TYPE: list,
+                KEY_MULTIPLE_ARGS: {
+                    "get_attendee_ids_from_ucids": [["mock attendee"]],
+                    "get_available_room_ids_for_date": [self.current_date],
+                    "create_reservation": [],
+                    "send_confirmation": [],
+                    "emit": [
+                        RESERVATION_RESPONSE_CHANNEL,
+                        {
+                            RESERVATION_SUCCESS_KEY: True,
+                            CHECK_IN_CODE_KEY: "mock code",
+                            RESERVATION_KEY: "mock reservation",
+                        }
+                    ],
+                },
+                KEY_MULTIPLE_KWARGS: {
+                    "get_attendee_ids_from_ucids": {},
+                    "get_available_room_ids_for_date": {},
+                    "create_reservation": {
+                        "room_id": 1,
+                        "start_time": datetime.datetime(
+                            self.current_date.year,
+                            self.current_date.month,
+                            self.current_date.day,
+                            13,
+                            0,
+                            0,
+                        ),
+                        "end_time": datetime.datetime(
+                            self.current_date.year,
+                            self.current_date.month,
+                            self.current_date.day,
+                            15,
+                            0,
+                            0,
+                        ),
+                        "organizer_id": MOCK_USER_INFOS[1].id,
+                        "attendee_ids": [123],
+                    },
+                    "send_confirmation": {
+                        "number": "mock phone",
+                        "ucid": MOCK_USER_INFOS[1].ucid,
+                        "date": self.current_date,
+                        "time": "13:00-15:00",
+                        "attendees": ["mock attendee"],
+                        "confirmation": "mock code",
+                    },
+                    "emit": {"room": "mock sid"},
+                },
+            },
+        ]
+
     @mock.patch("app.flask")
     def test_current_user_role(self, mocked_flask):
         """
@@ -1756,6 +2106,75 @@ class AppTestCase(unittest.TestCase):
                     mocked_db_utils.update_user_role.assert_called_once_with(
                         **test[KEY_EXPECTED],
                     )
+
+    @mock.patch("app.db_utils")
+    @mock.patch("app.SOCKET")
+    @mock.patch("app.flask")
+    def test_on_reservation_submit(
+            self,
+            mocked_flask,
+            mocked_socket,
+            mocked_db_utils,
+    ):
+        """
+        Tests app.on_reservation_submit
+        """
+        for test in self.on_reservation_submit_test_cases:
+            mocked_flask.reset_mock()
+            mocked_socket.reset_mock()
+            mocked_db_utils.reset_mock()
+
+            mocked_flask.request.sid = test[KEY_SID]
+            mocked_db_utils.get_attendee_ids_from_ucids.return_value = (
+                test[KEY_MULTIPLE_RESPONSES]["get_attendee_ids_from_ucids"]
+            )
+            mocked_db_utils.get_available_room_ids_for_date.return_value = (
+                test[KEY_MULTIPLE_RESPONSES]["get_available_room_ids_for_date"]
+            )
+            mocked_db_utils.create_reservation.return_value = (
+                test[KEY_MULTIPLE_RESPONSES]["create_reservation"]
+            )
+
+            with mock.patch.multiple(
+                    "app",
+                    CONNECTED_USERS=test[KEY_CONNECTED_USERS],
+                    _current_user_role=lambda: test[KEY_ROLE],
+                    send_confirmation=mock.DEFAULT,
+            ) as mocked_methods:
+                if test[KEY_EXPECTED_TYPE] is None:
+                    app.on_reservation_submit(test[KEY_INPUT])
+                    mocked_socket.emit.assert_not_called()
+                    mocked_methods["send_confirmation"].assert_not_called()
+                elif issubclass(test[KEY_EXPECTED_TYPE], Exception):
+                    with self.assertRaises(test[KEY_EXPECTED_TYPE]):
+                        app.on_reservation_submit(test[KEY_INPUT])
+                    mocked_socket.emit.assert_not_called()
+                    mocked_methods["send_confirmation"].assert_not_called()
+                    mocked_db_utils.get_available_dates_for_month.assert_not_called()
+                    mocked_db_utils.get_available_dates_after_date.assert_not_called()
+                else:
+                    app.on_reservation_submit(test[KEY_INPUT])
+                    mocked_socket.emit.assert_called_once_with(
+                        *test[KEY_MULTIPLE_ARGS]["emit"],
+                        **test[KEY_MULTIPLE_KWARGS]["emit"],
+                    )
+                    mocked_methods["send_confirmation"].assert_called_once_with(
+                        *test[KEY_MULTIPLE_ARGS]["send_confirmation"],
+                        **test[KEY_MULTIPLE_KWARGS]["send_confirmation"],
+                    )
+                    mocked_db_utils.get_attendee_ids_from_ucids.assert_called_once_with(
+                        *test[KEY_MULTIPLE_ARGS]["get_attendee_ids_from_ucids"],
+                        **test[KEY_MULTIPLE_KWARGS]["get_attendee_ids_from_ucids"],
+                    )
+                    mocked_db_utils.get_available_room_ids_for_date.assert_called_once_with(
+                        *test[KEY_MULTIPLE_ARGS]["get_available_room_ids_for_date"],
+                        **test[KEY_MULTIPLE_KWARGS]["get_available_room_ids_for_date"],
+                    )
+                    mocked_db_utils.create_reservation.assert_called_once_with(
+                        *test[KEY_MULTIPLE_ARGS]["create_reservation"],
+                        **test[KEY_MULTIPLE_KWARGS]["create_reservation"],
+                    )
+
 
 if __name__ == "__main__":
     unittest.main()
