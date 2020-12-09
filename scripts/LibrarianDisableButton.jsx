@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Socket } from './Socket';
+import Socket from './Socket';
 
 export default function LibrarianDisableButton(props) {
     const {startDate} = props;
