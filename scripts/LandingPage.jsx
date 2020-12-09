@@ -1,6 +1,6 @@
 import * as React from 'react';
 import ReactDOM from 'react-dom';
-import { ReservationOverview } from './ReservationOverview';
+import ReservationOverview from './ReservationOverview';
 
 function goBack(){
         ReactDOM.render(<ReservationOverview />, document.getElementById('content'));

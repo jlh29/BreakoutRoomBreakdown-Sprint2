@@ -35,15 +35,11 @@
     ]
   },
   "dependencies": {
-<<<<<<< HEAD
-    "react-calendar": "^3.2.1",
-    "react-google-login": "^5.1.22",
-=======
+    "date-fns": "^2.16.1",
     "prop-types": "^15.7.2",
     "react": "^16.12.0",
     "react-calendar": "^3.2.0",
     "react-google-login": "^5.1.25",
->>>>>>> 7573af41082b170797bf280ea9af317920d49f37
     "socket.io-client": "^2.3.1"
   },
   "name": "breakoutroombreakdown",
