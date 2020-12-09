@@ -16,6 +16,13 @@ from scheduled_tasks import (SCHEDULE_INTERVAL_MINUTES, SCHEDULE_START_DATE,
                              SCHEDULE_TRIGGER)
 import socket_utils
 
+from api_twilio import Twilio
+from api_sendgrid import SendGrid
+
+KEY_LENGTH = "length"
+KEY_MESSAGE = "message"
+KEY_NUMBER = "number"
+
 KEY_INPUT = "input"
 KEY_EXPECTED = "expected"
 KEY_EXPECTED_TYPE = "expected type"
@@ -41,6 +48,8 @@ KEY_DATA = "data sent"
 AUTH_TYPE = "auth_type"
 NAME = "name"
 EMAIL = "email"
+UCID = "ucid"
+DOMAIN = "domain"
 
 MOCK_AUTH_USER_DB_ENTRIES = {
     1: models.AuthUser(
@@ -585,6 +594,117 @@ class ScheduledTasksTestCase(unittest.TestCase):
                 mocked_background_scheduler.return_value.shutdown
             )
 
+class MockedClient:
+    """ Mock client format """
+    def __init__(self, key, secret):
+        ''' Initialize client '''
+        self.key = key
+        self.secret = secret
+        
+    def msg(self):
+        return
+
+    def create(self):
+        ''' Return client msg format '''
+        return self.msg
+        
+class MockedMail:
+    """ Mock mail send """
+    def __init__(self, from_email, to_emails, subject, html_content):
+        ''' Initialize client '''
+        self.from_email = from_email
+        self.to_emails = to_emails
+        self.subject = subject
+        self.html_content = html_content
+        
+    def create(self):
+        ''' Return mail msg format '''
+        return self.subject
+
+class TwilioTestCase(unittest.TestCase):
+    """ Test the Twilio for commands and parsing logic """
+    
+    def setUp(self):
+        """ Initialize befor unit tests """
+        
+        self.success_test_params = [
+            {
+                KEY_NUMBER: "2014448888",
+                KEY_EXPECTED: {
+                    KEY_LENGTH: 10,
+                },
+            },
+        ]
+        
+        self.failure_test_params = [
+            {
+                KEY_NUMBER: "201444",
+                KEY_EXPECTED: {
+                    KEY_LENGTH: 10,
+                },
+            },
+        ]
+    
+        
+    def mocked_api_twilio(self, msg):
+        """ Mock twilio api """
+        return MockedClient('twiliokey', 'twiliosecret')
+        
+    def test_send_text(self):
+        """ Test the passed user's list """
+        for test in self.success_test_params:
+            self.api_twilio = Twilio(test[KEY_NUMBER])
+            
+            with mock.patch("Client.messages.create", self.mocked_api_twilio):
+                self.api_twilio.send_text('11/22/2020','11:00','jane123','ABC123')
+                expected = test[KEY_EXPECTED]
+
+            self.assertNotEqual('Hello there', expected[KEY_LENGTH])
+            
+            
+class SendGridTestCase(unittest.TestCase):
+    """ Test the Twilio for commands and parsing logic """
+    
+    def setUp(self):
+        """ Initialize befor unit tests """
+        
+        self.success_test_params = [
+            {
+                EMAIL: "janedoe@njit.edu",
+                KEY_EXPECTED: {
+                    UCID: "janedoe",
+                    DOMAIN: "njit.edu",
+                },
+            },
+        ]
+        
+        self.failure_test_params = [
+            {
+                EMAIL: "janedoe@njit.edu",
+                KEY_EXPECTED: {
+                    UCID: "janee",
+                    DOMAIN: "gmail.edu",
+                },
+            },
+        ]
+    
+        
+    def mocked_api_sendgrid(self, msg):
+        """ Mock sendgrid api """
+        return MockedMail('js12@njit.edu', 'jd34@njit.edu', 'test', 'hello there')
+        
+    def test_send_text(self):
+        """ Test the passed mail """
+        for test in self.success_test_params:
+            self.api_sendgrid = SendGrid(test[EMAIL])
+            
+            with mock.patch("Mail", self.mocked_api_sendgrid):
+                self.api_sendgrid.send_email('js12@njit.edu', 'jd34@njit.edu', 'test', 'hello there')
+                expected = test[KEY_EXPECTED]
+
+            self.assertEqual('jane1234', expected[UCID])
+            self.assertNotEqual('@email.com', expected[DOMAIN])
+            
 
 if __name__ == "__main__":
     unittest.main()
