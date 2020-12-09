@@ -9,3 +9,4 @@ APScheduler==3.6.3
 sendgrid==6.4.8
 twilio==6.49.0
 python-socketio==4.6.0
+python-engineio==3.14.2
