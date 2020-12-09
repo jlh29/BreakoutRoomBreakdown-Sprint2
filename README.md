@@ -1,5 +1,6 @@
-https://brb-mvp.herokuapp.com/
-# [Breakout Room Breakdown](https://brb-mvp.herokuapp.com/)
+https://brb-mvp.herokuapp.com/ (MVP)
+https://breakoutroombreakdown.herokuapp.com/ (Sprint 2)
+# [Breakout Room Breakdown](https://breakoutroombreakdown.herokuapp.com/)
 ### a browser-based booking appointment app for easy scheduling of breakout rooms
 
 -----------------------------------------------
@@ -10,12 +11,22 @@ https://brb-mvp.herokuapp.com/
 * Created the a Calendar and Slot component that displayed the available timeslot
 * Attempted to display the available timeslot based on the date
 * Mock Testing for python files 
+* Calendar - set up the holidays
+* Beautification/responsive website
+* Send message/email - Twilio
+
 
 ##### Jacob Haynie
 * Created the entire librarian's overview including creating components 
 * Made the available timeslot clickable
 * Finished the database and added additional tables
 * Deployed the app to Heroku
+* student/professor/librarian permissions
+* Move authentication to server
+* Fixing client-side date/time bug 
+* Allow Librarian to edit reservations/users/rooms
+* linting/unit testing 
+
 
 ##### Dipam Patel
 * Implement Google OAuth (Don’t allow others to login without the @njit.edu email)
@@ -31,6 +42,7 @@ https://brb-mvp.herokuapp.com/
 * Made a database for student's info as well participant's info
 * Created a new table for participants
 * Created the submit button and save the details to the database created
+* Reservation Time Slot Search Function
 
 -----------------------------------------------
 
