@@ -373,8 +373,8 @@ def send_confirmation(number, ucid, date, time, attendees, confirmation):
         twilio = Twilio(to_number)
         twilio.send_text(date, time, attendees, confirmation)
         print("Text message sent!")
-
-    except:
+    except Exception as err:
+        print("Could not send text: ", err)
         sendgrid = SendGrid(email)
         sendgrid.send_email(date, time, attendees, confirmation)
         print("Email sent!")
