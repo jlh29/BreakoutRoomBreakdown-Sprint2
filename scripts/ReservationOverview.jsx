@@ -139,7 +139,7 @@ export default function ReservationOverview(props) {
         {' '}
         <strong>{name}</strong>
       </p>
-      <form id="DND" action="/about">
+      <form id="DND" action="https://breakoutroombreakdown.herokuapp.com/about">
         <button
           type="button"
           id="DND-text"
