@@ -211,17 +211,42 @@ input {
 }
 
 #reservationConfirmationContainer {
-    background-color: coral;
+    background-color: #EAE7E0;
     width:35%;
     border-radius:30px;
+    font-family: 'BenchNine';
+    font-size: 26px;
+    padding: 10px;
 }
 
+#reservation-banner {
+    border-radius:30px;
+    width: 100%;
+    height: 15%;
+    background-position: center top;
+    background-size: cover;
+    margin: 15px;
+}
+
+#reservation-summary{
+    font-family: 'Marvel';
+    font-weight: bold;
+    font-size: 32px;
+    padding: 7px;
+}
 
 /*Calendar style*/
 
 .react-calendar{
     width: 100%;
     height: 60%;
+}
+
+.react-calendar__navigation__label{
+    font-family: 'BenchNine';
+    font-size: 20px;
+    font-weight: bold;
+    color: #cc0404;
 }
 
 .librarianEditFieldContainer {
