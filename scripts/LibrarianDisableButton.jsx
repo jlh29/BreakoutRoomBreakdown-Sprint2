@@ -19,10 +19,7 @@ export default function LibrarianDisableButton(props) {
   }
   
   return (
-      <button 
-      startDate={startDate}
-      endDate={endDate}
-      note={note}
+      <button
       type="text" 
       onClick={handleSubmit}>
       Disable Date

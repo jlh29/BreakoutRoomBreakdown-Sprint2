@@ -24,7 +24,7 @@ export default function LibrarianDateInput(props) {
  
   return (
     <div>
-        <label for="librarianStartDate">Start date:</label>
+        <label htmlFor="librarianStartDate">Start date:</label>
         <input
           id="librarianStartDate"
           type="date"
@@ -32,7 +32,7 @@ export default function LibrarianDateInput(props) {
           onChange={handleStart}
         />
         
-        <label for="librarianEndDate">End date:</label>
+        <label htmlFor="librarianEndDate">End date:</label>
         <input
           id="librarianEndDate"
           type="date"
@@ -40,7 +40,7 @@ export default function LibrarianDateInput(props) {
           onChange={handleEnd}
         />
         
-        <label for="librarianEndDate">Note:</label>
+        <label htmlFor="librarianNote">Note:</label>
         <input
           id="librarianNote"
           type="text"
