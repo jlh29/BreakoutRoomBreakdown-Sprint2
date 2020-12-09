@@ -99,6 +99,7 @@ export default function MyCalendar(props) {
         tileContent={handleContent}
       />
       <div id="timeButtonsContainer">
+        <p id="availableTimesText">Available Times</p>
         {
                     allTimes.map(
                       (time) => (

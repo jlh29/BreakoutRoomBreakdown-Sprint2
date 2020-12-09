@@ -10,6 +10,12 @@ body {
     text-align: center;
 }
 
+#contentContainer {
+    background-image: url('bg4.png');
+    background-position: center left;
+    background-size: cover;
+}
+
 #brb-banner {
     width: 100%;
     height: 25%;
@@ -40,8 +46,15 @@ body {
     right:10px;
 }
 
+#availableTimesText {
+    font-family: 'BenchNine';
+    font-size: 30px;
+    font-weight: bold;
+    margin-bottom: 0px;
+}
+
 #reservationForm {
-    background-color: blue;
+    background-color: #EAE7E0;
     padding:15px;
     border-radius:15px;
     font-family: 'BenchNine';
@@ -57,7 +70,11 @@ body {
 }
 
 #roomReservationTimeInfoContainer {
-    background-color: coral;
+    background-image: url("calendar-bg.png");
+    background-position: center;
+    background-size: cover;
+    margin: 8px;
+    padding: 10px;
 }
 
 #roomReservationTimeInfo {
