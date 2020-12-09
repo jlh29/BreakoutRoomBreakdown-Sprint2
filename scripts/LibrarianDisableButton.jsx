@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Socket } from './Socket';
+import Socket from './Socket';
 
 export default function LibrarianDisableButton(props) {
     const {startDate} = props;
@@ -19,10 +19,7 @@ export default function LibrarianDisableButton(props) {
   }
   
   return (
-      <button 
-      startDate={startDate}
-      endDate={endDate}
-      note={note}
+      <button
       type="text" 
       onClick={handleSubmit}>
       Disable Date

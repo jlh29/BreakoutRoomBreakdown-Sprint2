@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-syntax */
 import React, { useEffect, useState } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
@@ -217,10 +218,10 @@ export default function LibrarianOverview() {
         showResult={showCheckInResult}
         isSuccess={checkInSuccess}
       />
-      
+
       <h1 id="calendarMarking">Calendar Markings</h1>
       <LibrarianDateInput />
-      
+
       <h1 id="usersBanner">Users</h1>
       <LibrarianUsersOverview
         users={users}

@@ -2,6 +2,8 @@
     This module handles the Flask application and receiving and responding to
     data over socketio.
 """
+# pylint: disable=fixme
+# pylint: disable=duplicate-code
 import datetime
 import os
 from os.path import join, dirname
@@ -89,6 +91,8 @@ NOTE = "note"
 STUDENT_DATE_AVAILABILITY_RANGE = 3
 PROFESSOR_DATE_AVAILABILITY_RANGE = 7
 
+EST_TZ_OFFSET = datetime.timezone(datetime.timedelta(hours=-5))
+
 CONNECTED_USERS = {}
 
 
@@ -100,28 +104,29 @@ def _current_user_role():
         return None
     return CONNECTED_USERS[flask.request.sid].role
 
+
 def emit_all_dates(channel):
     """
-    Send all disable dates to the client 
+    Send all disable dates to the client
     """
     all_start_dates, all_end_dates, all_notes = db_utils.get_disable_date()
-    
+
     all_start_dates = [str(x.date()) for x in all_start_dates]
     all_end_dates = [str(x.date()) for x in all_end_dates]
-    
+
     date_range = list(list(x) for x in zip(all_start_dates, all_end_dates))
-    
+
     SOCKET.emit(
         channel,
-        {   
+        {
             DATE_RANGE: date_range,
             START_DATE: all_start_dates,
             END_DATE: all_end_dates,
             NOTE: all_notes,
-        }
+        },
     )
     print("Data sent to client")
-    
+
 
 @SOCKET.on(CONNECT_CHANNEL)
 def on_connect():
@@ -149,10 +154,12 @@ def on_new_user_login(data):
     """
     print(f"Got an event for new user login")
     assert data is not None
-    assert all([
-        isinstance(data, dict),
-        USER_LOGIN_TOKEN_KEY in data,
-    ])
+    assert all(
+        [
+            isinstance(data, dict),
+            USER_LOGIN_TOKEN_KEY in data,
+        ]
+    )
     assert flask.request.sid is not None
     auth_user = login_utils.get_user_from_google_token(data[USER_LOGIN_TOKEN_KEY])
     if auth_user is None:
@@ -180,10 +187,12 @@ def on_date_availability_request(data):
     Returns a list of dates that are not fully booked or otherwise unavailable
     """
     assert data is not None
-    assert all([
-        isinstance(data, dict),
-        DATE_KEY in data,
-    ])
+    assert all(
+        [
+            isinstance(data, dict),
+            DATE_KEY in data,
+        ]
+    )
     assert isinstance(data[DATE_KEY], str)
     print("Got an event for date input with data:", data)
     date = datetime.datetime.strptime(data[DATE_KEY], DATE_FORMAT)
@@ -219,10 +228,12 @@ def on_time_availability_request(data):
     Checks to see what timeslots are available and sends them to the client
     """
     assert data is not None
-    assert all([
-        isinstance(data, dict),
-        DATE_KEY in data,
-    ])
+    assert all(
+        [
+            isinstance(data, dict),
+            DATE_KEY in data,
+        ]
+    )
     assert isinstance(data[DATE_KEY], str)
     print("Got an event for time input with data:", data)
     if _current_user_role() is None:
@@ -253,25 +264,27 @@ def on_reservation_submit(data):
     """
     print("running")
     assert data is not None
-    assert all([
-        isinstance(data, dict),
-        DATE_KEY in data,
-        TIME_KEY in data,
-        PHONE_NUMBER_KEY in data,
-        ATTENDEES_KEY in data,
-    ])
-    assert all([
-        isinstance(data[DATE_KEY], (float, int)),
-        isinstance(data[TIME_KEY], str),
-        isinstance(data[PHONE_NUMBER_KEY], (str, int)),
-        data[ATTENDEES_KEY] is None or (
-            isinstance(data[ATTENDEES_KEY], list) and
-            all([
-                isinstance(attendee, str)
-                for attendee in data[ATTENDEES_KEY]
-            ])
-        ),
-    ])
+    assert all(
+        [
+            isinstance(data, dict),
+            DATE_KEY in data,
+            TIME_KEY in data,
+            PHONE_NUMBER_KEY in data,
+            ATTENDEES_KEY in data,
+        ]
+    )
+    assert all(
+        [
+            isinstance(data[DATE_KEY], (float, int)),
+            isinstance(data[TIME_KEY], str),
+            isinstance(data[PHONE_NUMBER_KEY], (str, int)),
+            data[ATTENDEES_KEY] is None
+            or (
+                isinstance(data[ATTENDEES_KEY], list)
+                and all([isinstance(attendee, str) for attendee in data[ATTENDEES_KEY]])
+            ),
+        ]
+    )
     user_role = _current_user_role()
     date = datetime.datetime.fromtimestamp(data[DATE_KEY] / 1000.0)
     date_difference = (date - datetime.datetime.utcnow()).days
@@ -304,6 +317,7 @@ def on_reservation_submit(data):
         int(start_time_string.split(":")[0]),
         0,
         0,
+        tzinfo=EST_TZ_OFFSET,
     )
     end_time = datetime.datetime(
         date.year,
@@ -312,6 +326,7 @@ def on_reservation_submit(data):
         int(end_time_string.split(":")[0]),
         0,
         0,
+        tzinfo=EST_TZ_OFFSET,
     )
     organizer_id = CONNECTED_USERS[flask.request.sid].id
     (
@@ -325,7 +340,7 @@ def on_reservation_submit(data):
         organizer_id=organizer_id,
         attendee_ids=attendee_ids,
     )
-    
+
     ucid = CONNECTED_USERS[flask.request.sid].ucid
     if reservation_success:
         send_confirmation(
@@ -352,13 +367,13 @@ def send_confirmation(number, ucid, date, time, attendees, confirmation):
     """
     Sends the confirmation through text, if number is invalid send via email
     """
-    email = '{}@njit.edu'.format(ucid)
+    email = "{}@njit.edu".format(ucid)
     try:
         to_number = "+1{}".format(number)
         twilio = Twilio(to_number)
         twilio.send_text(date, time, attendees, confirmation)
         print("Text message sent!")
-    
+
     except:
         sendgrid = SendGrid(email)
         sendgrid.send_email(date, time, attendees, confirmation)
@@ -370,8 +385,17 @@ def index():
     """
     Provides the client with the main webpage
     """
-    
+
     return flask.render_template("index.html")
+
+
+@APP.route("/about")
+def about():
+    """
+    Provides the client with the landing page
+    """
+
+    return flask.render_template("about.html")
 
 
 @SOCKET.on(LIBRARIAN_DATA_REQUEST_CHANNEL)
@@ -395,10 +419,12 @@ def on_request_appointments(data):
     Returns a list of all Appointments for a given date
     """
     assert data is not None
-    assert all([
-        isinstance(data, dict),
-        DATE_KEY in data,
-    ])
+    assert all(
+        [
+            isinstance(data, dict),
+            DATE_KEY in data,
+        ]
+    )
     assert isinstance(data[DATE_KEY], str)
     if not _current_user_role() == models.UserRole.LIBRARIAN:
         return
@@ -452,10 +478,12 @@ def on_check_in(data):
     Called whenever the librarian checks in a group via their check-in code
     """
     assert data is not None
-    assert all([
-        isinstance(data, dict),
-        CHECK_IN_CODE_KEY in data,
-    ])
+    assert all(
+        [
+            isinstance(data, dict),
+            CHECK_IN_CODE_KEY in data,
+        ]
+    )
     assert isinstance(data[CHECK_IN_CODE_KEY], str)
     if not _current_user_role() == models.UserRole.LIBRARIAN:
         return
@@ -467,20 +495,22 @@ def on_check_in(data):
         room=flask.request.sid,
     )
 
+
 @SOCKET.on(DISABLE_DATE)
 def on_disable_date(data):
     """
     Called whenever the librarian set a date to disable in the calendar
     """
     print("Got an event for new date input with data:", data)
-    
-    start_date = datetime.datetime.strptime(data['startDate'], "%Y-%m-%d")
-    end_date = datetime.datetime.strptime(data['endDate'], "%Y-%m-%d")
-    note = data['note']
-    
+
+    start_date = datetime.datetime.strptime(data["startDate"], "%Y-%m-%d")
+    end_date = datetime.datetime.strptime(data["endDate"], "%Y-%m-%d")
+    note = data["note"]
+
     db_utils.add_disable_date(start_date, end_date, note)
     emit_all_dates(DISABLE_CHANNEL)
-    
+
+
 @SOCKET.on(UPDATE_ROOM_CHANNEL)
 def on_update_room(data):
     """
@@ -489,13 +519,15 @@ def on_update_room(data):
     assert data is not None
     assert isinstance(data, dict)
     assert set(models.BreakoutRoom._fields).issubset(data)
-    assert all([
-        isinstance(data["id"], int),
-        isinstance(data["room_number"], (int, str)),
-        isinstance(data["size"], str),
-        isinstance(data["capacity"], (int, str)),
-    ])
-    
+    assert all(
+        [
+            isinstance(data["id"], int),
+            isinstance(data["room_number"], (int, str)),
+            isinstance(data["size"], str),
+            isinstance(data["capacity"], (int, str)),
+        ]
+    )
+
     try:
         room_size = models.RoomSize(data["size"].lower())
     except ValueError:
@@ -522,21 +554,26 @@ def on_update_room(data):
 
     on_request_rooms()
 
+
 @SOCKET.on(UPDATE_USER_CHANNEL)
 def on_update_user(data):
     """
     Called whenever the librarian makes an edit to a room in the Librarian Overview
     """
     assert data is not None
-    assert all([
-        isinstance(data, dict),
-        "id" in data,
-        "role" in data,
-    ])
-    assert all([
-        isinstance(data["id"], int),
-        isinstance(data["role"], str),
-    ])
+    assert all(
+        [
+            isinstance(data, dict),
+            "id" in data,
+            "role" in data,
+        ]
+    )
+    assert all(
+        [
+            isinstance(data["id"], int),
+            isinstance(data["role"], str),
+        ]
+    )
 
     try:
         role = models.UserRole(data["role"].lower())
@@ -555,6 +592,7 @@ def on_update_user(data):
     )
 
     on_request_users()
+
 
 if __name__ == "__main__":
     db_instance.init_db(APP)

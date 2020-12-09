@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
 import LoginPage from './LoginPage';
 import MyCalendar from './Calendar';
@@ -9,7 +10,6 @@ import RoomReservationAttendeeInput from './RoomReservationAttendeeInput';
 import RoomReservationSubmit from './RoomReservationSubmit';
 import RoomReservationTimeInfo from './RoomReservationTimeInfo';
 import Socket from './Socket';
-import {LandingPage} from './LandingPage';
 
 export default function ReservationOverview(props) {
   const { name } = props;
@@ -20,7 +20,6 @@ export default function ReservationOverview(props) {
   const [date, setDate] = useState(new Date());
   const [time, setTime] = useState('');
   const [dateChanged, setDateChanged] = useState(false);
-  const [number, setNumber] = useState();
   const [timeChanged, setTimeChanged] = useState(false);
 
   function getDateString(inputDate) {
@@ -51,9 +50,9 @@ export default function ReservationOverview(props) {
 
   function updateAvailableDates(data) {
     const constructedDates = [];
-    for (const dateTimestamp of data.dates) {
-      constructedDates.push(new Date(dateTimestamp));
-    }
+    Object.keys(data.dates).forEach(
+      (dateTimestamp) => constructedDates.push(new Date(dateTimestamp)),
+    );
     setAvailableDates(constructedDates);
   }
 
@@ -76,16 +75,18 @@ export default function ReservationOverview(props) {
     if (!timeChanged || !dateChanged) {
       return;
     }
-    if (attendees.length == 0) {
+    if (attendees.length === 0) {
       return;
     }
-    let phoneNumber = document.getElementById('mobileNumber').value;
-    console.log(phoneNumber)
-    
+    const phoneNumber = document.getElementById('mobileNumber').value;
+    console.log(phoneNumber);
+
     const selectedDateTimestamp = date.getTime();
     Socket.emit(
       'reservation submit',
-      { date: selectedDateTimestamp, time, attendees, phoneNumber },
+      {
+        date: selectedDateTimestamp, time, attendees, phoneNumber,
+      },
     );
   }
 
@@ -101,12 +102,8 @@ export default function ReservationOverview(props) {
     }
   }
 
-  function logout(event) {
+  function logout() {
     ReactDOM.render(<LoginPage />, document.getElementById('content'));
-  }
-  
-  function aboutPage() {
-     ReactDOM.render(<LandingPage />, document.getElementById('content'));
   }
 
   function listenToServer() {
@@ -136,15 +133,28 @@ export default function ReservationOverview(props) {
 
   return (
     <div id="contentContainer" className="flexColumn">
-      <img id="brb-banner" src="./static/banner-red.png"/>
+      <img id="brb-banner" src="./static/banner-red.png" alt="" />
       <p id="welcomeText">
-        Welcome <strong>{name}</strong>
+        Welcome
+        {' '}
+        <strong>{name}</strong>
       </p>
-      <form id="DND" onClick={aboutPage}>
-        <button id="DND-text">About Us</button>
+      <form id="DND" action="/about">
+        <button
+          type="button"
+          id="DND-text"
+        >
+          About Us
+        </button>
       </form>
-      <form id="logoutForm" onClick={logout}>
-        <button id="logout-text">Logout</button>
+      <form id="logoutForm">
+        <button
+          type="button"
+          id="logout-text"
+          onClick={logout}
+        >
+          Logout
+        </button>
       </form>
       <MyCalendar
         date={date}
@@ -164,9 +174,13 @@ export default function ReservationOverview(props) {
           attendeeCount={attendeeCount}
           setAttendees={setAttendees}
         />
-        <ReservationUsersNumber newNumber={number}/>
+        <ReservationUsersNumber />
         <RoomReservationSubmit handleSubmit={handleReservationSubmit} />
       </div>
     </div>
   );
 }
+
+ReservationOverview.propTypes = {
+  name: PropTypes.string.isRequired,
+};
