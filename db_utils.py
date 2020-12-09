@@ -3,6 +3,7 @@
 """
 # pylint: disable=no-member
 # pylint: disable=fixme
+# pylint: disable=duplicate-code
 import datetime
 import random
 import string

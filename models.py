@@ -211,7 +211,7 @@ class CheckIn(DB.Model):
             f"<CheckIn reservation ID: {self.reservation_id}\t"
             f"validation code: {self.validation_code}>"
         )
- 
+
 class CalendarMarkings(DB.Model):
     """
     This model defines which date to disable and add markings on calendar

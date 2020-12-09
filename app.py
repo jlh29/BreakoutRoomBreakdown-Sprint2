@@ -3,6 +3,7 @@
     data over socketio.
 """
 # pylint: disable=fixme
+# pylint: disable=duplicate-code
 import datetime
 import os
 from os.path import join, dirname
