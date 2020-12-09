@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
-import LandingPage from './LandingPage';
 import LoginPage from './LoginPage';
 import MyCalendar from './Calendar';
 import ReservationConfirmation from './ReservationConfirmation';
@@ -107,10 +106,6 @@ export default function ReservationOverview(props) {
     ReactDOM.render(<LoginPage />, document.getElementById('content'));
   }
 
-  function aboutPage() {
-    ReactDOM.render(<LandingPage />, document.getElementById('content'));
-  }
-
   function listenToServer() {
     useEffect(() => {
       Socket.on('time availability response', updateAllTimes);
@@ -144,11 +139,10 @@ export default function ReservationOverview(props) {
         {' '}
         <strong>{name}</strong>
       </p>
-      <form id="DND">
+      <form id="DND" action="/about">
         <button
           type="button"
           id="DND-text"
-          onClick={aboutPage}
         >
           About Us
         </button>

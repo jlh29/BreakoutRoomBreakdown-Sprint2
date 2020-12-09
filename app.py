@@ -389,6 +389,15 @@ def index():
     return flask.render_template("index.html")
 
 
+@APP.route("/about")
+def about():
+    """
+    Provides the client with the landing page
+    """
+
+    return flask.render_template("about.html")
+
+
 @SOCKET.on(LIBRARIAN_DATA_REQUEST_CHANNEL)
 def on_librarian_data_request(data):
     """
