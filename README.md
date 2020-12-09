@@ -64,14 +64,21 @@ git clone https://github.com/jlh29/BreakoutRoomBreakdown
 ----------------------------------------------
 
 ### React Setup
-1. Install the foloowing dependencies:
+1. Install the following dependencies:
 ```bash
 sudo npm install
 sudo pip install flask-socketio
 sudo pip install eventlet
 sudo npm install -g webpack
 sudo npm install --save-dev webpack
-sudo npm install socket.io-client --save    
+sudo npm install socket.io-client --save
+sudo pip install Flask-SQLAlchemy
+sudo pip install google-api-python-client
+sudo pip install psycopg2-binary
+sudo pip install APScheduler
+sudo pip install sendgrid
+sudo pip install twilio
+
 ```
 
 ### PSQL Setup
