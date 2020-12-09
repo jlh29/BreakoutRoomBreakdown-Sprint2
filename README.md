@@ -1,5 +1,5 @@
-https://brb-mvp.herokuapp.com/ (MVP)
-https://breakoutroombreakdown.herokuapp.com/ (Sprint 2)
+* https://brb-mvp.herokuapp.com/ (MVP)
+* https://breakoutroombreakdown.herokuapp.com/ (Sprint 2)
 # [Breakout Room Breakdown](https://breakoutroombreakdown.herokuapp.com/)
 ### a browser-based booking appointment app for easy scheduling of breakout rooms
 
