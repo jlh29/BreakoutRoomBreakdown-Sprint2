@@ -50,8 +50,10 @@ export default function ReservationOverview(props) {
 
   function updateAvailableDates(data) {
     const constructedDates = [];
-    Object.keys(data.dates).forEach(
-      (dateTimestamp) => constructedDates.push(new Date(dateTimestamp)),
+    Object.values(data.dates).forEach(
+      (dateTimestamp) => {
+        constructedDates.push(new Date(dateTimestamp));
+      },
     );
     setAvailableDates(constructedDates);
   }
@@ -106,15 +108,21 @@ export default function ReservationOverview(props) {
     ReactDOM.render(<LoginPage />, document.getElementById('content'));
   }
 
+  function reloadPage() {
+    window.location.reload();
+  }
+
   function listenToServer() {
     useEffect(() => {
       Socket.on('time availability response', updateAllTimes);
       Socket.on('date availability response', updateAvailableDates);
       Socket.on('reservation response', handleReservationResponse);
+      Socket.on('refresh channel', reloadPage);
       return () => {
         Socket.off('time availability response', updateAllTimes);
         Socket.off('date availability response', updateAvailableDates);
         Socket.off('reservation response', handleReservationResponse);
+        Socket.off('refresh channel', reloadPage);
       };
     });
   }

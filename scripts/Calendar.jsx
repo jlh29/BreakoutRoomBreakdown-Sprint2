@@ -14,15 +14,25 @@ export default function MyCalendar(props) {
   const [notes, setNotes] = useState([]);
   let newDateRange = [];
   
+  function updateDisabledDates(data) {
+    const disabled = [];
+    Object.values(data.dates).forEach(
+      (dateObj) => {
+        disabled.push({
+          date: new Date(dateObj.date),
+          note: dateObj.note,
+        });
+      },
+    );
+    setDisabledDates(disabled);
+  }
+
   function getNewDates() {
     React.useEffect(() => {
-      Socket.on('disable channel', (data) => {
-          console.log("Received dates from server: " + data['date range']);
-          console.log("Received notes from server: " + data['note']);
-  
-          setDisabledDates(data['date range']);
-          setNotes(data['note']);
-      });
+      Socket.on('disable channel', updateDisabledDates);
+      return () => {
+        Socket.off('disable channel', updateDisabledDates);
+      }
     });
   }
   
@@ -51,7 +61,7 @@ export default function MyCalendar(props) {
   }
 
   function handleDisable({ activeStartDate, date, view }) {
-    let disableDate = false;
+    let disableDate = true;
     const today = new Date();
     
     for (const available of availableDates) {
@@ -63,19 +73,11 @@ export default function MyCalendar(props) {
       }
     }
    
-    // if (date.getDay() === 0 || date.getDay() === 6) {
-    //   disableDate = true;
-    // }
+    if (date.getDay() === 0 || date.getDay() === 6) {
+      disableDate = true;
+    }
 
-    // if (date.getUTCDate() < today.getUTCDate()) {
-    //   disableDate = true;
-    // }
-    
-    // if (date.getUTCDate() - today.getUTCDate() > 2) {
-    //   disableDate = true;
-    // }
-    
-    if (view === 'month' && isWithinRanges(date, newDateRange)){
+    if (date.getUTCDate() < today.getUTCDate()) {
       disableDate = true;
     }
     
@@ -84,8 +86,11 @@ export default function MyCalendar(props) {
 
   function handleContent({ date, view }){
     for (let i=0; i<disabledDates.length; i++){
-      if (isWithinRange(date, newDateRange[i])) {
-        return <p>{notes[i]}</p>;
+      let disabled = disabledDates[i];
+      if (date.getUTCDate() == disabled.date.getUTCDate()
+                    && date.getUTCMonth() == disabled.date.getUTCMonth()
+                    && date.getUTCFullYear() == disabled.date.getUTCFullYear()) {
+        return <p>{disabled.note}</p>;
       }
     }
   }

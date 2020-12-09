@@ -163,6 +163,10 @@ export default function LibrarianOverview() {
     setRedrawSelectedRoom(true);
   }
 
+  function reloadPage() {
+    window.location.reload();
+  }
+
   function listenToServer() {
     useEffect(() => {
       Socket.on('connect', establishConnection);
@@ -171,6 +175,7 @@ export default function LibrarianOverview() {
       Socket.on('rooms response', updateRooms);
       Socket.on('unavailable dates response', updateUnavailableDates);
       Socket.on('check in response', updateCheckInSuccess);
+      Socket.on('refresh channel', reloadPage);
       return () => {
         Socket.off('connect', establishConnection);
         Socket.off('appointments response', updateAppointments);
@@ -178,6 +183,7 @@ export default function LibrarianOverview() {
         Socket.off('rooms response', updateRooms);
         Socket.off('unavailable dates response', updateUnavailableDates);
         Socket.off('check in response', updateCheckInSuccess);
+        Socket.off('refresh channel', reloadPage);
       };
     });
   }
