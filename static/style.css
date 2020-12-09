@@ -26,7 +26,7 @@ body {
 
 #welcomeText {
     font-family: 'Marvel';
-    font-size: 25px;
+    font-size: 30px;
     text-align: left;
 }
 
@@ -44,6 +44,31 @@ body {
     position:fixed;
     top:10px;
     right:10px;
+    padding: 7px;
+    border-radius: 6px;
+    font-family: 'Marvel';
+    font-size: 15px;
+    font-weight: bold;
+}
+
+#logout-text {
+    font-family: 'Marvel';
+    font-size: 15px;
+    font-weight: bold;
+}
+
+#DND{
+    position:fixed;
+    top:40px;
+    right:10px;
+    padding: 7px;
+    border-radius: 6px;
+}
+
+#DND-text{
+    font-family: 'Marvel';
+    font-size: 15px;
+    font-weight: bold;
 }
 
 #availableTimesText {

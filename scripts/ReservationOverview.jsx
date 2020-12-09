@@ -141,10 +141,10 @@ export default function ReservationOverview(props) {
         Welcome <strong>{name}</strong>
       </p>
       <form id="DND" onClick={aboutPage}>
-        <button>About Us</button>
+        <button id="DND-text">About Us</button>
       </form>
       <form id="logoutForm" onClick={logout}>
-        <button>Logout</button>
+        <button id="logout-text">Logout</button>
       </form>
       <MyCalendar
         date={date}
