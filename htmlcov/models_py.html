@@ -3,7 +3,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=emulateIE7" />
-    <title>Coverage for models.py: 100%</title>
+    <title>Coverage for models.py: 97%</title>
     <link rel="stylesheet" href="style.css" type="text/css">
     <script type="text/javascript" src="jquery.min.js"></script>
     <script type="text/javascript" src="jquery.hotkeys.js"></script>
@@ -17,13 +17,13 @@
 <div id="header">
     <div class="content">
         <h1>Coverage for <b>models.py</b> :
-            <span class="pc_cov">100%</span>
+            <span class="pc_cov">97%</span>
         </h1>
         <img id="keyboard_icon" src="keybd_closed.png" alt="Show keyboard shortcuts" />
         <h2 class="stats">
-            121 statements &nbsp;
-            <button type="button" class="run shortkey_r button_toggle_run" title="Toggle lines run">121 run</button>
-            <button type="button" class="mis show_mis shortkey_m button_toggle_mis" title="Toggle lines missing">0 missing</button>
+            132 statements &nbsp;
+            <button type="button" class="run shortkey_r button_toggle_run" title="Toggle lines run">128 run</button>
+            <button type="button" class="mis show_mis shortkey_m button_toggle_mis" title="Toggle lines missing">4 missing</button>
             <button type="button" class="exc show_exc shortkey_x button_toggle_exc" title="Toggle lines excluded">0 excluded</button>
         </h2>
     </div>
@@ -265,51 +265,67 @@
     <p id="t212" class="pln"><span class="n"><a href="#t212">212</a></span><span class="t">            <span class="str">f"validation code: {self.validation_code}>"</span>&nbsp;</span><span class="r"></span></p>
     <p id="t213" class="pln"><span class="n"><a href="#t213">213</a></span><span class="t">        <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p id="t214" class="pln"><span class="n"><a href="#t214">214</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p id="t215" class="pln"><span class="n"><a href="#t215">215</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p id="t216" class="run"><span class="n"><a href="#t216">216</a></span><span class="t"><span class="key">class</span> <span class="nam">AuthUserType</span><span class="op">(</span><span class="nam">Enum</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p id="t217" class="pln"><span class="n"><a href="#t217">217</a></span><span class="t">    <span class="str">"""</span>&nbsp;</span><span class="r"></span></p>
-    <p id="t218" class="pln"><span class="n"><a href="#t218">218</a></span><span class="t"><span class="str">    Defines the possible login types</span>&nbsp;</span><span class="r"></span></p>
-    <p id="t219" class="pln"><span class="n"><a href="#t219">219</a></span><span class="t"><span class="str">    """</span>&nbsp;</span><span class="r"></span></p>
-    <p id="t220" class="pln"><span class="n"><a href="#t220">220</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p id="t221" class="run"><span class="n"><a href="#t221">221</a></span><span class="t">    <span class="nam">GOOGLE</span> <span class="op">=</span> <span class="str">"google"</span>&nbsp;</span><span class="r"></span></p>
-    <p id="t222" class="run"><span class="n"><a href="#t222">222</a></span><span class="t">    <span class="nam">PASSWORD</span> <span class="op">=</span> <span class="str">"password"</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t215" class="run"><span class="n"><a href="#t215">215</a></span><span class="t"><span class="key">class</span> <span class="nam">CalendarMarkings</span><span class="op">(</span><span class="nam">DB</span><span class="op">.</span><span class="nam">Model</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t216" class="pln"><span class="n"><a href="#t216">216</a></span><span class="t">    <span class="str">"""</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t217" class="pln"><span class="n"><a href="#t217">217</a></span><span class="t"><span class="str">    This model defines which date to disable and add markings on calendar</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t218" class="pln"><span class="n"><a href="#t218">218</a></span><span class="t"><span class="str">    """</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t219" class="run"><span class="n"><a href="#t219">219</a></span><span class="t">    <span class="nam">id</span> <span class="op">=</span> <span class="nam">DB</span><span class="op">.</span><span class="nam">Column</span><span class="op">(</span><span class="nam">DB</span><span class="op">.</span><span class="nam">Integer</span><span class="op">,</span> <span class="nam">primary_key</span><span class="op">=</span><span class="key">True</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t220" class="run"><span class="n"><a href="#t220">220</a></span><span class="t">    <span class="nam">start_date</span> <span class="op">=</span> <span class="nam">DB</span><span class="op">.</span><span class="nam">Column</span><span class="op">(</span><span class="nam">DB</span><span class="op">.</span><span class="nam">DateTime</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t221" class="run"><span class="n"><a href="#t221">221</a></span><span class="t">    <span class="nam">end_date</span> <span class="op">=</span> <span class="nam">DB</span><span class="op">.</span><span class="nam">Column</span><span class="op">(</span><span class="nam">DB</span><span class="op">.</span><span class="nam">DateTime</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t222" class="run"><span class="n"><a href="#t222">222</a></span><span class="t">    <span class="nam">calendar_note</span> <span class="op">=</span> <span class="nam">DB</span><span class="op">.</span><span class="nam">Column</span><span class="op">(</span><span class="nam">DB</span><span class="op">.</span><span class="nam">String</span><span class="op">(</span><span class="num">150</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p id="t223" class="pln"><span class="n"><a href="#t223">223</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p id="t224" class="pln"><span class="n"><a href="#t224">224</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p id="t225" class="run"><span class="n"><a href="#t225">225</a></span><span class="t"><span class="key">class</span> <span class="nam">UserRole</span><span class="op">(</span><span class="nam">Enum</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p id="t226" class="pln"><span class="n"><a href="#t226">226</a></span><span class="t">    <span class="str">"""</span>&nbsp;</span><span class="r"></span></p>
-    <p id="t227" class="pln"><span class="n"><a href="#t227">227</a></span><span class="t"><span class="str">    Defines the possible set of permissions that a user can have</span>&nbsp;</span><span class="r"></span></p>
-    <p id="t228" class="pln"><span class="n"><a href="#t228">228</a></span><span class="t"><span class="str">    """</span>&nbsp;</span><span class="r"></span></p>
-    <p id="t229" class="pln"><span class="n"><a href="#t229">229</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p id="t230" class="run"><span class="n"><a href="#t230">230</a></span><span class="t">    <span class="nam">LIBRARIAN</span> <span class="op">=</span> <span class="str">"librarian"</span>&nbsp;</span><span class="r"></span></p>
-    <p id="t231" class="run"><span class="n"><a href="#t231">231</a></span><span class="t">    <span class="nam">PROFESSOR</span> <span class="op">=</span> <span class="str">"professor"</span>&nbsp;</span><span class="r"></span></p>
-    <p id="t232" class="run"><span class="n"><a href="#t232">232</a></span><span class="t">    <span class="nam">STUDENT</span> <span class="op">=</span> <span class="str">"student"</span>&nbsp;</span><span class="r"></span></p>
-    <p id="t233" class="pln"><span class="n"><a href="#t233">233</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p id="t234" class="pln"><span class="n"><a href="#t234">234</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p id="t235" class="run"><span class="n"><a href="#t235">235</a></span><span class="t"><span class="key">class</span> <span class="nam">RoomSize</span><span class="op">(</span><span class="nam">Enum</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p id="t236" class="pln"><span class="n"><a href="#t236">236</a></span><span class="t">    <span class="str">"""</span>&nbsp;</span><span class="r"></span></p>
-    <p id="t237" class="pln"><span class="n"><a href="#t237">237</a></span><span class="t"><span class="str">    Defines the qualitative size of a breakout room</span>&nbsp;</span><span class="r"></span></p>
-    <p id="t238" class="pln"><span class="n"><a href="#t238">238</a></span><span class="t"><span class="str">    """</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t224" class="run"><span class="n"><a href="#t224">224</a></span><span class="t">    <span class="key">def</span> <span class="nam">__init__</span><span class="op">(</span><span class="nam">self</span><span class="op">,</span> <span class="nam">start_date</span><span class="op">,</span> <span class="nam">end_date</span><span class="op">,</span> <span class="nam">calendar_note</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t225" class="mis show_mis"><span class="n"><a href="#t225">225</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">start_date</span> <span class="op">=</span> <span class="nam">start_date</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t226" class="mis show_mis"><span class="n"><a href="#t226">226</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">end_date</span> <span class="op">=</span> <span class="nam">end_date</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t227" class="mis show_mis"><span class="n"><a href="#t227">227</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">calendar_note</span> <span class="op">=</span> <span class="nam">calendar_note</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t228" class="pln"><span class="n"><a href="#t228">228</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t229" class="run"><span class="n"><a href="#t229">229</a></span><span class="t">    <span class="key">def</span> <span class="nam">__repr__</span><span class="op">(</span><span class="nam">self</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t230" class="mis show_mis"><span class="n"><a href="#t230">230</a></span><span class="t">        <span class="key">return</span> <span class="str">"&lt;Start date: {}\nend date: {}"</span><span class="op">.</span><span class="nam">format</span><span class="op">(</span><span class="nam">self</span><span class="op">.</span><span class="nam">start_date</span><span class="op">,</span> <span class="nam">self</span><span class="op">.</span><span class="nam">end_date</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t231" class="pln"><span class="n"><a href="#t231">231</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t232" class="run"><span class="n"><a href="#t232">232</a></span><span class="t"><span class="key">class</span> <span class="nam">AuthUserType</span><span class="op">(</span><span class="nam">Enum</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t233" class="pln"><span class="n"><a href="#t233">233</a></span><span class="t">    <span class="str">"""</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t234" class="pln"><span class="n"><a href="#t234">234</a></span><span class="t"><span class="str">    Defines the possible login types</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t235" class="pln"><span class="n"><a href="#t235">235</a></span><span class="t"><span class="str">    """</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t236" class="pln"><span class="n"><a href="#t236">236</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t237" class="run"><span class="n"><a href="#t237">237</a></span><span class="t">    <span class="nam">GOOGLE</span> <span class="op">=</span> <span class="str">"google"</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t238" class="run"><span class="n"><a href="#t238">238</a></span><span class="t">    <span class="nam">PASSWORD</span> <span class="op">=</span> <span class="str">"password"</span>&nbsp;</span><span class="r"></span></p>
     <p id="t239" class="pln"><span class="n"><a href="#t239">239</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p id="t240" class="run"><span class="n"><a href="#t240">240</a></span><span class="t">    <span class="nam">SMALL</span> <span class="op">=</span> <span class="str">"s"</span>&nbsp;</span><span class="r"></span></p>
-    <p id="t241" class="run"><span class="n"><a href="#t241">241</a></span><span class="t">    <span class="nam">MEDIUM</span> <span class="op">=</span> <span class="str">"m"</span>&nbsp;</span><span class="r"></span></p>
-    <p id="t242" class="run"><span class="n"><a href="#t242">242</a></span><span class="t">    <span class="nam">LARGE</span> <span class="op">=</span> <span class="str">"l"</span>&nbsp;</span><span class="r"></span></p>
-    <p id="t243" class="run"><span class="n"><a href="#t243">243</a></span><span class="t">    <span class="nam">XLARGE</span> <span class="op">=</span> <span class="str">"xl"</span>&nbsp;</span><span class="r"></span></p>
-    <p id="t244" class="pln"><span class="n"><a href="#t244">244</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t240" class="pln"><span class="n"><a href="#t240">240</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t241" class="run"><span class="n"><a href="#t241">241</a></span><span class="t"><span class="key">class</span> <span class="nam">UserRole</span><span class="op">(</span><span class="nam">Enum</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t242" class="pln"><span class="n"><a href="#t242">242</a></span><span class="t">    <span class="str">"""</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t243" class="pln"><span class="n"><a href="#t243">243</a></span><span class="t"><span class="str">    Defines the possible set of permissions that a user can have</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t244" class="pln"><span class="n"><a href="#t244">244</a></span><span class="t"><span class="str">    """</span>&nbsp;</span><span class="r"></span></p>
     <p id="t245" class="pln"><span class="n"><a href="#t245">245</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p id="t246" class="run"><span class="n"><a href="#t246">246</a></span><span class="t"><span class="key">class</span> <span class="nam">AppointmentStatus</span><span class="op">(</span><span class="nam">Enum</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p id="t247" class="pln"><span class="n"><a href="#t247">247</a></span><span class="t">    <span class="str">"""</span>&nbsp;</span><span class="r"></span></p>
-    <p id="t248" class="pln"><span class="n"><a href="#t248">248</a></span><span class="t"><span class="str">    Defines the possible check-in statuses of an appointment</span>&nbsp;</span><span class="r"></span></p>
-    <p id="t249" class="pln"><span class="n"><a href="#t249">249</a></span><span class="t"><span class="str">    """</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t246" class="run"><span class="n"><a href="#t246">246</a></span><span class="t">    <span class="nam">LIBRARIAN</span> <span class="op">=</span> <span class="str">"librarian"</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t247" class="run"><span class="n"><a href="#t247">247</a></span><span class="t">    <span class="nam">PROFESSOR</span> <span class="op">=</span> <span class="str">"professor"</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t248" class="run"><span class="n"><a href="#t248">248</a></span><span class="t">    <span class="nam">STUDENT</span> <span class="op">=</span> <span class="str">"student"</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t249" class="pln"><span class="n"><a href="#t249">249</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p id="t250" class="pln"><span class="n"><a href="#t250">250</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p id="t251" class="run"><span class="n"><a href="#t251">251</a></span><span class="t">    <span class="nam">CHECKED_IN</span> <span class="op">=</span> <span class="str">"checked-in"</span>&nbsp;</span><span class="r"></span></p>
-    <p id="t252" class="run"><span class="n"><a href="#t252">252</a></span><span class="t">    <span class="nam">WAITING</span> <span class="op">=</span> <span class="str">"waiting"</span>&nbsp;</span><span class="r"></span></p>
-    <p id="t253" class="run"><span class="n"><a href="#t253">253</a></span><span class="t">    <span class="nam">FREE</span> <span class="op">=</span> <span class="str">"free"</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t251" class="run"><span class="n"><a href="#t251">251</a></span><span class="t"><span class="key">class</span> <span class="nam">RoomSize</span><span class="op">(</span><span class="nam">Enum</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t252" class="pln"><span class="n"><a href="#t252">252</a></span><span class="t">    <span class="str">"""</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t253" class="pln"><span class="n"><a href="#t253">253</a></span><span class="t"><span class="str">    Defines the qualitative size of a breakout room</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t254" class="pln"><span class="n"><a href="#t254">254</a></span><span class="t"><span class="str">    """</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t255" class="pln"><span class="n"><a href="#t255">255</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t256" class="run"><span class="n"><a href="#t256">256</a></span><span class="t">    <span class="nam">SMALL</span> <span class="op">=</span> <span class="str">"s"</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t257" class="run"><span class="n"><a href="#t257">257</a></span><span class="t">    <span class="nam">MEDIUM</span> <span class="op">=</span> <span class="str">"m"</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t258" class="run"><span class="n"><a href="#t258">258</a></span><span class="t">    <span class="nam">LARGE</span> <span class="op">=</span> <span class="str">"l"</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t259" class="run"><span class="n"><a href="#t259">259</a></span><span class="t">    <span class="nam">XLARGE</span> <span class="op">=</span> <span class="str">"xl"</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t260" class="pln"><span class="n"><a href="#t260">260</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t261" class="pln"><span class="n"><a href="#t261">261</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t262" class="run"><span class="n"><a href="#t262">262</a></span><span class="t"><span class="key">class</span> <span class="nam">AppointmentStatus</span><span class="op">(</span><span class="nam">Enum</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t263" class="pln"><span class="n"><a href="#t263">263</a></span><span class="t">    <span class="str">"""</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t264" class="pln"><span class="n"><a href="#t264">264</a></span><span class="t"><span class="str">    Defines the possible check-in statuses of an appointment</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t265" class="pln"><span class="n"><a href="#t265">265</a></span><span class="t"><span class="str">    """</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t266" class="pln"><span class="n"><a href="#t266">266</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p id="t267" class="run"><span class="n"><a href="#t267">267</a></span><span class="t">    <span class="nam">CHECKED_IN</span> <span class="op">=</span> <span class="str">"checked-in"</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t268" class="run"><span class="n"><a href="#t268">268</a></span><span class="t">    <span class="nam">WAITING</span> <span class="op">=</span> <span class="str">"waiting"</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t269" class="run"><span class="n"><a href="#t269">269</a></span><span class="t">    <span class="nam">FREE</span> <span class="op">=</span> <span class="str">"free"</span>&nbsp;</span><span class="r"></span></p>
 </div>
 <div id="footer">
     <div class="content">
         <p>
             <a class="nav" href="index.html">&#xab; index</a> &nbsp; &nbsp; <a class="nav" href="https://coverage.readthedocs.io">coverage.py v5.3</a>,
-            created at 2020-12-07 11:21 +0000
+            created at 2020-12-09 00:15 +0000
         </p>
     </div>
 </div>

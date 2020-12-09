@@ -73,6 +73,7 @@ CHECK_IN_SUCCESS_KEY = "successful"
 DATE_KEY = "date"
 TIME_KEY = "time"
 ATTENDEES_KEY = "attendees"
+PHONE_NUMBER_KEY = "phoneNumber"
 TIMESLOT_KEY = "timeslot"
 TIME_AVAILABILITY_KEY = "isAvailable"
 AVAILABLE_ROOMS_KEY = "availableRooms"
@@ -147,6 +148,12 @@ def on_new_user_login(data):
     is rendered correctly
     """
     print(f"Got an event for new user login")
+    assert data is not None
+    assert all([
+        isinstance(data, dict),
+        USER_LOGIN_TOKEN_KEY in data,
+    ])
+    assert flask.request.sid is not None
     auth_user = login_utils.get_user_from_google_token(data[USER_LOGIN_TOKEN_KEY])
     if auth_user is None:
         SOCKET.emit(
@@ -164,8 +171,7 @@ def on_new_user_login(data):
         room=flask.request.sid,
     )
     emit_all_dates(DISABLE_CHANNEL)
-    
-    
+
 
 @SOCKET.on(DATE_AVAILABILITY_REQUEST_CHANNEL)
 def on_date_availability_request(data):
@@ -173,11 +179,17 @@ def on_date_availability_request(data):
     Called whenever the reservation form is first loaded
     Returns a list of dates that are not fully booked or otherwise unavailable
     """
+    assert data is not None
+    assert all([
+        isinstance(data, dict),
+        DATE_KEY in data,
+    ])
+    assert isinstance(data[DATE_KEY], str)
     print("Got an event for date input with data:", data)
     date = datetime.datetime.strptime(data[DATE_KEY], DATE_FORMAT)
     user_role = _current_user_role()
     if user_role == models.UserRole.LIBRARIAN:
-        available_dates = db_utils.get_available_dates_for_month(date)
+        available_dates = db_utils.get_available_dates_for_month(date=date)
     elif user_role == models.UserRole.PROFESSOR:
         available_dates = db_utils.get_available_dates_after_date(
             date=date,
@@ -206,6 +218,12 @@ def on_time_availability_request(data):
     Called whenever a user clicks on a date in the reservation form
     Checks to see what timeslots are available and sends them to the client
     """
+    assert data is not None
+    assert all([
+        isinstance(data, dict),
+        DATE_KEY in data,
+    ])
+    assert isinstance(data[DATE_KEY], str)
     print("Got an event for time input with data:", data)
     if _current_user_role() is None:
         return
@@ -233,8 +251,27 @@ def on_reservation_submit(data):
     Called whenever a user submits the reservation form
     Creates a new Appointment (if possible) and returns its details
     """
-    mobile_number = data['phoneNumber']
-    print(data)
+    print("running")
+    assert data is not None
+    assert all([
+        isinstance(data, dict),
+        DATE_KEY in data,
+        TIME_KEY in data,
+        PHONE_NUMBER_KEY in data,
+        ATTENDEES_KEY in data,
+    ])
+    assert all([
+        isinstance(data[DATE_KEY], (float, int)),
+        isinstance(data[TIME_KEY], str),
+        isinstance(data[PHONE_NUMBER_KEY], (str, int)),
+        data[ATTENDEES_KEY] is None or (
+            isinstance(data[ATTENDEES_KEY], list) and
+            all([
+                isinstance(attendee, str)
+                for attendee in data[ATTENDEES_KEY]
+            ])
+        ),
+    ])
     user_role = _current_user_role()
     date = datetime.datetime.fromtimestamp(data[DATE_KEY] / 1000.0)
     date_difference = (date - datetime.datetime.utcnow()).days
@@ -290,8 +327,16 @@ def on_reservation_submit(data):
     )
     
     ucid = CONNECTED_USERS[flask.request.sid].ucid
-    # send_confirmation(mobile_number, ucid, date.date(), data['time'], data['attendees'], reservation_code)
-    
+    if reservation_success:
+        send_confirmation(
+            number=data[PHONE_NUMBER_KEY],
+            ucid=ucid,
+            date=date.date(),
+            time=data[TIME_KEY],
+            attendees=data[ATTENDEES_KEY],
+            confirmation=reservation_code,
+        )
+
     SOCKET.emit(
         RESERVATION_RESPONSE_CHANNEL,
         {
@@ -349,10 +394,19 @@ def on_request_appointments(data):
     UI
     Returns a list of all Appointments for a given date
     """
+    assert data is not None
+    assert all([
+        isinstance(data, dict),
+        DATE_KEY in data,
+    ])
+    assert isinstance(data[DATE_KEY], str)
     if not _current_user_role() == models.UserRole.LIBRARIAN:
         return
     date = datetime.datetime.strptime(data[DATE_KEY], DATE_FORMAT)
-    appointments = db_utils.get_all_appointments_for_date(date, True)
+    appointments = db_utils.get_all_appointments_for_date(
+        date=date,
+        as_dicts=True,
+    )
     SOCKET.emit(
         APPOINTMENTS_RESPONSE_CHANNEL,
         {APPOINTMENTS_KEY: appointments},
@@ -368,7 +422,7 @@ def on_request_users():
     """
     if not _current_user_role() == models.UserRole.LIBRARIAN:
         return
-    users = db_utils.get_all_user_objs(True)
+    users = db_utils.get_all_user_objs(as_dicts=True)
     SOCKET.emit(
         USERS_RESPONSE_CHANNEL,
         {USERS_KEY: users},
@@ -384,7 +438,7 @@ def on_request_rooms():
     """
     if not _current_user_role() == models.UserRole.LIBRARIAN:
         return
-    rooms = db_utils.get_all_room_objs(True)
+    rooms = db_utils.get_all_room_objs(as_dicts=True)
     SOCKET.emit(
         ROOMS_RESPONSE_CHANNEL,
         {ROOMS_KEY: rooms},
@@ -397,10 +451,16 @@ def on_check_in(data):
     """
     Called whenever the librarian checks in a group via their check-in code
     """
+    assert data is not None
+    assert all([
+        isinstance(data, dict),
+        CHECK_IN_CODE_KEY in data,
+    ])
+    assert isinstance(data[CHECK_IN_CODE_KEY], str)
     if not _current_user_role() == models.UserRole.LIBRARIAN:
         return
     check_in_code = data[CHECK_IN_CODE_KEY]
-    result = db_utils.check_in_with_code(check_in_code)
+    result = db_utils.check_in_with_code(check_in_code=check_in_code)
     SOCKET.emit(
         CHECK_IN_RESPONSE_CHANNEL,
         {CHECK_IN_SUCCESS_KEY: result},
@@ -426,18 +486,32 @@ def on_update_room(data):
     """
     Called whenever the librarian makes an edit to a room in the Librarian Overview
     """
-    if not _current_user_role() == models.UserRole.LIBRARIAN:
-        return
+    assert data is not None
+    assert isinstance(data, dict)
     assert set(models.BreakoutRoom._fields).issubset(data)
-
+    assert all([
+        isinstance(data["id"], int),
+        isinstance(data["room_number"], (int, str)),
+        isinstance(data["size"], str),
+        isinstance(data["capacity"], (int, str)),
+    ])
+    
     try:
         room_size = models.RoomSize(data["size"].lower())
     except ValueError:
         print("Invalid value of 'size' passed to server when updating a room")
+        room_size = None
     try:
         room_capacity = int(data["capacity"])
     except ValueError:
         print("Invalid value of 'capacity' passed to server when updating a room")
+        room_capacity = None
+
+    assert room_size is not None
+    assert room_capacity is not None
+
+    if not _current_user_role() == models.UserRole.LIBRARIAN:
+        return
 
     db_utils.update_room(
         room_id=data["id"],
@@ -453,14 +527,27 @@ def on_update_user(data):
     """
     Called whenever the librarian makes an edit to a room in the Librarian Overview
     """
-    if not _current_user_role() == models.UserRole.LIBRARIAN:
-        return
-    assert isinstance(data.get("id", None), int) and isinstance(data.get("role", None), str)
+    assert data is not None
+    assert all([
+        isinstance(data, dict),
+        "id" in data,
+        "role" in data,
+    ])
+    assert all([
+        isinstance(data["id"], int),
+        isinstance(data["role"], str),
+    ])
 
     try:
         role = models.UserRole(data["role"].lower())
     except ValueError:
         print("Invalid value of 'role' passed to server when updating a user")
+        role = None
+
+    assert role is not None
+
+    if not _current_user_role() == models.UserRole.LIBRARIAN:
+        return
 
     db_utils.update_user_role(
         user_id=data["id"],
