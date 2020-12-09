@@ -1,6 +1,7 @@
 """
     This module manages the active DB instance
 """
+# pylint: disable=no-member
 from flask_sqlalchemy import SQLAlchemy
 
 DB = SQLAlchemy()
