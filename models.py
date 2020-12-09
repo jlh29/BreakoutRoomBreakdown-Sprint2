@@ -211,7 +211,7 @@ class CheckIn(DB.Model):
             f"<CheckIn reservation ID: {self.reservation_id}\t"
             f"validation code: {self.validation_code}>"
         )
-        
+ 
 class CalendarMarkings(DB.Model):
     """
     This model defines which date to disable and add markings on calendar
@@ -220,12 +220,12 @@ class CalendarMarkings(DB.Model):
     start_date = DB.Column(DB.DateTime)
     end_date = DB.Column(DB.DateTime)
     calendar_note = DB.Column(DB.String(150))
-    
+
     def __init__(self, start_date, end_date, calendar_note):
         self.start_date = start_date
         self.end_date = end_date
         self.calendar_note = calendar_note
-        
+
     def __repr__(self):
         return "<Start date: {}\nend date: {}".format(self.start_date, self.end_date)
 
