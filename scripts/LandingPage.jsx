@@ -12,7 +12,7 @@ export function LandingPage() {
   return (
       <div className="all">
       <form id="back" onClick={goBack}>
-        <button>Back to BNB</button>
+        <button>Back to BRB</button>
       </form>
       <h3>Breakout Room Breakdown</h3>
       
@@ -63,7 +63,7 @@ export function LandingPage() {
       <div className="Timothy">
       <h4>Timothy Schutte</h4>
       <p1>Worked on Back-End</p1> <br />
-      <a href="https://www.linkedin.com/in/dipam-patel-b0b278201/">LinkedIn!</a>
+      <a href="https://www.linkedin.com/in/timothy-schutte-7b88a8132/">LinkedIn!</a>
       </div>
       
       </div>);
