@@ -1,20 +1,28 @@
 """ Use mock to test socket, db, oauth """
 from os.path import dirname, join
 import sys
-
-sys.path.append(join(dirname(__file__), "../"))
 import unittest
 import unittest.mock as mock
+
+sys.path.append(join(dirname(__file__), "../"))
 import app
 import models
 import db_utils
 import db_instance
-from db_instance import DB
-from models import AuthUser
-from models import Room
+import login_utils
+from login_utils import GOOGLE_CLIENT_ID, GOOGLE_EMAIL_KEY, GOOGLE_NAME_KEY
+import scheduled_tasks
+from scheduled_tasks import (SCHEDULE_INTERVAL_MINUTES, SCHEDULE_START_DATE,
+                             SCHEDULE_TRIGGER)
+import socket_utils
 
 KEY_INPUT = "input"
 KEY_EXPECTED = "expected"
+KEY_EXPECTED_TYPE = "expected type"
+KEY_RESPONSE = "response"
+KEY_QUERY_RESPONSE = "query response"
+KEY_ARGS = "args"
+KEY_KWARGS = "kwargs"
 KEY_COUNT = "count"
 
 KEY_NAME = "name"
@@ -33,6 +41,52 @@ KEY_DATA = "data sent"
 AUTH_TYPE = "auth_type"
 NAME = "name"
 EMAIL = "email"
+
+MOCK_AUTH_USER_DB_ENTRIES = {
+    1: models.AuthUser(
+        ucid="jd123",
+        auth_type=models.AuthUserType.GOOGLE,
+        role=models.UserRole.STUDENT,
+        name="John Doe",
+    ),
+    2: models.AuthUser(
+        ucid="johnny.appleseed",
+        auth_type=models.AuthUserType.GOOGLE,
+        role=models.UserRole.PROFESSOR,
+        name="Johnny Appleseed",
+    ),
+    3: models.AuthUser(
+        ucid="lr123",
+        auth_type=models.AuthUserType.GOOGLE,
+        role=models.UserRole.LIBRARIAN,
+        name="Libra Rian",
+    ),
+}
+MOCK_USER_INFOS = {
+    1: models.UserInfo(
+        id=1,
+        ucid="jd123",
+        role=models.UserRole.STUDENT,
+        name="John Doe",
+    ),
+    2: models.UserInfo(
+        id=2,
+        ucid="johnny.appleseed",
+        role=models.UserRole.LIBRARIAN,
+        name="Johnny Appleseed",
+    ),
+    3: models.UserInfo(
+        id=3,
+        ucid="lr123",
+        role=models.UserRole.LIBRARIAN,
+        name="Libra Rian",
+    ),
+}
+MOCK_ATTENDEE_DB_ENTRIES = {
+    1: models.Attendee(ucid="jd123"),
+    2: models.Attendee(ucid="johnny.appleseed"),
+    3: models.Attendee(ucid="lr123"),
+}
 
 
 class MockedJson:
@@ -119,6 +173,30 @@ class MockedSocket:
         """ mock socket emit method"""
         return
 
+def get_mock_db(filtered_query_response=None):
+    """
+    Mocked version of flask_sqlalchemy.SQLAlchemy that tests can be performed on
+    without connecting to a database
+    """
+    mock_db = mock.Mock()
+    mock_session = mock_db.session
+    mock_query = mock_session.query.return_value
+    mock_filter = mock_query.filter.return_value
+    mock_order_by = mock_filter.order_by.return_value
+    mock_limit = mock_order_by.limit.return_value
+    if filtered_query_response:
+        mock_filter.first.return_value = filtered_query_response[0]
+        mock_filter.all.return_value = filtered_query_response
+        mock_limit.first.return_value = filtered_query_response[0]
+        mock_limit.all.return_value = filtered_query_response
+    else:
+        mock_filter.first.return_value = None
+        mock_filter.all.return_value = None
+        mock_limit.first.return_value = None
+        mock_limit.all.return_value = None
+
+    mock_session.add.return_value = None
+    return mock_db
 
 class DbUtilTestCase(unittest.TestCase):
     """ Test functions that uses socket """
@@ -328,6 +406,184 @@ class DbUtilTestCase(unittest.TestCase):
                 expected = test[KEY_EXPECTED]
 
             self.assertEqual(response, expected)
+
+class DBInstanceTestCase(unittest.TestCase):
+    """
+    Tests the methods of db_instance.py that need to be mocked
+    """
+    def setUp(self):
+        """
+        Initializes test cases to evaluate
+        """
+        self.init_db_test_cases = [
+            {
+                KEY_INPUT: None,
+                KEY_EXPECTED: None,
+            },
+            {
+                KEY_INPUT: "mock app",
+                KEY_EXPECTED: "mock app",
+            },
+        ]
+    
+    @mock.patch("db_instance.DB")
+    def test_init_db(self, mocked_db):
+        """
+        Tests db_instance.init_db to ensure that it correctly initializes the DB
+        """
+        for test in self.init_db_test_cases:
+            mocked_db.reset_mock()
+            db_instance.init_db(test[KEY_INPUT])
+
+            self.assertEqual(mocked_db.app, test[KEY_EXPECTED])
+            mocked_db.init_app.assert_called_once_with(test[KEY_INPUT])
+            mocked_db.create_all.assert_called_once()
+            mocked_db.session.commit.assert_called_once()
+
+class SocketUtilsTestCase(unittest.TestCase):
+    """
+    Tests the methods of socket_utils.py that need to be mocked
+    """
+    def setUp(self):
+        """
+        Initializes test cases to evaluate
+        """
+        self.init_socket_test_cases = [
+            {
+                KEY_INPUT: None,
+                KEY_EXPECTED: None,
+            },
+            {
+                KEY_INPUT: "mock app",
+                KEY_EXPECTED: "mock app",
+            },
+        ]
+
+    @mock.patch("socket_utils.SOCKET")
+    def test_init_db(self, mocked_socket):
+        """
+        Tests socket_utils.init_socket to ensure that it correctly initializes
+        the socket
+        """
+        for test in self.init_socket_test_cases:
+            mocked_socket.reset_mock()
+            socket_utils.init_socket(test[KEY_INPUT])
+            mocked_socket.init_app.assert_called_once_with(
+                test[KEY_EXPECTED],
+                cors_allowed_origins="*",
+            )
+
+class LoginUtilsTestCase(unittest.TestCase):
+    """
+    Tests the methods of login_utils.py that need to be mocked
+    """
+    def setUp(self):
+        """
+        Initializes test cases to evaluate
+        """
+        self.get_user_from_google_token_test_cases = [
+            {
+                KEY_INPUT: None,
+                KEY_RESPONSE: None,
+                KEY_EXPECTED: None,
+            },
+            {
+                KEY_INPUT: "bad token",
+                KEY_RESPONSE: ValueError(),
+                KEY_EXPECTED: None,
+            },
+            {
+                KEY_INPUT: "good token bad email",
+                KEY_RESPONSE: {
+                    GOOGLE_EMAIL_KEY: "",
+                    GOOGLE_NAME_KEY: "John Doe",
+                },
+                KEY_EXPECTED: None,
+            },
+            {
+                KEY_INPUT: "good token good email not njit",
+                KEY_RESPONSE: {
+                    GOOGLE_EMAIL_KEY: "jd123@gmail.com",
+                    GOOGLE_NAME_KEY: "John Doe",
+                },
+                KEY_EXPECTED: None,
+            },
+            {
+                KEY_INPUT: "good token good email is njit",
+                KEY_RESPONSE: {
+                    GOOGLE_EMAIL_KEY: MOCK_AUTH_USER_DB_ENTRIES[1].get_email(),
+                    GOOGLE_NAME_KEY: MOCK_AUTH_USER_DB_ENTRIES[1].name,
+                },
+                KEY_EXPECTED: MOCK_USER_INFOS[1],
+            },
+        ]
+
+    @mock.patch("login_utils.requests")
+    @mock.patch("login_utils.id_token")
+    @mock.patch("login_utils.db_utils")
+    def test_get_user_from_google_token(
+            self,
+            mocked_db_utils,
+            mocked_id_token,
+            mocked_requests,
+    ):
+        """
+        Tests login_utils.get_user_from_google_token
+        """
+        mocked_requests.Request().return_value = "mock request"
+        for test in self.get_user_from_google_token_test_cases:
+            mocked_db_utils.reset_mock()
+            mocked_id_token.reset_mock()
+            if isinstance(test[KEY_RESPONSE], Exception):
+                mocked_id_token.verify_oauth2_token.side_effect = test[KEY_RESPONSE]
+                mocked_id_token.verify_oauth2_token.return_value = None
+            else:
+                mocked_id_token.verify_oauth2_token.side_effect = None
+                mocked_id_token.verify_oauth2_token.return_value = test[KEY_RESPONSE]
+
+            mocked_db_utils.add_or_get_auth_user.return_value = test[KEY_EXPECTED]
+            result = login_utils.get_user_from_google_token(test[KEY_INPUT])
+            self.assertEqual(result, test[KEY_EXPECTED])
+
+class ScheduledTasksTestCase(unittest.TestCase):
+    """
+    Tests the methods of scheduled_tasks.py that need to be mocked
+    """
+    def setUp(self):
+        """
+        Initializes test cases to evaluate
+        """
+        self.start_tasks_test_cases = [
+            {
+                KEY_INPUT: None,
+                KEY_EXPECTED: None,
+                KEY_KWARGS: {
+                    "func": db_utils.update_walk_ins,
+                    "trigger": SCHEDULE_TRIGGER,
+                    "minutes": SCHEDULE_INTERVAL_MINUTES,
+                    "start_date": SCHEDULE_START_DATE,
+                }
+            },
+        ]
+
+    @mock.patch("scheduled_tasks.atexit")
+    @mock.patch("scheduled_tasks.BackgroundScheduler")
+    def test_init_db(self, mocked_background_scheduler, mocked_atexit):
+        """
+        Tests scheduled_tasks.start_tasks to ensure that it correctly schedules
+        tasks
+        """
+        for test in self.start_tasks_test_cases:
+            mocked_atexit.reset_mock()
+            mocked_background_scheduler.reset_mock()
+            scheduled_tasks.start_tasks()
+            mocked_background_scheduler.return_value.add_job.assert_called_once_with(
+                **test[KEY_KWARGS]
+            )
+            mocked_background_scheduler.return_value.start.assert_called_once()
+            mocked_atexit.register.assert_called_once_with(
+                mocked_background_scheduler.return_value.shutdown
+            )
 
 
 if __name__ == "__main__":

@@ -11,6 +11,7 @@ import models
 
 AVAILABLE_TIMES = [9, 11, 13, 15]
 CHECK_IN_CODE_LENGTH = 6
+MINUTES_UNTIL_MARKED_WALK_IN = 10
 
 
 def add_or_get_auth_user(ucid, name):
@@ -50,11 +51,46 @@ def add_or_get_auth_user(ucid, name):
     return user_info
 
 
+def update_room(room_id, room_number, size, capacity):
+    """
+    Obtains the Room corresponding to the given ID and updates its properties
+    with the provided values
+    """
+    assert all(
+        [
+            isinstance(room_id, int),
+            isinstance(room_number, (int, str)),
+            isinstance(size, models.RoomSize),
+            isinstance(capacity, int),
+        ]
+    )
+
+    existing_room = (
+        DB.session.query(models.Room).filter(models.Room.id == room_id).first()
+    )
+
+    if not existing_room:
+        # TODO: jlh29, possibly create a room if one does not exist?
+        DB.session.commit()
+        return None
+
+    existing_room.room_number = str(room_number)
+    existing_room.size = size.value
+    existing_room.capacity = capacity
+    DB.session.commit()
+    return models.BreakoutRoom(
+        id=room_id,
+        room_number=str(room_number),
+        size=size,
+        capacity=capacity,
+    )
+
+
 def get_all_user_objs(as_dicts=False):
     """
     Obtains all AuthUsers and returns them as UserInfo objects or dictionaries
     """
-    users = DB.session.query(models.AuthUser).all()
+    users = DB.session.query(models.AuthUser).order_by(models.AuthUser.name).all()
     user_objs = [
         models.UserInfo(
             id=user.id,
@@ -93,6 +129,38 @@ def get_user_obj_from_id(user_id, as_dict=False):
     return user_obj
 
 
+def update_user_role(user_id, role):
+    """
+    Obtains the User corresponding to the given ID and updates its role
+    with the provided value
+    """
+    assert all(
+        [
+            isinstance(user_id, int),
+            isinstance(role, models.UserRole),
+        ]
+    )
+
+    existing_user = (
+        DB.session.query(models.AuthUser)
+        .filter(models.AuthUser.id == user_id)
+        .first()
+    )
+
+    if not existing_user:
+        DB.session.commit()
+        return None
+
+    existing_user.role = role.value
+    DB.session.commit()
+    return models.UserInfo(
+        id=user_id,
+        name=existing_user.name,
+        ucid=existing_user.ucid,
+        role=role,
+    )
+
+
 def get_all_room_ids():
     """
     Returns the IDs of all Rooms
@@ -107,7 +175,7 @@ def get_all_room_objs(as_dicts=False):
     """
     Returns all Rooms as RoomInfo objects or dictionaries
     """
-    rooms = DB.session.query(models.Room).all()
+    rooms = DB.session.query(models.Room).order_by(models.Room.id).all()
     room_objs = [
         models.BreakoutRoom(
             id=room.id,
@@ -430,3 +498,79 @@ def check_in_with_code(check_in_code):
     DB.session.delete(reservation)
     DB.session.commit()
     return True
+
+def add_disable_date(start_date, end_date, note):
+    """
+    Stores the calendar dates that needs to be disabled
+    """
+    DB.session.add(models.CalendarMarkings(start_date, end_date, note))
+    DB.session.commit()
+    
+def get_disable_date():
+    """
+    Get the start and end dates from CalendarMarkings table
+    """
+    all_start_dates = [date.start_date for date in DB.session.query(models.CalendarMarkings).all()]
+    all_end_dates = [date.end_date for date in DB.session.query(models.CalendarMarkings).all()]
+    all_notes = [date.calendar_note for date in DB.session.query(models.CalendarMarkings).all()]
+    
+    return all_start_dates, all_end_dates, all_notes
+
+def update_walk_ins():
+    """
+    Discovers any appointments that have not been checked in within a certain
+    timeframe and marks the room as available for walk-ins.
+    """
+    curr_time = datetime.datetime.now()
+    cutoff_time = curr_time + datetime.timedelta(minutes=-MINUTES_UNTIL_MARKED_WALK_IN)
+    absent_appointments = (
+        DB.session.query(models.Appointment)
+        .filter(models.Appointment.status == models.AppointmentStatus.WAITING.value)
+        .filter(models.Appointment.start_time <= cutoff_time)
+        .all()
+    )
+    absent_appointment_ids = [appointment.id for appointment in absent_appointments]
+
+    absent_checkins_delete = (
+        DB.session.query(models.CheckIn)
+        .filter(models.CheckIn.reservation_id.in_(absent_appointment_ids))
+        .delete(synchronize_session=False)
+    )
+
+    for appointment in absent_appointments:
+        appointment.status = models.AppointmentStatus.FREE.value
+
+    DB.session.commit()
+
+def mark_date_unavailable(date, reason="No reason specified."):
+    """
+    Marks a given date unavailable for reservation for a given reason.
+    """
+    assert isinstance(reason, str)
+    assert isinstance(date, datetime.date)
+    only_date = date.date() if isinstance(date, datetime.datetime) else date
+    existing_unavailable_date = (
+        DB.session.query(models.UnavailableDate)
+        .filter(func.date(models.UnavailableDate.date) == func.date(only_date))
+        .first()
+    )
+    if existing_unavailable_date:
+        existing_unavailable_date.reason = reason
+    else:
+        new_unavailable_date = models.UnavailableDate(only_date, reason)
+        DB.session.add(new_unavailable_date)
+    DB.session.commit()
+
+def mark_date_available(date):
+    """
+    Marks a given date available for reservation if it was previously marked
+    unavailable.
+    """
+    assert isinstance(date, datetime.date)
+    only_date = date.date() if isinstance(date, datetime.datetime) else date
+    existing_unavailable_date = (
+        DB.session.query(models.UnavailableDate)
+        .filter(func.date(models.UnavailableDate.date) == func.date(only_date))
+        .delete(synchronize_session=False)
+    )
+    DB.session.commit()

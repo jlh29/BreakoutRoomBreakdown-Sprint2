@@ -13,7 +13,7 @@
     "babel-core": "7.0.0-bridge.0",
     "babel-loader": "^8.0.5",
     "css-loader": "^3.4.2",
-    "eslint": "^7.13.0",
+    "eslint": "^7.14.0",
     "eslint-config-airbnb": "^18.2.1",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-jsx-a11y": "^6.4.1",
@@ -22,7 +22,6 @@
     "extract-text-webpack-plugin": "^2.1.2",
     "file-loader": "^0.11.2",
     "jquery": "^3.2.1",
-    "react": "^16.12.0",
     "react-bootstrap": "^0.31.0",
     "react-dom": "^16.12.0",
     "style-loader": "^0.18.2",
@@ -36,8 +35,15 @@
     ]
   },
   "dependencies": {
+<<<<<<< HEAD
     "react-calendar": "^3.2.1",
     "react-google-login": "^5.1.22",
+=======
+    "prop-types": "^15.7.2",
+    "react": "^16.12.0",
+    "react-calendar": "^3.2.0",
+    "react-google-login": "^5.1.25",
+>>>>>>> 7573af41082b170797bf280ea9af317920d49f37
     "socket.io-client": "^2.3.1"
   },
   "name": "breakoutroombreakdown",
@@ -53,5 +59,8 @@
   "bugs": {
     "url": "https://github.com/jlh29/BreakoutRoomBreakdown/issues"
   },
-  "homepage": "https://github.com/jlh29/BreakoutRoomBreakdown#readme"
+  "homepage": "https://github.com/jlh29/BreakoutRoomBreakdown#readme",
+  "directories": {
+    "test": "tests"
+  }
 }

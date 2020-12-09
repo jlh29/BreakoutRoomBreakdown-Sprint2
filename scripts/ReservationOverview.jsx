@@ -3,11 +3,13 @@ import ReactDOM from 'react-dom';
 import LoginPage from './LoginPage';
 import MyCalendar from './Calendar';
 import ReservationConfirmation from './ReservationConfirmation';
+import ReservationUsersNumber from './ReservationUsersNumber';
 import RoomReservationSelector from './RoomReservationSelector';
 import RoomReservationAttendeeInput from './RoomReservationAttendeeInput';
 import RoomReservationSubmit from './RoomReservationSubmit';
 import RoomReservationTimeInfo from './RoomReservationTimeInfo';
 import Socket from './Socket';
+import {LandingPage} from './LandingPage';
 
 export default function ReservationOverview(props) {
   const { name } = props;
@@ -18,6 +20,7 @@ export default function ReservationOverview(props) {
   const [date, setDate] = useState(new Date());
   const [time, setTime] = useState('');
   const [dateChanged, setDateChanged] = useState(false);
+  const [number, setNumber] = useState();
   const [timeChanged, setTimeChanged] = useState(false);
 
   function getDateString(inputDate) {
@@ -76,10 +79,13 @@ export default function ReservationOverview(props) {
     if (attendees.length == 0) {
       return;
     }
+    let phoneNumber = document.getElementById('mobileNumber').value;
+    console.log(phoneNumber)
+    
     const selectedDateTimestamp = date.getTime();
     Socket.emit(
       'reservation submit',
-      { date: selectedDateTimestamp, time, attendees },
+      { date: selectedDateTimestamp, time, attendees, phoneNumber },
     );
   }
 
@@ -97,6 +103,10 @@ export default function ReservationOverview(props) {
 
   function logout(event) {
     ReactDOM.render(<LoginPage />, document.getElementById('content'));
+  }
+  
+  function aboutPage() {
+     ReactDOM.render(<LandingPage />, document.getElementById('content'));
   }
 
   function listenToServer() {
@@ -125,13 +135,14 @@ export default function ReservationOverview(props) {
   listenToServer();
 
   return (
-    <div id="contentContainer" className="flexColumn">
-      <h1>Breakout Room Breakdown</h1>
+    <div id="contentContainer" className="flexColumn"
+      <img id="brb-banner" src="./static/banner-red.png"/>
       <p id="welcomeText">
-        {' '}
-        Welcome
-        {name}
+        Welcome <strong>{name}</strong>
       </p>
+      <form id="DND" onClick={aboutPage}>
+        <button>About Us</button>
+      </form>
       <form id="logoutForm" onClick={logout}>
         <button>Logout</button>
       </form>
@@ -153,6 +164,7 @@ export default function ReservationOverview(props) {
           attendeeCount={attendeeCount}
           setAttendees={setAttendees}
         />
+        <ReservationUsersNumber newNumber={number}/>
         <RoomReservationSubmit handleSubmit={handleReservationSubmit} />
       </div>
     </div>
