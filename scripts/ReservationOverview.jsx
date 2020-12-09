@@ -141,7 +141,7 @@ export default function ReservationOverview(props) {
       </p>
       <form id="DND" action="/about">
         <button
-          type="button"
+          type="submit"
           id="DND-text"
         >
           About Us
