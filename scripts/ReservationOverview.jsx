@@ -135,7 +135,7 @@ export default function ReservationOverview(props) {
   listenToServer();
 
   return (
-    <div id="contentContainer" className="flexColumn"
+    <div id="contentContainer" className="flexColumn">
       <img id="brb-banner" src="./static/banner-red.png"/>
       <p id="welcomeText">
         Welcome <strong>{name}</strong>
