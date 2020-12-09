@@ -15,6 +15,8 @@ AVAILABLE_TIMES = [9, 11, 13, 15]
 CHECK_IN_CODE_LENGTH = 6
 MINUTES_UNTIL_MARKED_WALK_IN = 10
 
+EST_TZ_OFFSET = datetime.timedelta(hours=-5)
+
 
 def add_or_get_auth_user(ucid, name):
     """
@@ -238,8 +240,9 @@ def get_available_room_ids_for_date(date):
     all_room_ids = get_all_room_ids()
     room_ids_by_time = {hour: set(all_room_ids) for hour in AVAILABLE_TIMES}
     for appointment in appointments:
-        room_ids_by_time.setdefault(appointment.start_time.hour, set(all_room_ids))
-        room_ids_by_time[appointment.start_time.hour].discard(appointment.room_id)
+        localized_time = appointment.start_time + EST_TZ_OFFSET
+        room_ids_by_time.setdefault(localized_time.hour, set(all_room_ids))
+        room_ids_by_time[localized_time.hour].discard(appointment.room_id)
     DB.session.commit()
     for hour, rooms in room_ids_by_time.items():
         room_ids_by_time[hour] = sorted(list(rooms))
@@ -255,6 +258,8 @@ def get_available_times_for_date(date):
     availability = {
         hour: len(room_availability.get(hour, [])) for hour in AVAILABLE_TIMES
     }
+    print("TIME AVAILABILITY FOR DATE: ")
+    print(availability)
     DB.session.commit()
     return availability
 
@@ -504,25 +509,23 @@ def add_disable_date(start_date, end_date, note):
     """
     Stores the calendar dates that needs to be disabled
     """
-    DB.session.add(models.CalendarMarkings(start_date, end_date, note))
-    DB.session.commit()
-
+    curr_date = start_date
+    while curr_date <= end_date:
+        mark_date_unavailable(curr_date, note)
+        curr_date += datetime.timedelta(days=1)
 
 def get_disable_date():
     """
     Get the start and end dates from CalendarMarkings table
     """
-    all_start_dates = [
-        date.start_date for date in DB.session.query(models.CalendarMarkings).all()
+    all_unavailable = DB.session.query(models.UnavailableDate).all()
+    all_unavailable_dicts = [
+        {"date": unavailable.date.timestamp() * 1000.0, "note": unavailable.reason}
+        for unavailable in all_unavailable
     ]
-    all_end_dates = [
-        date.end_date for date in DB.session.query(models.CalendarMarkings).all()
-    ]
-    all_notes = [
-        date.calendar_note for date in DB.session.query(models.CalendarMarkings).all()
-    ]
+    DB.session.commit()
 
-    return all_start_dates, all_end_dates, all_notes
+    return all_unavailable_dicts
 
 
 def update_walk_ins():

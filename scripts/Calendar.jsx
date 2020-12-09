@@ -15,11 +15,18 @@ export default function MyCalendar(props) {
   let newDateRange = [];
   
   function updateDisabledDates(data) {
-    setDisabledDates(data["dates"]);
-    console.log("SETTING DISABLED DATES:");
-    console.log(data["dates"]);
+    const disabled = [];
+    Object.values(data.dates).forEach(
+      (dateObj) => {
+        disabled.push({
+          date: new Date(dateObj.date),
+          note: dateObj.note,
+        });
+      },
+    );
+    setDisabledDates(disabled);
   }
-  
+
   function getNewDates() {
     React.useEffect(() => {
       Socket.on('disable channel', updateDisabledDates);
@@ -79,12 +86,11 @@ export default function MyCalendar(props) {
 
   function handleContent({ date, view }){
     for (let i=0; i<disabledDates.length; i++){
-      let unavailable = disabledDates[i];
-      if (date.getUTCDate() == unavailable.getUTCDate()
-                    && date.getUTCMonth() == unavailable.getUTCMonth()
-                    && date.getUTCFullYear() == unavailable.getUTCFullYear()) {
-        console.log("FOUND IN UNAVAILABLE!!");
-        return <p>{unavailable.note}</p>;
+      let disabled = disabledDates[i];
+      if (date.getUTCDate() == disabled.date.getUTCDate()
+                    && date.getUTCMonth() == disabled.date.getUTCMonth()
+                    && date.getUTCFullYear() == disabled.date.getUTCFullYear()) {
+        return <p>{disabled.note}</p>;
       }
     }
   }

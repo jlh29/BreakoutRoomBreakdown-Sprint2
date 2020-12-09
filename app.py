@@ -113,20 +113,12 @@ def emit_all_dates(channel):
     """
     Send all disable dates to the client
     """
-    all_start_dates, all_end_dates, all_notes = db_utils.get_disable_date()
-
-    all_start_dates = [str(x.date()) for x in all_start_dates]
-    all_end_dates = [str(x.date()) for x in all_end_dates]
-
-    date_range = list(list(x) for x in zip(all_start_dates, all_end_dates))
+    all_unavailable = db_utils.get_disable_date()
 
     SOCKET.emit(
         channel,
         {
-            DATE_RANGE: date_range,
-            START_DATE: all_start_dates,
-            END_DATE: all_end_dates,
-            NOTE: all_notes,
+            ALL_DATES_KEY: all_unavailable,
         },
     )
     print("Data sent to client")
