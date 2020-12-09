@@ -22,6 +22,9 @@ https://brb-mvp.herokuapp.com/
 * Pull the username for the welcome page
 * Sign out Button Created
 * Linting - Pylint/Eslint
+* Display error if a user is not authenticated
+* Landing page
+* Buttons with react redner function (About Us/ Logout / Go back to BNB)
 
 ##### Timothy Schutte
 * Created the number of students checking in
