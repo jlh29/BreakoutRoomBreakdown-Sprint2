@@ -605,7 +605,7 @@ def on_update_user(data):
 
     for sid, connected_user in CONNECTED_USERS.items():
         if connected_user.id == data[USER_ID_KEY]:
-            CONNECTED_USERS[sid].role = role
+            CONNECTED_USERS[sid] = connected_user._replace(role=role)
             send_refresh_to_client(sid)
             break
 

@@ -1330,38 +1330,134 @@ class AppTestCase(unittest.TestCase):
             {
                 KEY_INPUT: None,
                 KEY_ROLE: None,
+                KEY_CONNECTED_USERS: {
+                    "mock sid": models.UserInfo(
+                        id=1,
+                        ucid="mock_ucid",
+                        name="mock name",
+                        role=models.UserRole.PROFESSOR
+                    ),
+                },
                 KEY_EXPECTED_TYPE: AssertionError,
-                KEY_EXPECTED: {},
+                KEY_KWARGS: {},
+                KEY_EXPECTED: {
+                    "mock sid": models.UserInfo(
+                        id=1,
+                        ucid="mock_ucid",
+                        name="mock name",
+                        role=models.UserRole.PROFESSOR
+                    ),
+                },
             },
             {
                 KEY_INPUT: {},
                 KEY_ROLE: None,
+                KEY_CONNECTED_USERS: {
+                    "mock sid": models.UserInfo(
+                        id=1,
+                        ucid="mock_ucid",
+                        name="mock name",
+                        role=models.UserRole.PROFESSOR
+                    ),
+                },
                 KEY_EXPECTED_TYPE: AssertionError,
-                KEY_EXPECTED: {},
+                KEY_KWARGS: {},
+                KEY_EXPECTED: {
+                    "mock sid": models.UserInfo(
+                        id=1,
+                        ucid="mock_ucid",
+                        name="mock name",
+                        role=models.UserRole.PROFESSOR
+                    ),
+                },
             },
             {
                 KEY_INPUT: {"id": "bad id", "role": "bad role"},
                 KEY_ROLE: None,
+                KEY_CONNECTED_USERS: {
+                    "mock sid": models.UserInfo(
+                        id=1,
+                        ucid="mock_ucid",
+                        name="mock name",
+                        role=models.UserRole.PROFESSOR
+                    ),
+                },
                 KEY_EXPECTED_TYPE: AssertionError,
-                KEY_EXPECTED: None,
+                KEY_KWARGS: {},
+                KEY_EXPECTED: {
+                    "mock sid": models.UserInfo(
+                        id=1,
+                        ucid="mock_ucid",
+                        name="mock name",
+                        role=models.UserRole.PROFESSOR
+                    ),
+                },
             },
             {
                 KEY_INPUT: {"id": 1, "role": "bad role"},
                 KEY_ROLE: None,
+                KEY_CONNECTED_USERS: {
+                    "mock sid": models.UserInfo(
+                        id=1,
+                        ucid="mock_ucid",
+                        name="mock name",
+                        role=models.UserRole.PROFESSOR
+                    ),
+                },
                 KEY_EXPECTED_TYPE: AssertionError,
-                KEY_EXPECTED: None,
+                KEY_KWARGS: {},
+                KEY_EXPECTED: {
+                    "mock sid": models.UserInfo(
+                        id=1,
+                        ucid="mock_ucid",
+                        name="mock name",
+                        role=models.UserRole.PROFESSOR
+                    ),
+                },
             },
             {
                 KEY_INPUT: {"id": 1, "role": "student"},
                 KEY_ROLE: models.UserRole.STUDENT,
+                KEY_CONNECTED_USERS: {
+                    "mock sid": models.UserInfo(
+                        id=1,
+                        ucid="mock_ucid",
+                        name="mock name",
+                        role=models.UserRole.PROFESSOR
+                    ),
+                },
                 KEY_EXPECTED_TYPE: None,
-                KEY_EXPECTED: None,
+                KEY_KWARGS: {},
+                KEY_EXPECTED: {
+                    "mock sid": models.UserInfo(
+                        id=1,
+                        ucid="mock_ucid",
+                        name="mock name",
+                        role=models.UserRole.PROFESSOR
+                    ),
+                },
             },
             {
                 KEY_INPUT: {"id": 1, "role": "student"},
                 KEY_ROLE: models.UserRole.LIBRARIAN,
+                KEY_CONNECTED_USERS: {
+                    "mock sid": models.UserInfo(
+                        id=1,
+                        ucid="mock_ucid",
+                        name="mock name",
+                        role=models.UserRole.PROFESSOR
+                    ),
+                },
                 KEY_EXPECTED_TYPE: list,
-                KEY_EXPECTED: {"user_id": 1, "role": models.UserRole.STUDENT},
+                KEY_KWARGS: {"user_id": 1, "role": models.UserRole.STUDENT},
+                KEY_EXPECTED: {
+                    "mock sid": models.UserInfo(
+                        id=1,
+                        ucid="mock_ucid",
+                        name="mock name",
+                        role=models.UserRole.STUDENT
+                    ),
+                },
             },
         ]
 
@@ -2129,26 +2225,33 @@ class AppTestCase(unittest.TestCase):
         """
         for test in self.on_update_user_test_cases:
             mocked_db_utils.reset_mock()
+            result_connected_users = test[KEY_CONNECTED_USERS]
             with mock.patch.multiple(
                     "app",
+                    CONNECTED_USERS=result_connected_users,
                     _current_user_role=lambda: test[KEY_ROLE],
                     on_request_users=mock.DEFAULT,
+                    send_refresh_to_client=mock.DEFAULT,
             ) as mocked_methods:
                 if test[KEY_EXPECTED_TYPE] is None:
                     app.on_update_user(test[KEY_INPUT])
                     mocked_methods["on_request_users"].assert_not_called()
+                    mocked_methods["send_refresh_to_client"].assert_not_called()
                     mocked_db_utils.update_user_role.assert_not_called()
                 elif issubclass(test[KEY_EXPECTED_TYPE], Exception):
                     with self.assertRaises(test[KEY_EXPECTED_TYPE]):
                         app.on_update_user(test[KEY_INPUT])
                     mocked_methods["on_request_users"].assert_not_called()
+                    mocked_methods["send_refresh_to_client"].assert_not_called()
                     mocked_db_utils.update_user_role.assert_not_called()
                 else:
                     app.on_update_user(test[KEY_INPUT])
                     mocked_methods["on_request_users"].assert_called_once()
+                    mocked_methods["send_refresh_to_client"].assert_called_once()
                     mocked_db_utils.update_user_role.assert_called_once_with(
-                        **test[KEY_EXPECTED],
+                        **test[KEY_KWARGS],
                     )
+                self.assertDictEqual(result_connected_users, test[KEY_EXPECTED])
 
     @mock.patch("app.db_utils")
     @mock.patch("app.SOCKET")
