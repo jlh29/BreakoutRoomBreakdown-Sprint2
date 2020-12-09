@@ -2,6 +2,7 @@
     This module handles reading from and writing to the database
 """
 # pylint: disable=no-member
+# pylint: disable=fixme
 import datetime
 import random
 import string
@@ -142,9 +143,7 @@ def update_user_role(user_id, role):
     )
 
     existing_user = (
-        DB.session.query(models.AuthUser)
-        .filter(models.AuthUser.id == user_id)
-        .first()
+        DB.session.query(models.AuthUser).filter(models.AuthUser.id == user_id).first()
     )
 
     if not existing_user:
@@ -499,22 +498,31 @@ def check_in_with_code(check_in_code):
     DB.session.commit()
     return True
 
+
 def add_disable_date(start_date, end_date, note):
     """
     Stores the calendar dates that needs to be disabled
     """
     DB.session.add(models.CalendarMarkings(start_date, end_date, note))
     DB.session.commit()
-    
+
+
 def get_disable_date():
     """
     Get the start and end dates from CalendarMarkings table
     """
-    all_start_dates = [date.start_date for date in DB.session.query(models.CalendarMarkings).all()]
-    all_end_dates = [date.end_date for date in DB.session.query(models.CalendarMarkings).all()]
-    all_notes = [date.calendar_note for date in DB.session.query(models.CalendarMarkings).all()]
-    
+    all_start_dates = [
+        date.start_date for date in DB.session.query(models.CalendarMarkings).all()
+    ]
+    all_end_dates = [
+        date.end_date for date in DB.session.query(models.CalendarMarkings).all()
+    ]
+    all_notes = [
+        date.calendar_note for date in DB.session.query(models.CalendarMarkings).all()
+    ]
+
     return all_start_dates, all_end_dates, all_notes
+
 
 def update_walk_ins():
     """
@@ -531,16 +539,15 @@ def update_walk_ins():
     )
     absent_appointment_ids = [appointment.id for appointment in absent_appointments]
 
-    absent_checkins_delete = (
-        DB.session.query(models.CheckIn)
-        .filter(models.CheckIn.reservation_id.in_(absent_appointment_ids))
-        .delete(synchronize_session=False)
-    )
+    DB.session.query(models.CheckIn).filter(
+        models.CheckIn.reservation_id.in_(absent_appointment_ids)
+    ).delete(synchronize_session=False)
 
     for appointment in absent_appointments:
         appointment.status = models.AppointmentStatus.FREE.value
 
     DB.session.commit()
+
 
 def mark_date_unavailable(date, reason="No reason specified."):
     """
@@ -561,6 +568,7 @@ def mark_date_unavailable(date, reason="No reason specified."):
         DB.session.add(new_unavailable_date)
     DB.session.commit()
 
+
 def mark_date_available(date):
     """
     Marks a given date available for reservation if it was previously marked
@@ -568,9 +576,7 @@ def mark_date_available(date):
     """
     assert isinstance(date, datetime.date)
     only_date = date.date() if isinstance(date, datetime.datetime) else date
-    existing_unavailable_date = (
-        DB.session.query(models.UnavailableDate)
-        .filter(func.date(models.UnavailableDate.date) == func.date(only_date))
-        .delete(synchronize_session=False)
-    )
+    DB.session.query(models.UnavailableDate).filter(
+        func.date(models.UnavailableDate.date) == func.date(only_date)
+    ).delete(synchronize_session=False)
     DB.session.commit()
