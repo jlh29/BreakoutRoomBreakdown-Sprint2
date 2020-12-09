@@ -299,6 +299,12 @@ input {
     height:max-content;
 }
 
+#librarianOverviewContainer{
+    background-image: url('bg4.png');
+    background-position: center left;
+    background-size: cover;
+}
+
 h3 {
      text-align: center;
      text-decoration: underline;
