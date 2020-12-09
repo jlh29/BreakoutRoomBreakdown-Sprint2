@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
+import LandingPage from './LandingPage';
 import LoginPage from './LoginPage';
 import MyCalendar from './Calendar';
 import ReservationConfirmation from './ReservationConfirmation';
@@ -9,7 +10,6 @@ import RoomReservationAttendeeInput from './RoomReservationAttendeeInput';
 import RoomReservationSubmit from './RoomReservationSubmit';
 import RoomReservationTimeInfo from './RoomReservationTimeInfo';
 import Socket from './Socket';
-import {LandingPage} from './LandingPage';
 
 export default function ReservationOverview(props) {
   const { name } = props;
