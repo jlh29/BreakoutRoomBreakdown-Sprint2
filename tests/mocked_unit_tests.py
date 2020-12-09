@@ -27,6 +27,7 @@ from app import (
     FAILED_LOGIN_CHANNEL,
     PHONE_NUMBER_KEY,
     PROFESSOR_DATE_AVAILABILITY_RANGE,
+    REFRESH_CHANNEL,
     RESERVATION_KEY,
     RESERVATION_RESPONSE_CHANNEL,
     RESERVATION_SUCCESS_KEY,
@@ -1707,6 +1708,45 @@ class AppTestCase(unittest.TestCase):
             },
         ]
 
+        self.send_refresh_to_client_test_cases = [
+            {
+                KEY_INPUT: None,
+                KEY_EXPECTED_TYPE: AssertionError,
+                KEY_CONNECTED_USERS: {
+                    "mock sid": "mock user",
+                },
+                KEY_ARGS: [],
+                KEY_KWARGS: {},
+            },
+            {
+                KEY_INPUT: 123,
+                KEY_EXPECTED_TYPE: AssertionError,
+                KEY_CONNECTED_USERS: {
+                    "mock sid": "mock user",
+                },
+                KEY_ARGS: [],
+                KEY_KWARGS: {},
+            },
+            {
+                KEY_INPUT: "missing sid",
+                KEY_EXPECTED_TYPE: AssertionError,
+                KEY_CONNECTED_USERS: {
+                    "mock sid": "mock user",
+                },
+                KEY_ARGS: [],
+                KEY_KWARGS: {},
+            },
+            {
+                KEY_INPUT: "mock sid",
+                KEY_EXPECTED_TYPE: None,
+                KEY_CONNECTED_USERS: {
+                    "mock sid": "mock user",
+                },
+                KEY_ARGS: [REFRESH_CHANNEL],
+                KEY_KWARGS: {"room": "mock sid"},
+            },
+        ]
+
     @mock.patch("app.flask")
     def test_current_user_role(self, mocked_flask):
         """
@@ -2177,6 +2217,28 @@ class AppTestCase(unittest.TestCase):
                         *test[KEY_MULTIPLE_ARGS]["create_reservation"],
                         **test[KEY_MULTIPLE_KWARGS]["create_reservation"],
                     )
+
+    @mock.patch("app.SOCKET")
+    def test_send_refresh_to_client(self, mocked_socket):
+        """
+        Tests app.send_refresh_to_client
+        """
+        for test in self.send_refresh_to_client_test_cases:
+            mocked_socket.reset_mock()
+            with mock.patch("app.CONNECTED_USERS", test[KEY_CONNECTED_USERS]):
+                if test[KEY_EXPECTED_TYPE] is None:
+                    app.send_refresh_to_client(test[KEY_INPUT])
+                    mocked_socket.emit.assert_called_once_with(
+                        *test[KEY_ARGS],
+                        **test[KEY_KWARGS]
+                    )
+                elif issubclass(test[KEY_EXPECTED_TYPE], Exception):
+                    with self.assertRaises(test[KEY_EXPECTED_TYPE]):
+                        app.send_refresh_to_client(test[KEY_INPUT])
+                    mocked_socket.emit.assert_not_called()
+                else:
+                    self.fail(("Invalid unit test; KEY_EXPECTED_TYPE should be "
+                                "None or an exception type."))
 
 
 if __name__ == "__main__":
