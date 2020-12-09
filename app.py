@@ -336,7 +336,7 @@ def on_reservation_submit(data):
             attendees=data[ATTENDEES_KEY],
             confirmation=reservation_code,
         )
-    
+
     SOCKET.emit(
         RESERVATION_RESPONSE_CHANNEL,
         {

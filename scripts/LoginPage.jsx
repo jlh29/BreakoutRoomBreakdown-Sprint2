@@ -33,7 +33,7 @@ export default function LoginPage() {
 
   return (
     <div id="loginContainer" className="flexColumn">
-      <h1>Webauth Authentication Service</h1>
+      <img id="login-banner" src="./static/login.png"/>
       <GoogleButton />
     </div>
   );

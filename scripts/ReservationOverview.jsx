@@ -135,16 +135,16 @@ export default function ReservationOverview(props) {
   listenToServer();
 
   return (
-    <div id="contentContainer" className="flexColumn"
+    <div id="contentContainer" className="flexColumn">
       <img id="brb-banner" src="./static/banner-red.png"/>
       <p id="welcomeText">
         Welcome <strong>{name}</strong>
       </p>
       <form id="DND" onClick={aboutPage}>
-        <button>About Us</button>
+        <button id="DND-text">About Us</button>
       </form>
       <form id="logoutForm" onClick={logout}>
-        <button>Logout</button>
+        <button id="logout-text">Logout</button>
       </form>
       <MyCalendar
         date={date}

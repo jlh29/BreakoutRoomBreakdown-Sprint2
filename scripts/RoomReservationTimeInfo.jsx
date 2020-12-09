@@ -10,7 +10,6 @@ export default function RoomReservationTimeInfo(props) {
         {' '}
         <span id="reservationTime">{selectedDate ? selectedDate.toLocaleDateString('en-US') : '...'}</span>
       </p>
-      <br />
       <p id="roomReservationTimeInfo">
         at
         {' '}

@@ -63,17 +63,17 @@ export default function MyCalendar(props) {
       }
     }
    
-    if (date.getDay() === 0 || date.getDay() === 6) {
-      disableDate = true;
-    }
+    // if (date.getDay() === 0 || date.getDay() === 6) {
+    //   disableDate = true;
+    // }
 
-    if (date.getUTCDate() < today.getUTCDate()) {
-      disableDate = true;
-    }
+    // if (date.getUTCDate() < today.getUTCDate()) {
+    //   disableDate = true;
+    // }
     
-    if (date.getUTCDate() - today.getUTCDate() > 2) {
-      disableDate = true;
-    }
+    // if (date.getUTCDate() - today.getUTCDate() > 2) {
+    //   disableDate = true;
+    // }
     
     if (view === 'month' && isWithinRanges(date, newDateRange)){
       disableDate = true;
@@ -99,6 +99,7 @@ export default function MyCalendar(props) {
         tileContent={handleContent}
       />
       <div id="timeButtonsContainer">
+        <p id="availableTimesText">Available Times</p>
         {
                     allTimes.map(
                       (time) => (
